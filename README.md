@@ -1,4 +1,4 @@
-`Remember` is a decorator you can place around async functions to have them be cached, locally or in the cloud.
+`rmmbr` gives you a decorator you can place around async functions to have them be cached, locally or in the cloud.
 
 Usage:
 
