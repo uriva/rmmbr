@@ -27,7 +27,7 @@ If you want to persist across devices, there is also a free to use cloud service
 ```js
 const cacher = cloudCache({
   token: "service-token",
-  url: "https://uriva-remember.deno.dev",
+  url: "https://uriva-rmmbr.deno.dev",
 });
 ```
 
