@@ -16,10 +16,14 @@ await build({
     license: "MIT",
     repository: {
       type: "git",
-      url: "git+https://github.com/uriva/portal.git",
+      url: "git+https://github.com/uriva/rmmbr.git",
     },
     bugs: {
-      url: "https://github.com/uriva/portal/issues",
+      url: "https://github.com/uriva/rmmbr/issues",
     },
+  },
+  postBuild() {
+    Deno.copyFileSync("./LICENSE", outDir + "/LICENSE");
+    Deno.copyFileSync("./README.md", outDir + "/README.md");
   },
 });
