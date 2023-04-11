@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "server": "deno run --allow-read --allow-net --allow-env server/src/index.ts",
+    "test": "deno test --allow-write --allow-read --allow-net; rm -r .cache/",
+    "build": "deno run --allow-env --allow-read --allow-write --allow-net --allow-run build_npm.ts"
+  }
+}
