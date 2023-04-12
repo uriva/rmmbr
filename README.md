@@ -34,3 +34,5 @@ const cacher = cloudCache({
 ```
 
 As a free service, it comes with no guarantees, best effort only.
+
+We accept issues for feature requests and SLA requests.

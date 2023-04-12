@@ -72,6 +72,21 @@ const abstractCache =
 
 const key = (x: JSONValue): string => hash(jsonStableStringify(x));
 
+export const memCache =
+  <X extends JSONValue, Y extends JSONValue>({ id }: { id: string }) =>
+  (f: Unary<X, Y>) => {
+    const cache: Record<string, Y> = {};
+    return abstractCache({
+      key,
+      f,
+      read: (key: string) => Promise.resolve(key in cache ? cache[key] : null),
+      write: (key, value) => {
+        cache[key] = value;
+        return Promise.resolve();
+      },
+    });
+  };
+
 export const localCache = <X extends JSONValue, Y extends JSONValue>({
   id,
 }: {

@@ -3,7 +3,7 @@ import { redisGet, redisSet } from "./redis.ts";
 import { load } from "https://deno.land/std@0.182.0/dotenv/mod.ts";
 import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
 
-await load();
+const envVariables = await load();
 serve(
   async (request) => {
     if (request.method === "POST") {
@@ -20,5 +20,5 @@ serve(
     }
     return new Response();
   },
-  { port: parseInt(Deno.env.get("PORT") as string) },
+  { port: parseInt(envVariables.PORT as string) },
 );
