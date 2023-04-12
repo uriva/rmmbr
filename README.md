@@ -35,4 +35,6 @@ const cacher = cloudCache({
 
 As a free service, it comes with no guarantees, best effort only.
 
+There is also a `memCache`, if you are feeling nostalgic 😉 and just want to store stuff in memory.
+
 We accept issues for feature requests and SLA requests.
