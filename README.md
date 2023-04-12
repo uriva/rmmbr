@@ -22,6 +22,8 @@ await fCached(3);
 // nCalled is 1 here
 ```
 
+The local cache stores data in a text file under a `.cache` directory.
+
 If you want to persist across devices, there is also a free to use cloud service:
 
 ```js
