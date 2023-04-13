@@ -10,12 +10,10 @@ serve(
     if (request.method === "POST") {
       const { method, params, id } = await request.json();
       if (method === "get") {
-        console.log(params);
         const { key } = params;
         return new Response((await redisGet(key)) || "null");
       }
       if (method === "set") {
-        console.log(params);
         const { key, value, id } = params;
         await redisSet(key, value);
         return new Response(JSON.stringify({}));
