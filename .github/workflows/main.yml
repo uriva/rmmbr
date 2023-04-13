@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ls
-        working-directory: .
+        working-directory: ${{ github.workspace }}
         run: ls
       # - name: install build
       #   run: pip install build
