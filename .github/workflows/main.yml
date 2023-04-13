@@ -4,16 +4,13 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: install build
         run: pip install build
-      - name: ls
-        run: ls -l
-        working-directory: ${{ github.workspace }}
-      # - name: build
-      #   working-directory: ${{ github.workspace }}
-      #   run: python -m build python
-      # - name: deploy
-      #   uses: pypa/gh-action-pypi-publish@release/v1
-      #   with:
-      #     password: ${{ secrets.PYPI_API_TOKEN }}
-      #     packages-dir: dist
+      - name: build
+        run: python -m build python
+      - name: deploy
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: dist
