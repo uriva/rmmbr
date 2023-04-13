@@ -1,9 +1,12 @@
 from setuptools import setup, find_packages
+from pathlib import Path
 
 setup(
     name="rmmbr",
     version="0.0.1",
     description="Simple persistent caching.",
+    long_description=(Path(__file__).parent.parent / "README.md").read_text(),
+    long_description_content_type="text/markdown",
     url="https://github.com/uriva/rmmbr",
     packages=find_packages(),
     install_requires=[
