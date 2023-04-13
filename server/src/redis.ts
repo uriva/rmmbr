@@ -1,6 +1,7 @@
 import { connect } from "https://deno.land/x/redis@v0.29.2/mod.ts";
 import { load } from "https://deno.land/std@0.182.0/dotenv/mod.ts";
 const envVariables = await load();
+console.log(envVariables);
 
 const redisClient = await connect({
   password: envVariables.REDIS_PASSWORD,
