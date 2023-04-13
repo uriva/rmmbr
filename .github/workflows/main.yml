@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ls
-        working-directory: python
+        working-directory: app
         run: ls
       # - name: install build
       #   run: pip install build
