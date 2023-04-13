@@ -6,7 +6,7 @@ const writeStringToFile = (filePath: string, s: string) =>
     Deno.writeTextFile(filePath, s),
   );
 
-const pathToCache = (name: string) => `.cache/${name}.json`;
+const pathToCache = (name: string) => `.rmmbr/${name}.json`;
 const hash = (x: string): string => {
   const hasher = sha256.create();
   hasher.update(x);

@@ -13,7 +13,7 @@ async def _write_string_to_file(file_path, s):
 
 
 def _path_to_cache(name):
-    return f".cache/{name}.json"
+    return f".rmmbr/{name}.json"
 
 
 def _hash(x):
@@ -93,12 +93,12 @@ async def local_cache(id: str):
 
 async def _post_json(url: str, payload):
     async with httpx.AsyncClient() as client:
-        r = await client.post(
+        response = await client.post(
             url=url,
             json=payload,
             headers={"content_type": "application/json"},
         )
-        return r.json()
+        return response.json()
 
 
 async def _call_api(url: str, method: str, params):

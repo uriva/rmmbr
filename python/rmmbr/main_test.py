@@ -3,7 +3,6 @@ import redis.asyncio as redis
 
 import asyncio
 import dotenv
-import pytest
 import pathlib
 
 
@@ -40,7 +39,7 @@ def _rmdir(directory):
 
 async def test_local_cache():
     await _cache_test_helper(3)(await local_cache("some-id"))
-    _rmdir("./.cache")
+    _rmdir("./.rmmbr")
 
 
 async def test_memory_cache():
@@ -61,7 +60,6 @@ async def _get_client():
     )
 
 
-@pytest.mark.asyncio
 async def test_remote_cache():
     redis_client = await _get_client()
     await redis_client.flushall()
