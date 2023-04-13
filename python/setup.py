@@ -1,11 +1,14 @@
 from setuptools import setup, find_packages
-from pathlib import Path
+import pathlib
+import os
 
+_repo_dir = os.environ.get("github.workspace")
+assert _repo_dir
 setup(
     name="rmmbr",
     version="0.0.1",
     description="Simple persistent caching.",
-    long_description=(Path(__file__).parent.parent / "README.md").read_text(),
+    long_description=(pathlib.Path(_repo_dir) / "README.md").read_text(),
     long_description_content_type="text/markdown",
     url="https://github.com/uriva/rmmbr",
     packages=find_packages(),
