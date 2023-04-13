@@ -6,6 +6,9 @@ jobs:
     steps:
       - name: install build
         run: pip install build
+      - name: ls
+        working-directory: ./
+        run: ls
       - name: build
         working-directory: ./
         run: python -m build python
