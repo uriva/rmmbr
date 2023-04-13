@@ -7,7 +7,7 @@ jobs:
       - name: install build
         run: pip install build
       - name: ls
-        working-directory: ./
+        working-directory: app/rmmbr/rmmbr
         run: ls
       - name: build
         working-directory: ./
