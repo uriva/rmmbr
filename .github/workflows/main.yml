@@ -6,11 +6,14 @@ jobs:
     steps:
       - name: install build
         run: pip install build
-      - name: build
+      - name: ls
+        run: ls -l
         working-directory: ${{ github.workspace }}
-        run: python -m build python
-      - name: deploy
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          packages-dir: ${{ github.workspace }}/dist
+      # - name: build
+      #   working-directory: ${{ github.workspace }}
+      #   run: python -m build python
+      # - name: deploy
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PYPI_API_TOKEN }}
+      #     packages-dir: dist
