@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: install build
         run: pip install build
+      - name: see where we are
+        run: ls
       - name: build
         run: python -m build ./python
       - name: deploy
