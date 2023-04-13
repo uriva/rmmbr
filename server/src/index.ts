@@ -8,14 +8,14 @@ const envVariables = await load();
 serve(
   async (request) => {
     if (request.method === "POST") {
-      const { method, params } = await request.json();
+      const { method, params, id } = await request.json();
       if (method === "get") {
         const { key } = params;
-        return new Response((await redisGet(key)) || "null");
+        return new Response((await redisGet(id + key)) || "null");
       }
       if (method === "set") {
-        const { key, value } = params;
-        await redisSet(key, value);
+        const { key, value, id } = params;
+        await redisSet(id + key, value);
         return new Response(JSON.stringify({}));
       }
     }
