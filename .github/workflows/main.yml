@@ -4,16 +4,16 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-      - name: install build
-        run: pip install build
       - name: ls
-        working-directory: app/rmmbr/rmmbr
+        working-directory: ./python
         run: ls
-      - name: build
-        working-directory: ./
-        run: python -m build python
-      - name: deploy
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          packages-dir: ./python/dist
+      # - name: install build
+      #   run: pip install build
+      # - name: build
+      #   working-directory: ./
+      #   run: python -m build python
+      # - name: deploy
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PYPI_API_TOKEN }}
+      #     packages-dir: ./python/dist
