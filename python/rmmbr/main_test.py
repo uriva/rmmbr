@@ -60,7 +60,7 @@ async def _get_client():
     )
 
 
-async def test_remote_cache():
+async def test_cloud_cache():
     redis_client = await _get_client()
     await redis_client.flushall()
     port = _env_param("PORT")
