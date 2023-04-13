@@ -7,7 +7,7 @@ jobs:
       - name: install build
         run: pip install build
       - name: build
-        run: python -m build python/
+        run: python -m build ./python
       - name: deploy
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
