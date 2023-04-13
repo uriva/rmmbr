@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import pathlib
 import os
 
-_repo_dir = os.environ.get("github.workspace")
+_repo_dir = os.environ.get("GITHUB_WORKSPACE")
 assert _repo_dir
 setup(
     name="rmmbr",
