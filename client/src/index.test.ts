@@ -21,7 +21,7 @@ Deno.test("local cache", () =>
   localCache({ id: "some-id" }).then(testCache(3)),
 );
 
-Deno.test("memory cache", () => testCache(4)(memCache({ id: "some-id" })));
+Deno.test("memory cache", () => testCache(4)(memCache));
 
 Deno.test("remote cache", async () => {
   const { REDIS_PASSWORD, REDIS_URL, REDIS_PORT, PORT } = config();

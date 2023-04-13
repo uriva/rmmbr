@@ -4,6 +4,7 @@ import { load } from "https://deno.land/std@0.182.0/dotenv/mod.ts";
 import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
 
 const envVariables = await load();
+
 serve(
   async (request) => {
     if (request.method === "POST") {
