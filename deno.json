@@ -3,6 +3,6 @@
     "server": "deno run --allow-read --allow-net --allow-env server/src/index.ts",
     "test": "deno test --allow-write --allow-read --allow-net; rm -r .rmmbr/",
     "build": "deno run --allow-env --allow-read --allow-write --allow-net --allow-run build_npm.ts",
-    "deploy": "npm publish dist/; rm -r dist/"
+    "publish": "npm publish dist/; rm -r dist/"
   }
 }
