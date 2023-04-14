@@ -24,7 +24,9 @@ await fCached(3);
 
 The local cache stores data in a text file under a `.rmmbr` directory.
 
-If you want to persist across devices, there is also a free to use cloud service:
+There is also a `memCache`, if you are feeling nostalgic 😉 and just want to store stuff in memory.
+
+If you want to persist across devices, we offer a free to use cloud service:
 
 ```js
 const cacher = cloudCache({
@@ -33,11 +35,9 @@ const cacher = cloudCache({
 });
 ```
 
-As a free service, it comes with no guarantees, best effort only.
+At the moment this service is with no guarantees, but we are working on a production tier as well. Please contact us or post an issue if you want to try it out!
 
-There is also a `memCache`, if you are feeling nostalgic 😉 and just want to store stuff in memory.
-
-We accept issues for feature requests and SLA requests.
+We also accept issues for feature requests 👩‍🔧
 
 ## Python
 
@@ -45,4 +45,4 @@ We accept issues for feature requests and SLA requests.
 pip install rmmbr
 ```
 
-Python largely works the same, with `mem_cache`, `local_cache` and `cloud_cache`.
+The python api mimicks the js one, with exported decorators named `mem_cache`, `local_cache` and `cloud_cache`.
