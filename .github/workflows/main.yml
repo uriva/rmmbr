@@ -1,10 +1,10 @@
 name: pypi
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  pypi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: install build
         run: pip install build
       - name: build
@@ -14,3 +14,16 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: python/dist/
+  npm:
+    runs-on: denoland/deno:ubuntu
+    steps:
+      - uses: actions/checkout@v3
+      - run: deno task build
+      - run: cd dist/
+      - run: ls
+      - uses: actions/setup-node@v3
+        with:
+          registry-url: "https://registry.npmjs.org"
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

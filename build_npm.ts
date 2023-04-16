@@ -11,7 +11,7 @@ await build({
   shims: { deno: true },
   package: {
     name: "rmmbr",
-    version: Deno.args[0],
+    version: "0.0.5",
     description: "Easy caching.",
     license: "MIT",
     repository: {
