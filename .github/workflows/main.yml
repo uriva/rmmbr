@@ -17,8 +17,10 @@ jobs:
           packages-dir: python/dist/
   npm:
     if: "contains(github.event.head_commit.message, 'deploy-npm')"
-    runs-on: denoland/deno:ubuntu
+    runs-on: ubuntu-latest
     steps:
+      - name: Use Deno Version
+        uses: denolib/setup-deno@v2
       - uses: actions/checkout@v3
       - run: deno task build
       - run: cd dist/
