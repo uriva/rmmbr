@@ -19,10 +19,14 @@ jobs:
     if: "contains(github.event.head_commit.message, 'deploy-npm')"
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Use Deno Version
         uses: denolib/setup-deno@v2
-      - uses: actions/checkout@v3
       - run: deno task build
-      - run: npm publish dist/
+      - uses: actions/setup-node@v3
+        with:
+          registry-url: "https://registry.npmjs.org"
+          cache-dependency-path: dist/package-lock.json
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
