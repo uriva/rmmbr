@@ -24,7 +24,8 @@ jobs:
         uses: denolib/setup-deno@v2
       - run: deno task build
       - uses: actions/setup-node@v3
-        registry-url: "https://registry.npmjs.org"
+        with:
+          registry-url: "https://registry.npmjs.org"
       - run: npm publish
         working-directory: dist
         env:
