@@ -18,8 +18,8 @@ deno task server
 
 ### pypi
 
-Modify the version in `setup.py` and push to main.
+Modify the version in `setup.py` and push to main with commit message `deploy-pypi`.
 
 ### npm
 
-Modify the version in `build_npm.ts` and push to main.
+Modify the version in `build_npm.ts` and push to main with commit message `deploy-npm`.
