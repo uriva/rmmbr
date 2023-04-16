@@ -23,11 +23,6 @@ jobs:
         uses: denolib/setup-deno@v2
       - uses: actions/checkout@v3
       - run: deno task build
-      - run: cd dist/
-      - run: ls
-      - uses: actions/setup-node@v3
-        with:
-          registry-url: "https://registry.npmjs.org"
-      - run: npm publish
+      - run: npm publish dist/
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
