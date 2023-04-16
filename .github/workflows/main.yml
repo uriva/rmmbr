@@ -24,9 +24,7 @@ jobs:
         uses: denolib/setup-deno@v2
       - run: deno task build
       - uses: actions/setup-node@v3
-        with:
-          registry-url: "https://registry.npmjs.org"
-          cache-dependency-path: dist/package-lock.json
       - run: npm publish
+        working-directory: ./dist
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
