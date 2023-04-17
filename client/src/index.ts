@@ -47,17 +47,28 @@ type Cache = Record<string, JSONValue>;
 
 const newCache = (): Cache => ({});
 
-const makeLocalReadWrite = (name: string) =>
-  readFileWithDefault(() => serialize(newCache()), pathToCache(name))
-    .then((x) => x.toString())
-    .then(deserialize)
-    .then((cache) => ({
-      read: (key: string) => Promise.resolve(key in cache ? cache[key] : null),
-      write: (key: string, value: JSONValue) => {
-        cache[key] = value;
-        return writeStringToFile(pathToCache(name), serialize(cache));
-      },
-    }));
+const makeLocalReadWrite = (name: string) => {
+  let cache: null | Cache = null;
+  const getCache = () =>
+    cache
+      ? Promise.resolve(cache)
+      : readFileWithDefault(() => serialize(newCache()), pathToCache(name))
+          .then((x) => x.toString())
+          .then(deserialize)
+          .then((newCache) => {
+            cache = newCache;
+            return newCache;
+          });
+  return {
+    read: (key: string) =>
+      getCache().then((cache: Cache) => (key in cache ? cache[key] : null)),
+    write: (key: string, value: JSONValue) => {
+      if (!cache) throw "cache should be initialized here";
+      cache[key] = value;
+      return writeStringToFile(pathToCache(name), serialize(cache));
+    },
+  };
+};
 
 const abstractCache =
   <X, Y>({ key, f, read, write }: AbstractCacheParams<X, Y>): Unary<X, Y> =>
@@ -87,16 +98,10 @@ export const memCache = <X extends JSONValue, Y extends JSONValue>(
   });
 };
 
-export const localCache = <X extends JSONValue, Y extends JSONValue>({
-  id,
-}: {
-  id: string;
-}) =>
-  makeLocalReadWrite(id).then(
-    ({ read, write }) =>
-      (f: Unary<X, Y>) =>
-        abstractCache({ key, f, read, write }),
-  );
+export const localCache =
+  <X extends JSONValue, Y extends JSONValue>({ id }: { id: string }) =>
+  (f: Unary<X, Y>) =>
+    abstractCache({ key, f, ...makeLocalReadWrite(id) });
 
 const callAPI = (url: string, method: string, params: JSONValue) =>
   fetch(url, {

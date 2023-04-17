@@ -17,9 +17,7 @@ const testCache = (n: number) => async (cacher: any) => {
   assertEquals(nCalled, n);
 };
 
-Deno.test("local cache", () =>
-  localCache({ id: "some-id" }).then(testCache(3)),
-);
+Deno.test("local cache", () => testCache(3)(localCache({ id: "some-id" })));
 
 Deno.test("memory cache", () => testCache(4)(memCache));
 

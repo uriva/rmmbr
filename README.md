@@ -9,7 +9,7 @@ npm i rmmbr
 ```js
 import { cloudCache, localCache } from "rmmbr";
 
-const cacher = await localCache({ id: "some-id" });
+const cacher = localCache({ id: "some-id" });
 
 let nCalled = 0;
 const f = (x: number) => {
