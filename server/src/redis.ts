@@ -8,5 +8,5 @@ const redisClient = await connect({
 
 export const redisGet = (key: string) => redisClient.get(key);
 
-export const redisSet = (key: string, value: string) =>
-  redisClient.set(key, JSON.stringify(value));
+export const redisSet = (key: string, value: any) =>
+  redisClient.set(key, JSON.stringify(value), { ex: 7 * 24 * 60 * 60 });
