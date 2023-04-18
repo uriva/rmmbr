@@ -69,25 +69,33 @@ def mem_cache(f):
     return func
 
 
-async def _make_local_read_write(name: str):
+def _make_local_read_write(name: str):
     def default_f():
         return _serialize({})
 
     file_path = _path_to_cache(name)
-    cache = _deserialize(await _read_file_with_default(default_f, file_path))
+    cache = None
+
+    async def get_cache():
+        nonlocal cache
+        if cache:
+            return cache
+        cache = _deserialize(await _read_file_with_default(default_f, file_path))
+        return cache
 
     async def read(key: Key):
-        return cache.get(key, None)
+        return (await get_cache()).get(key, None)
 
     async def write(key: Key, value):
+        cache = await get_cache()
         cache[key] = value
         await _write_string_to_file(file_path, _serialize(cache))
 
     return read, write
 
 
-async def local_cache(id: str):
-    read, write = await _make_local_read_write(id)
+def local_cache(id: str):
+    read, write = _make_local_read_write(id)
     return lambda f: _abstract_cache_params(_key, f, read, write)
 
 

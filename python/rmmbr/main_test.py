@@ -17,9 +17,7 @@ def _cache_test_helper(n):
 
         f_cached = cacher(f)
         await f_cached(3)
-        results = await asyncio.gather(
-            f_cached(3), f_cached(3), f_cached(2), f_cached(1)
-        )
+        results = await asyncio.gather(*map(f_cached, [3, 3, 2, 1]))
         assert results == [3, 3, 2, 1]
         await cacher(f)(3)
         assert n_called == n
@@ -38,7 +36,8 @@ def _rmdir(directory):
 
 
 async def test_local_cache():
-    await _cache_test_helper(3)(await local_cache("some-id"))
+    cacher = local_cache("some-id")
+    await _cache_test_helper(3)(cacher)
     _rmdir("./.rmmbr")
 
 
