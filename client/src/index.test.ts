@@ -4,25 +4,36 @@ import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 import { connect } from "https://deno.land/x/redis@v0.29.2/mod.ts";
 
-const testCache = (n: number) => async (cacher: any) => {
-  let nCalled = 0;
-  const f = (x: number) => {
-    nCalled++;
-    return Promise.resolve(x);
+const sleep = (seconds: number) =>
+  new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+
+const testCache =
+  (instanceSpecificCache: boolean, expiresAfter2Seconds: boolean) =>
+  async (cacher: any) => {
+    let nCalled = 0;
+    const f = (x: number) => {
+      nCalled++;
+      return Promise.resolve(x);
+    };
+    const fCached = cacher(f);
+    await fCached(3);
+    await Promise.all([fCached(3), fCached(3), fCached(2), fCached(1)]);
+    await cacher(f)(3);
+    assertEquals(nCalled, instanceSpecificCache ? 4 : 3);
+    nCalled = 0;
+    await sleep(2);
+    await fCached(3);
+    assertEquals(nCalled, expiresAfter2Seconds ? 1 : 0);
   };
-  const fCached = cacher(f);
-  await fCached(3);
-  await Promise.all([fCached(3), fCached(3), fCached(2), fCached(1)]);
-  await cacher(f)(3);
-  assertEquals(nCalled, n);
-};
 
-Deno.test("local cache", () => testCache(3)(localCache({ id: "some-id" })));
+Deno.test("local cache", () =>
+  testCache(false, false)(localCache({ id: "some-id" })),
+);
 
-Deno.test("memory cache", () => testCache(4)(memCache));
+Deno.test("memory cache", () => testCache(true, false)(memCache));
 
-Deno.test("remote cache", async () => {
-  const { REDIS_PASSWORD, REDIS_URL, REDIS_PORT, PORT } = config();
+const cleanRedis = async () => {
+  const { REDIS_PASSWORD, REDIS_URL, REDIS_PORT } = config();
   const redisClient = await connect({
     password: REDIS_PASSWORD,
     hostname: REDIS_URL,
@@ -30,7 +41,33 @@ Deno.test("remote cache", async () => {
   });
   await redisClient.flushall();
   await redisClient.quit();
-  return testCache(3)(
-    cloudCache({ token: "some-token", url: "http://localhost:" + PORT }),
+};
+
+const mockBackendUrl = "http://localhost:" + config().PORT;
+
+Deno.test("remote cache", async () => {
+  await cleanRedis();
+  return testCache(
+    false,
+    false,
+  )(
+    cloudCache({
+      token: "some-token",
+      url: mockBackendUrl,
+    }),
+  );
+});
+
+Deno.test("remote cache timeout", async () => {
+  await cleanRedis();
+  return testCache(
+    false,
+    true,
+  )(
+    cloudCache({
+      ttl: 1,
+      token: "some-token",
+      url: mockBackendUrl,
+    }),
   );
 });

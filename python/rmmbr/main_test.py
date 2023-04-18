@@ -6,7 +6,7 @@ import dotenv
 import pathlib
 
 
-def _cache_test_helper(n):
+def _cache_test_helper(instance_implies_new_cache: bool, expires_after_2_seconds: bool):
     async def inner(cacher):
         n_called = 0
 
@@ -20,7 +20,11 @@ def _cache_test_helper(n):
         results = await asyncio.gather(*map(f_cached, [3, 3, 2, 1]))
         assert results == [3, 3, 2, 1]
         await cacher(f)(3)
-        assert n_called == n
+        assert n_called == (4 if instance_implies_new_cache else 3)
+        n_called = 0
+        await asyncio.sleep(2)
+        await f_cached(3)
+        assert n_called == (1 if expires_after_2_seconds else 0)
 
     return inner
 
@@ -37,12 +41,12 @@ def _rmdir(directory):
 
 async def test_local_cache():
     cacher = local_cache("some-id")
-    await _cache_test_helper(3)(cacher)
+    await _cache_test_helper(False, False)(cacher)
     _rmdir("./.rmmbr")
 
 
 async def test_memory_cache():
-    await _cache_test_helper(4)(mem_cache)
+    await _cache_test_helper(True, False)(mem_cache)
 
 
 def _env_param(s: str) -> str:
@@ -51,16 +55,28 @@ def _env_param(s: str) -> str:
     return value
 
 
-async def _get_client():
-    return await redis.Redis(
+async def _clean_redis():
+    redis_client = await redis.Redis(
         password=_env_param("REDIS_PASSWORD"),
         host=_env_param("REDIS_URL"),
         port=int(_env_param("REDIS_PORT")),
     )
+    await redis_client.flushall()
+
+
+_port = _env_param("PORT")
+_mock_backend_url = f"http://localhost:{_port}"
 
 
 async def test_cloud_cache():
-    redis_client = await _get_client()
-    await redis_client.flushall()
-    port = _env_param("PORT")
-    await _cache_test_helper(3)(cloud_cache("some-token", f"http://localhost:{port}"))
+    await _clean_redis()
+    await _cache_test_helper(False, False)(
+        cloud_cache("some-token", _mock_backend_url, None)
+    )
+
+
+async def test_cloud_cache_expiration():
+    await _clean_redis()
+    await _cache_test_helper(False, True)(
+        cloud_cache("some-token", _mock_backend_url, 1)
+    )

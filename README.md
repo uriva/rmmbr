@@ -32,6 +32,7 @@ If you want to persist across devices, we offer a free to use cloud service:
 const cacher = cloudCache({
   token: "service-token",
   url: "https://uriva-rmmbr.deno.dev",
+  ttl: 60 * 60 * 24, // Values will expire after one day, omission of this field implies max.
 });
 ```
 

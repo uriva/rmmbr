@@ -1,6 +1,7 @@
 import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
 import jsonStableStringify from "npm:json-stable-stringify";
 import { sha256 } from "npm:js-sha256";
+
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>
     Deno.writeTextFile(filePath, s),
@@ -62,8 +63,8 @@ const makeLocalReadWrite = (name: string) => {
   return {
     read: (key: string) =>
       getCache().then((cache: Cache) => (key in cache ? cache[key] : null)),
-    write: (key: string, value: JSONValue) => {
-      if (!cache) throw "cache should be initialized here";
+    write: async (key: string, value: JSONValue) => {
+      const cache = await getCache();
       cache[key] = value;
       return writeStringToFile(pathToCache(name), serialize(cache));
     },
@@ -110,25 +111,24 @@ const callAPI = (url: string, method: string, params: JSONValue) =>
     body: JSON.stringify({ method, params }),
   }).then((x) => x.json());
 
-const setRemote =
-  (id: string, url: string) => (key: string, value: JSONValue) =>
-    callAPI(url, "set", { id, key, value });
+const setRemote = (params: CloudParams) => (key: string, value: JSONValue) =>
+  callAPI(params.url, "set", { id: params.token, key, value, ...params });
 
-const getRemote = (id: string, url: string) => (key: string) =>
-  callAPI(url, "get", { id, key });
+const getRemote = (token: string, url: string) => (key: string) =>
+  callAPI(url, "get", { id: token, key });
+
+export type CloudParams = {
+  token: string;
+  url: string;
+  ttl?: number;
+};
 
 export const cloudCache =
-  <X extends JSONValue, Y extends JSONValue>({
-    token,
-    url,
-  }: {
-    token: string;
-    url: string;
-  }) =>
+  <X extends JSONValue, Y extends JSONValue>(params: CloudParams) =>
   (f: Unary<X, Y>) =>
     abstractCache({
       key,
       f,
-      read: getRemote(token, url),
-      write: setRemote(token, url),
+      read: getRemote(params.token, params.url),
+      write: setRemote(params),
     });

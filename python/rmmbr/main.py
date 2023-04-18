@@ -1,3 +1,4 @@
+from typing import Optional
 import os
 import json
 import hashlib
@@ -83,10 +84,10 @@ def _make_local_read_write(name: str):
         cache = _deserialize(await _read_file_with_default(default_f, file_path))
         return cache
 
-    async def read(key: Key):
+    async def read(key: _Key):
         return (await get_cache()).get(key, None)
 
-    async def write(key: Key, value):
+    async def write(key: _Key, value):
         cache = await get_cache()
         cache[key] = value
         await _write_string_to_file(file_path, _serialize(cache))
@@ -113,27 +114,30 @@ async def _call_api(url: str, method: str, params):
     return await _post_json(url, {"method": method, "params": params})
 
 
-def _set_remote(id: str, url: str):
+def _set_remote(id: str, url: str, ttl: Optional[int]):
     async def func(key, value):
-        await _call_api(url, "set", {"id": id, "key": key, "value": value})
+        params = {"id": id, "key": key, "value": value}
+        if ttl is not None:
+            params["ttl"] = ttl
+        await _call_api(url, "set", params)
 
     return func
 
 
-Key = str
+_Key = str
 
 
 def _get_remote(id: str, url: str):
-    async def func(key: Key):
+    async def func(key: _Key):
         return await _call_api(url, "get", {"id": id, "key": key})
 
     return func
 
 
-def cloud_cache(token: str, url: str):
+def cloud_cache(token: str, url: str, ttl: Optional[int]):
     def inner_func(f):
         return _abstract_cache_params(
-            _key, f, _get_remote(token, url), _set_remote(token, url)
+            _key, f, _get_remote(token, url), _set_remote(token, url, ttl)
         )
 
     return inner_func
