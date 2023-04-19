@@ -1,3 +1,5 @@
+import { decrypt, encrypt } from "./crypto.ts";
+
 import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
 import jsonStableStringify from "npm:json-stable-stringify";
 import { sha256 } from "npm:js-sha256";
@@ -121,6 +123,7 @@ export type CloudParams = {
   token: string;
   url: string;
   ttl?: number;
+  encryptionKey?: string;
 };
 
 export const cloudCache =
@@ -129,6 +132,22 @@ export const cloudCache =
     abstractCache({
       key,
       f,
-      read: getRemote(params.token, params.url),
-      write: setRemote(params),
+      read: params.encryptionKey
+        ? async (key) => {
+            const value = await getRemote(params.token, params.url)(key);
+            if (value === null) return value;
+            return JSON.parse(
+              await decrypt(params.encryptionKey as string)(value),
+            );
+          }
+        : getRemote(params.token, params.url),
+      write: params.encryptionKey
+        ? async (key, value) =>
+            setRemote(params)(
+              key,
+              await encrypt(params.encryptionKey as string)(
+                jsonStableStringify(value),
+              ),
+            )
+        : setRemote(params),
     });

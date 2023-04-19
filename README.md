@@ -36,6 +36,18 @@ const cacher = cloudCache({
 });
 ```
 
+If your data is sensitive, you can encrypt it by adding an `encryptionKey` parameter:
+
+```js
+const cacher = cloudCache({
+  token: "service-token",
+  url: "https://uriva-rmmbr.deno.dev",
+  encryptionKey: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+});
+```
+
+Note that this is implemented as e2e encryption.
+
 At the moment this service is with no guarantees, but we are working on a production tier as well. Please contact us or post an issue if you want to try it out!
 
 We also accept issues for feature requests 👩‍🔧

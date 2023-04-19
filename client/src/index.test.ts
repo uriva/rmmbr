@@ -16,13 +16,16 @@ const testCache =
       return Promise.resolve(x);
     };
     const fCached = cacher(f);
-    await fCached(3);
-    await Promise.all([fCached(3), fCached(3), fCached(2), fCached(1)]);
-    await cacher(f)(3);
+    assertEquals(await fCached(3), 3);
+    assertEquals(
+      await Promise.all([fCached(3), fCached(3), fCached(2), fCached(1)]),
+      [3, 3, 2, 1],
+    );
+    assertEquals(await cacher(f)(3), 3);
     assertEquals(nCalled, instanceSpecificCache ? 4 : 3);
     nCalled = 0;
     await sleep(2);
-    await fCached(3);
+    assertEquals(await fCached(3), 3);
     assertEquals(nCalled, expiresAfter2Seconds ? 1 : 0);
   };
 
@@ -52,6 +55,20 @@ Deno.test("remote cache", async () => {
     false,
   )(
     cloudCache({
+      token: "some-token",
+      url: mockBackendUrl,
+    }),
+  );
+});
+
+Deno.test("remote cache encryption", async () => {
+  await cleanRedis();
+  return testCache(
+    false,
+    false,
+  )(
+    cloudCache({
+      encryptionKey: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
       token: "some-token",
       url: mockBackendUrl,
     }),
