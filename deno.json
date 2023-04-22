@@ -2,6 +2,7 @@
   "tasks": {
     "server": "export REDIS_PORT=6666; export REDIS_URL=127.0.0.1; export REDIS_PASSWORD=12345; export PORT=8000; deno run --allow-read --allow-net --allow-env server/src/index.ts",
     "test": "deno test --allow-write --allow-read --allow-net; rm -r .rmmbr/",
-    "build": "deno run --allow-env --allow-read --allow-write --allow-net --allow-run build_npm.ts"
+    "build": "deno run --allow-env --allow-read --allow-write --allow-net --allow-run build_npm.ts",
+    "cli": "export RMMBR_SERVER=http://localhost:8000; deno run --allow-all client/src/cli.ts"
   }
 }
