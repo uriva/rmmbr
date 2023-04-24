@@ -43,6 +43,7 @@ const cleanRedis = async () => {
     port: REDIS_PORT,
   });
   await redisClient.flushall();
+  await redisClient.set("api-token:some-token", "testing|my-uid");
   await redisClient.quit();
 };
 

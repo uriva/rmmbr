@@ -15,42 +15,43 @@ const Auth0JKWS = jose.createRemoteJWKSet(
 serve(
   app({
     "/": {
-      POST: async (request) => {
+      POST: authenticated(api_token)(async (request, { uid }) => {
         const { method, params } = await request.json();
         if (method === "get") {
-          const { key, id } = params;
-          return new Response((await redisGet(id + key)) || "null");
+          return new Response(
+            (await redisGet(`${uid}:${params.key}`)) || "null"
+          );
         }
         if (method === "set") {
-          const { key, value, id, ttl } = params;
+          const { key, value, ttl } = params;
           const ttlOrDefault = ttl || oneWeekInSeconds;
           await redisSet(
-            id + key,
+            `${uid}:${key}`,
             value,
             ttlOrDefault > oneWeekInSeconds ? oneWeekInSeconds : ttlOrDefault
           );
           return new Response(JSON.stringify({}));
         }
         return new Response("Unknown method", { status: 400 });
-      },
+      }),
     },
     "/api-token/": {
-      GET: authenticated(auth0)(async (_request, auth) => {
-        const token = await redisClient.get(`user-api-token:${auth.uid}`);
+      GET: authenticated(auth0)(async (_request, { uid }) => {
+        const token = await redisClient.get(`user-api-token:${uid}`);
         if (token == null) {
           return Response404();
         }
         return new Response(token);
       }),
-      POST: authenticated(auth0)(async (_request, auth) => {
-        const old_token = await redisClient.get(`user-api-token:${auth.uid}`);
+      POST: authenticated(auth0)(async (_request, { uid }) => {
+        const old_token = await redisClient.get(`user-api-token:${uid}`);
         if (old_token != null) {
           await redisClient.del(`api-token:${old_token}`);
         }
 
         const token = crypto.randomUUID();
-        await redisClient.set(`user-api-token:${auth.uid}`, token);
-        await redisClient.set(`api-token:${token}`, auth.uid);
+        await redisClient.set(`user-api-token:${uid}`, token);
+        await redisClient.set(`api-token:${token}`, uid);
         return new Response(token);
       }),
     },
@@ -58,8 +59,12 @@ serve(
   { port: parseInt(Deno.env.get("PORT") as string) }
 );
 
+function getBearer(request: Request) {
+  return request.headers.get("Authorization")?.split("Bearer ")[1];
+}
+
 export async function auth0(request: Request) {
-  const jwt = request.headers.get("Authorization")?.split("Bearer ")[1];
+  const jwt = getBearer(request);
   if (!jwt) {
     return null;
   }
@@ -79,5 +84,21 @@ export async function auth0(request: Request) {
     uid,
     payload,
     protectedHeader,
+  };
+}
+
+export async function api_token(request: Request) {
+  const token = getBearer(request);
+  if (token == null) {
+    return null;
+  }
+
+  const uid = await redisClient.get(`api-token:${token}`);
+  if (uid == null) {
+    return null;
+  }
+
+  return {
+    uid,
   };
 }
