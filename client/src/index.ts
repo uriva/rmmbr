@@ -25,7 +25,7 @@ const hash = (x: string): string => {
 //   | { [x: string]: JSONValue }
 //   | Array<JSONValue>;
 
-export type JSONValue = any;
+export type JSONValue = unknown;
 
 const serialize = (x: Cache) => JSON.stringify(Object.entries(x));
 
