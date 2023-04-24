@@ -32,6 +32,32 @@ export const app = (router: Router): Handler => {
       }
       return requestHandler(request, connInfo);
     }
-    return new Response("Not Found", { status: 404 });
+    return Response404();
   };
 };
+
+export const Response401 = () =>
+  new Response("Authentication needed", { status: 401 });
+
+export const Response404 = () => new Response("Not Found", { status: 404 });
+
+type RequestAuthenticator<Auth> = (
+  request: Request
+) => Auth | null | Promise<Auth> | Promise<null>;
+
+export type AuthenticatedHandler<Auth> = (
+  request: Request,
+  auth: NonNullable<Awaited<Auth>>,
+  connInfo: ConnInfo
+) => Response | Promise<Response>;
+
+export const authenticated =
+  <T>(authenticator: RequestAuthenticator<T>) =>
+  (handler: AuthenticatedHandler<T>): Handler =>
+  async (request, conn_info) => {
+    const auth = await authenticator(request);
+    if (auth == null) {
+      return Response401();
+    }
+    return await handler(request, auth, conn_info);
+  };

@@ -12,6 +12,7 @@
     },
     "python.analysis.typeCheckingMode": "basic",
     "cSpell.words": [
+        "JKWS",
         "rmmbr"
     ]
   }
