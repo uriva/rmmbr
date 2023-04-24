@@ -14,6 +14,15 @@ And a local server:
 deno task server
 ```
 
+### Interacting with local redis
+
+Open a REPL that's configured like the local server
+and interact with redis:
+
+```sh
+deno task server-repl
+```
+
 ## Deployment
 
 ### pypi
