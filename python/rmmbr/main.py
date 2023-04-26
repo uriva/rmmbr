@@ -100,26 +100,28 @@ def local_cache(id: str):
     return lambda f: _abstract_cache_params(_key, f, read, write)
 
 
-async def _post_json(url: str, payload):
+async def _call_api(url: str, token: str, method: str, params):
     async with httpx.AsyncClient() as client:
         response = await client.post(
             url=url,
-            json=payload,
-            headers={"content_type": "application/json"},
+            json={
+                "method": method,
+                "params": params,
+            },
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}",
+            },
         )
         return response.json()
 
 
-async def _call_api(url: str, method: str, params):
-    return await _post_json(url, {"method": method, "params": params})
-
-
-def _set_remote(id: str, url: str, ttl: Optional[int]):
+def _set_remote(token: str, url: str, ttl: Optional[int]):
     async def func(key, value):
-        params = {"id": id, "key": key, "value": value}
+        params = {"key": key, "value": value}
         if ttl is not None:
             params["ttl"] = ttl
-        await _call_api(url, "set", params)
+        await _call_api(url, token, "set", params)
 
     return func
 
@@ -127,9 +129,9 @@ def _set_remote(id: str, url: str, ttl: Optional[int]):
 _Key = str
 
 
-def _get_remote(id: str, url: str):
+def _get_remote(token: str, url: str):
     async def func(key: _Key):
-        return await _call_api(url, "get", {"id": id, "key": key})
+        return await _call_api(url, token, "get", {"key": key})
 
     return func
 

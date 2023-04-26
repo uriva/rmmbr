@@ -62,6 +62,7 @@ async def _clean_redis():
         port=int(_env_param("REDIS_PORT")),
     )
     await redis_client.flushall()
+    await redis_client.set("api-token:some-token", "testing|my-uid")
 
 
 _port = _env_param("PORT")
