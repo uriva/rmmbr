@@ -1,9 +1,10 @@
-from rmmbr import cloud_cache, local_cache, mem_cache
+import asyncio
+import pathlib
+
+import dotenv
 import redis.asyncio as redis
 
-import asyncio
-import dotenv
-import pathlib
+from rmmbr import cloud_cache, local_cache, mem_cache
 
 
 def _cache_test_helper(instance_implies_new_cache: bool, expires_after_2_seconds: bool):
@@ -80,4 +81,15 @@ async def test_cloud_cache_expiration():
     await _clean_redis()
     await _cache_test_helper(False, True)(
         cloud_cache("some-token", _mock_backend_url, 1)
+    )
+
+
+async def test_cloud_cache_encryption():
+    await _clean_redis()
+    await _cache_test_helper(False, False)(
+        cloud_cache(
+            "some-token",
+            _mock_backend_url,
+            encryption_key="Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",
+        )
     )

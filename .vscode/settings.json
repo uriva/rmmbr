@@ -12,6 +12,8 @@
     },
     "python.analysis.typeCheckingMode": "basic",
     "cSpell.words": [
+        "encryptor",
+        "Fernet",
         "flushall",
         "hasher",
         "JKWS",

@@ -5,6 +5,7 @@ from typing import Callable, Optional
 import aiofiles
 import httpx
 from aiofiles import os as aiofiles_os
+from rmmbr.crypto import EncryptorFunctionSerializer
 from rmmbr.serialization import FunctionSerializer, Serializable
 
 
@@ -137,8 +138,16 @@ def _get_remote(token: str, url: str, deserialize: Callable[[str], Serializable]
     return func
 
 
-def cloud_cache(token: str, url: str, ttl: Optional[int] = None):
-    serializer = FunctionSerializer()
+def cloud_cache(
+    token: str,
+    url: str,
+    ttl: Optional[int] = None,
+    encryption_key: Optional[str] = None,
+):
+    if encryption_key is not None:
+        serializer = EncryptorFunctionSerializer(encryption_key)
+    else:
+        serializer = FunctionSerializer()
 
     def inner_func(f):
         return _abstract_cache_params(
