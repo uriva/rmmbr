@@ -22,7 +22,9 @@ setup(
         "aiofiles",
         "pytest-asyncio",
     ],
-    entry_points={"console_scripts": ["cache=cache.cli:main"]},
+    entry_points={
+        "console_scripts": ["cache=cache.cli:main", "rmmbr-cli=rmmbr.cli:main"]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
