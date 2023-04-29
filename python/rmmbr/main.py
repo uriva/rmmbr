@@ -136,7 +136,7 @@ def _get_remote(token: str, url: str):
     return func
 
 
-def cloud_cache(token: str, url: str, ttl: Optional[int]):
+def cloud_cache(token: str, url: str, ttl: Optional[int] = None):
     def inner_func(f):
         return _abstract_cache_params(
             _key, f, _get_remote(token, url), _set_remote(token, url, ttl)
