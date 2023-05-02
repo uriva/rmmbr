@@ -1,8 +1,7 @@
 import json
-from hashlib import sha256
-from typing import Dict, List
+from typing import Callable, Dict, List
 
-__all__ = ["Serializable", "FunctionSerializer"]
+__all__ = ["serialize_arguments", "serialize_output", "deserialize_output"]
 
 
 Serializable = (
@@ -16,15 +15,10 @@ Serializable = (
 )
 
 
-class FunctionSerializer:
-    def key_arguments(self, *args, **kwargs) -> str:
-        return sha256(self.serialize_arguments(*args, **kwargs).encode()).hexdigest()
+def serialize_arguments(*args, **kwargs):
+    return json.dumps([args, kwargs], sort_keys=True)
 
-    def serialize_arguments(self, *args: Serializable, **kwargs: Serializable) -> str:
-        return json.dumps([list(args), kwargs], sort_keys=True)
 
-    def serialize_output(self, output: Serializable) -> str:
-        return json.dumps(output)
+serialize_output: Callable[[Serializable], str] = json.dumps
 
-    def deserialize_output(self, data: str) -> Serializable:
-        return json.loads(data)
+deserialize_output: Callable[[str], Serializable] = json.loads

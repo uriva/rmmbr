@@ -1,12 +1,31 @@
+from functools import partial
 import json
 import os
+from hashlib import sha256
 from typing import Callable, Optional
 
 import aiofiles
 import httpx
 from aiofiles import os as aiofiles_os
-from rmmbr.crypto import EncryptorFunctionSerializer
-from rmmbr.serialization import FunctionSerializer, Serializable
+from rmmbr.crypto import (
+    Encryptor,
+    Salt,
+    decrypt,
+    encrypt,
+    encryptor_from_key,
+    privacy_preserving_hash,
+    salt_from_key,
+)
+from rmmbr.serialization import (
+    Serializable,
+    deserialize_output,
+    serialize_arguments,
+    serialize_output,
+)
+
+
+def _key_arguments(*args, **kwargs) -> str:
+    return sha256(serialize_arguments(*args, **kwargs).encode()).hexdigest()
 
 
 async def _write_string_to_file(file_path, s):
@@ -50,10 +69,9 @@ def _abstract_cache_params(key, f, read, write):
 
 def mem_cache(f):
     cache = {}
-    serializer = FunctionSerializer()
 
     async def func(*args, **kwargs):
-        key_result = serializer.key_arguments(*args, **kwargs)
+        key_result = _key_arguments(*args, **kwargs)
         if key_result in cache:
             return cache[key_result]
         y = await f(*args, **kwargs)
@@ -89,11 +107,8 @@ def _make_local_read_write(name: str):
 
 
 def local_cache(id: str):
-    serializer = FunctionSerializer()
     read, write = _make_local_read_write(id)
-    return lambda f: _abstract_cache_params(
-        serializer.key_arguments, f, read, write
-    )
+    return lambda f: _abstract_cache_params(_key_arguments, f, read, write)
 
 
 async def _call_api(url: str, token: str, method: str, params):
@@ -116,8 +131,7 @@ def _set_remote(
     token: str, url: str, ttl: Optional[int], serialize: Callable[[Serializable], str]
 ):
     async def func(key, value):
-        value = serialize(value)
-        params = {"key": key, "value": value}
+        params = {"key": key, "value": serialize(value)}
         if ttl is not None:
             params["ttl"] = ttl
         await _call_api(url, token, "set", params)
@@ -138,6 +152,18 @@ def _get_remote(token: str, url: str, deserialize: Callable[[str], Serializable]
     return func
 
 
+def _private_key_arguments(salt: Salt, *args, **kwargs):
+    return privacy_preserving_hash(salt, serialize_arguments(*args, **kwargs))
+
+
+def _serialize_and_encrypt_output(encryptor: Encryptor, output: Serializable) -> str:
+    return encrypt(encryptor, serialize_output(output))
+
+
+def _decrypt_and_deserialize_output(encryptor: Encryptor, data: str) -> Serializable:
+    return deserialize_output(decrypt(encryptor, data))
+
+
 def cloud_cache(
     token: str,
     url: str,
@@ -145,16 +171,24 @@ def cloud_cache(
     encryption_key: Optional[str] = None,
 ):
     if encryption_key is not None:
-        serializer = EncryptorFunctionSerializer(encryption_key)
+        encryptor = encryptor_from_key(encryption_key)
+        salt = salt_from_key(encryption_key)
+
+        key_arguments_func = partial(_private_key_arguments, salt)
+        serialize_output_func = partial(_serialize_and_encrypt_output, encryptor)
+        deserialize_output_func = partial(_decrypt_and_deserialize_output, encryptor)
+
     else:
-        serializer = FunctionSerializer()
+        key_arguments_func = _key_arguments
+        serialize_output_func = serialize_output
+        deserialize_output_func = deserialize_output
 
     def inner_func(f):
         return _abstract_cache_params(
-            serializer.key_arguments,
+            key_arguments_func,
             f,
-            _get_remote(token, url, serializer.deserialize_output),
-            _set_remote(token, url, ttl, serializer.serialize_output),
+            _get_remote(token, url, deserialize_output_func),
+            _set_remote(token, url, ttl, serialize_output_func),
         )
 
     return inner_func

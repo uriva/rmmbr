@@ -1,33 +1,41 @@
 from hashlib import sha256
 
-from cryptography.fernet import Fernet
-from rmmbr.serialization import FunctionSerializer, Serializable
+from cryptography.fernet import Fernet as Encryptor
 
-__all__ = ["generate_encryption_key", "EncryptorFunctionSerializer"]
+__all__ = [
+    "generate_encryption_key",
+    "encryptor_from_key",
+    "salt_from_key",
+    "privacy_preserving_hash",
+    "encrypt",
+    "decrypt",
+    "Salt",
+    "Encryptor",
+]
+
+
+Salt = bytes
 
 
 def generate_encryption_key() -> str:
-    return Fernet.generate_key().decode()
+    return Encryptor.generate_key().decode()
 
 
-class EncryptorFunctionSerializer(FunctionSerializer):
-    def __init__(self, key: str) -> None:
-        self._encryptor = Fernet(key)
-        self._salt = sha256(key.encode()).hexdigest()
+def encryptor_from_key(key: str) -> Encryptor:
+    return Encryptor(key)
 
-    def serialize_arguments(self, *args: Serializable, **kwargs: Serializable) -> str:
-        return super().serialize_arguments(*args, **kwargs) + self._salt
 
-    def serialize_output(self, output: Serializable) -> str:
-        output_str = super().serialize_output(output)
-        return self._encrypt(output_str)
+def salt_from_key(key: str) -> Salt:
+    return Salt(sha256(key.encode()).digest())
 
-    def deserialize_output(self, data: str) -> Serializable:
-        output_str = self._decrypt(data)
-        return super().deserialize_output(output_str)
 
-    def _encrypt(self, data: str) -> str:
-        return self._encryptor.encrypt(data.encode()).decode()
+def privacy_preserving_hash(salt: Salt, data: str) -> str:
+    return sha256(data.encode() + salt).hexdigest()
 
-    def _decrypt(self, data: str) -> str:
-        return self._encryptor.decrypt(data.encode()).decode()
+
+def encrypt(encryptor: Encryptor, data: str) -> str:
+    return encryptor.encrypt(data.encode()).decode()
+
+
+def decrypt(encryptor: Encryptor, data: str) -> str:
+    return encryptor.decrypt(data.encode()).decode()
