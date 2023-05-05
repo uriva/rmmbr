@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
 import * as jose from "https://deno.land/x/jose@v4.14.1/index.ts";
 
 import { redisGet, redisSet, redisClient } from "./redis.ts";
-import { app, authenticated, Response404 } from "./framework.ts";
+import { app, authenticated, Response404 } from "./webFramework.ts";
 
 const oneWeekInSeconds = 7 * 24 * 60 * 60;
 
