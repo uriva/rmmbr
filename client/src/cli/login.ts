@@ -62,10 +62,10 @@ and confirm to finish the login.
         },
       });
     }
-    if (error == "authorization_pending") {
+    if (error === "authorization_pending") {
       // User hasn't authenticated yet, wait and try again:
       continue;
-    } else if (error == "expired_token") {
+    } else if (error === "expired_token") {
       console.error("Waited too long, try again.");
     } else {
       console.error(

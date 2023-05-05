@@ -34,9 +34,9 @@ if (args.help || args._.length != 1) {
 
 const command = args._[0];
 
-if (command == "login") {
+if (command === "login") {
   await login();
-} else if (command == "api-token") {
+} else if (command === "api-token") {
   await apiToken();
 } else {
   console.error("Not implemented");

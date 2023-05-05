@@ -49,12 +49,12 @@ const getOrCreateApiToken = async (
 ): Promise<Result<string, AccessTokenError>> => {
   const getResponse = await apiTokenRequest(accessToken, "GET");
 
-  if (getResponse.status == 200) {
+  if (getResponse.status === 200) {
     return ok(await getResponse.text());
   }
 
   const createResponse = await apiTokenRequest(accessToken, "POST");
-  return createResponse.status == 200
+  return createResponse.status === 200
     ? ok(await createResponse.text())
     : err('Login expired, run the "login" command again.');
 };
