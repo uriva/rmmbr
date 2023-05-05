@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
 
 import * as jose from "https://deno.land/x/jose@v4.14.1/index.ts";
 
-import { redisGet, redisSet, redisClient } from "./redis.ts";
+import { redisClient } from "./redis.ts";
 import { app, authenticated, Response404 } from "./webFramework.ts";
 
 const oneWeekInSeconds = 7 * 24 * 60 * 60;
@@ -15,43 +15,41 @@ const Auth0JKWS = jose.createRemoteJWKSet(
 serve(
   app({
     "/": {
-      POST: authenticated(api_token)(async (request, { uid }) => {
+      POST: authenticated(verifyApiToken)(async (request, uid) => {
         const { method, params } = await request.json();
         if (method === "get") {
           return new Response(
-            (await redisGet(`${uid}:${params.key}`)) || "null"
+            (await redisClient.get(`${uid}:${params.key}`)) || "null"
           );
         }
         if (method === "set") {
           const { key, value, ttl } = params;
           const ttlOrDefault = ttl || oneWeekInSeconds;
-          await redisSet(
-            `${uid}:${key}`,
-            value,
-            ttlOrDefault > oneWeekInSeconds ? oneWeekInSeconds : ttlOrDefault
-          );
+          await redisClient.set(`${uid}:${key}`, JSON.stringify(value), {
+            ex:
+              ttlOrDefault > oneWeekInSeconds ? oneWeekInSeconds : ttlOrDefault,
+          });
           return new Response(JSON.stringify({}));
         }
         return new Response("Unknown method", { status: 400 });
       }),
     },
     "/api-token/": {
-      GET: authenticated(auth0)(async (_request, { uid }) => {
+      GET: authenticated(verifyAuth0)(async (_request, uid) => {
         const token = await redisClient.get(`user-api-token:${uid}`);
-        if (token == null) {
-          return Response404();
-        }
-        return new Response(token);
+        return token ? new Response(token) : Response404();
       }),
-      POST: authenticated(auth0)(async (_request, { uid }) => {
-        const old_token = await redisClient.get(`user-api-token:${uid}`);
-        if (old_token != null) {
-          await redisClient.del(`api-token:${old_token}`);
+      POST: authenticated(verifyAuth0)(async (_request, uid) => {
+        const oldToken = await redisClient.get(`user-api-token:${uid}`);
+        if (oldToken != null) {
+          await redisClient.del(`api-token:${oldToken}`);
         }
 
         const token = crypto.randomUUID();
-        await redisClient.set(`user-api-token:${uid}`, token);
-        await redisClient.set(`api-token:${token}`, uid);
+        await Promise.all([
+          redisClient.set(`user-api-token:${uid}`, token),
+          redisClient.set(`api-token:${token}`, uid),
+        ]);
         return new Response(token);
       }),
     },
@@ -63,42 +61,21 @@ function getBearer(request: Request) {
   return request.headers.get("Authorization")?.split("Bearer ")[1];
 }
 
-export async function auth0(request: Request) {
+export async function verifyAuth0(request: Request) {
   const jwt = getBearer(request);
   if (!jwt) {
     return null;
   }
 
-  const { payload, protectedHeader } = await jose.jwtVerify(jwt, Auth0JKWS, {
+  const { payload } = await jose.jwtVerify(jwt, Auth0JKWS, {
     issuer: auth0Tenant,
     audience: "rmmbr",
   });
 
-  const uid = payload.sub;
-  if (!uid) {
-    return null;
-  }
-
-  return {
-    jwt,
-    uid,
-    payload,
-    protectedHeader,
-  };
+  return payload.sub;
 }
 
-export async function api_token(request: Request) {
+export function verifyApiToken(request: Request) {
   const token = getBearer(request);
-  if (token == null) {
-    return null;
-  }
-
-  const uid = await redisClient.get(`api-token:${token}`);
-  if (uid == null) {
-    return null;
-  }
-
-  return {
-    uid,
-  };
+  return token && redisClient.get(`api-token:${token}`);
 }
