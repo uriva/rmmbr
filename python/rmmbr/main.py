@@ -167,8 +167,8 @@ def _decrypt_and_deserialize_output(encryptor: Encryptor, data: str) -> Serializ
 def cloud_cache(
     token: str,
     url: str,
-    ttl: Optional[int] = None,
-    encryption_key: Optional[str] = None,
+    ttl: Optional[int],
+    encryption_key: Optional[str],
 ):
     if encryption_key is not None:
         encryptor = encryptor_from_key(encryption_key)

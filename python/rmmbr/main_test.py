@@ -73,14 +73,14 @@ _mock_backend_url = f"http://localhost:{_port}"
 async def test_cloud_cache():
     await _clean_redis()
     await _cache_test_helper(False, False)(
-        cloud_cache("some-token", _mock_backend_url, None)
+        cloud_cache("some-token", _mock_backend_url, None, None)
     )
 
 
 async def test_cloud_cache_expiration():
     await _clean_redis()
     await _cache_test_helper(False, True)(
-        cloud_cache("some-token", _mock_backend_url, 1)
+        cloud_cache("some-token", _mock_backend_url, 1, None)
     )
 
 
@@ -90,6 +90,7 @@ async def test_cloud_cache_encryption():
         cloud_cache(
             "some-token",
             _mock_backend_url,
-            encryption_key="Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",
+            None,
+            "Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",
         )
     )
