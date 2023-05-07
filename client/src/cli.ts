@@ -1,6 +1,5 @@
-import { login } from "./cli/login.ts";
 import { apiToken } from "./cli/apiToken.ts";
-
+import { login } from "./cli/login.ts";
 import { parse } from "https://deno.land/std@0.182.0/flags/mod.ts";
 
 const handleDefault = (value: string): boolean => {
@@ -32,13 +31,12 @@ if (args.help || args._.length != 1) {
   Deno.exit(args.help ? 0 : 1);
 }
 
-const command = args._[0];
-
-if (command === "login") {
-  await login();
-} else if (command === "api-token") {
-  await apiToken();
-} else {
+const commands: Record<string, () => void> = {
+  login,
+  "api-token": apiToken,
+};
+const fallback = () => {
   console.error("Not implemented");
   Deno.exit(1);
-}
+};
+(commands[args._[0]] || fallback)();
