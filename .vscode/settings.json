@@ -1,22 +1,23 @@
 {
-    "deno.lint": true,
-    "deno.enable": true,
-    "deno.unstable": true,
-    "search.exclude": {
-      "deno.lock": true,
-      "dist/**": true
-    },
-    "editor.defaultFormatter": "denoland.vscode-deno",
-    "[python]": {
-      "editor.defaultFormatter": "ms-python.python"
-    },
-    "python.analysis.typeCheckingMode": "basic",
-    "cSpell.words": [
-        "encryptor",
-        "Fernet",
-        "flushall",
-        "hasher",
-        "JKWS",
-        "rmmbr"
-    ]
-  }
+  "deno.lint": true,
+  "deno.enable": true,
+  "deno.unstable": true,
+  "search.exclude": {
+    "deno.lock": true,
+    "dist/**": true
+  },
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "cSpell.words": [
+    "encryptor",
+    "Fernet",
+    "flushall",
+    "hasher",
+    "JKWS",
+    "rmmbr"
+  ],
+  "python.linting.flake8Args": ["--max-line-length=88"]
+}
