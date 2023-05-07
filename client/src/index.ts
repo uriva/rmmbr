@@ -25,7 +25,7 @@ const hash = (x: string): string => {
 //   | { [x: string]: JSONValue }
 //   | Array<JSONValue>;
 
-export type JSONValue = any;
+export type JSONValue = unknown;
 
 const serialize = (x: Cache) => JSON.stringify(Object.entries(x));
 
@@ -106,18 +106,26 @@ export const localCache =
   (f: Unary<X, Y>) =>
     abstractCache({ key, f, ...makeLocalReadWrite(id) });
 
-const callAPI = (url: string, method: string, params: JSONValue) =>
+const callAPI = (
+  url: string,
+  token: string,
+  method: "set" | "get",
+  params: JSONValue
+) =>
   fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ method, params }),
   }).then((x) => x.json());
 
 const setRemote = (params: CloudParams) => (key: string, value: JSONValue) =>
-  callAPI(params.url, "set", { id: params.token, key, value, ...params });
+  callAPI(params.url, params.token, "set", { key, value, ...params });
 
 const getRemote = (token: string, url: string) => (key: string) =>
-  callAPI(url, "get", { id: token, key });
+  callAPI(url, token, "get", { key });
 
 export type CloudParams = {
   token: string;

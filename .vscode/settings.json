@@ -10,6 +10,13 @@
     "[python]": {
       "editor.defaultFormatter": "ms-python.python"
     },
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "cSpell.words": [
+        "encryptor",
+        "Fernet",
+        "flushall",
+        "hasher",
+        "JKWS",
+        "rmmbr"
+    ]
   }
-  
