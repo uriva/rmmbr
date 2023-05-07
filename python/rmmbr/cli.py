@@ -9,20 +9,20 @@ from typing import Literal
 import httpx
 from rmmbr.crypto import generate_encryption_key
 
-RMMBR_DIR = join(expanduser("~"), ".rmmbr")
 
 CLIENT_ID = "ARXipK0k64GivxcX9UVUWMp9g7ywQsqO"
 AUTH0_TENANT = "https://dev-gy4q5ggc5zaobhym.us.auth0.com"
 AUDIENCE = "rmmbr"
 
 
-def get_rmmbr_dir():
-    makedirs(RMMBR_DIR, exist_ok=True)
-    return RMMBR_DIR
+def _get_config_dir():
+    local_dir = join(expanduser("~"), ".rmmbr")
+    makedirs(local_dir, exist_ok=True)
+    return local_dir
 
 
 def get_or_generate_secret_key():
-    secret_file = join(get_rmmbr_dir(), "secret")
+    secret_file = join(_get_config_dir(), "secret")
     if not exists(secret_file):
         secret = generate_encryption_key()
         with open(secret_file, "wt") as f:
@@ -122,15 +122,13 @@ def login():
 
 
 def store_access_token(access_token: str):
-    rmmbr_dir = get_rmmbr_dir()
-    access_token_path = join(rmmbr_dir, "access_token")
+    access_token_path = join(_get_config_dir(), "access_token")
     with open(access_token_path, "wt") as f:
         f.write(access_token)
 
 
 def get_access_token():
-    rmmbr_dir = get_rmmbr_dir()
-    access_token_path = join(rmmbr_dir, "access_token")
+    access_token_path = join(_get_config_dir(), "access_token")
     if not exists(access_token_path):
         return None
 

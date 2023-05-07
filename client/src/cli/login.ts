@@ -1,10 +1,11 @@
-import open from "npm:open@9.1.0";
-import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
 import {
   AccessTokenError,
-  getRmmbrAccessTokenPath,
-} from "./rmmbrAccessToken.ts";
-import { err, ok, Result, Unit } from "./deps.ts";
+  getAccessTokenPath,
+} from "./accessTokenPath.ts";
+import { Result, Unit, err, ok } from "./deps.ts";
+
+import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
+import open from "npm:open@9.1.0";
 
 const clientId = "ARXipK0k64GivxcX9UVUWMp9g7ywQsqO";
 const auth0Tenant = "https://dev-gy4q5ggc5zaobhym.us.auth0.com";
@@ -21,8 +22,8 @@ export const login = async () => {
     }),
   });
 
-  const { device_code, interval, verification_uri_complete } = await response
-    .json();
+  const { device_code, interval, verification_uri_complete } =
+    await response.json();
 
   await open(verification_uri_complete);
 
@@ -79,7 +80,7 @@ and confirm to finish the login.
 export const storeAccessToken = async (
   accessToken: string,
 ): Promise<Result<Unit, AccessTokenError>> => {
-  const accessTokenPath = await getRmmbrAccessTokenPath();
+  const accessTokenPath = await getAccessTokenPath();
   if (accessTokenPath.isErr) {
     return err(accessTokenPath.error);
   }

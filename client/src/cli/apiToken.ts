@@ -1,10 +1,10 @@
 import {
   AccessTokenError,
-  getRmmbrAccessTokenPath,
-} from "./rmmbrAccessToken.ts";
+  getAccessTokenPath,
+} from "./accessTokenPath.ts";
 import { Result, err, ok } from "./deps.ts";
 
-const rmmbrServer = Deno.env.get("RMMBR_SERVER");
+const serverURL = Deno.env.get("RMMBR_SERVER");
 
 export const apiToken = () =>
   getAccessToken()
@@ -28,13 +28,13 @@ export const apiToken = () =>
     );
 
 const apiTokenRequest = (accessToken: string, method: "GET" | "POST") =>
-  fetch(`${rmmbrServer}/api-token/`, {
+  fetch(`${serverURL}/api-token/`, {
     headers: { Authorization: `Bearer ${accessToken}` },
     method,
   });
 
 const getAccessToken = async (): Promise<Result<string, AccessTokenError>> =>
-  (await getRmmbrAccessTokenPath()).match({
+  (await getAccessTokenPath()).match({
     Err: (e) => Promise.resolve(err(e)),
     Ok: async (path) =>
       path.exists
