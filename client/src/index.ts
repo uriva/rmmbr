@@ -110,7 +110,7 @@ const callAPI = (
   url: string,
   token: string,
   method: "set" | "get",
-  params: JSONValue
+  params: JSONValue,
 ) =>
   fetch(url, {
     method: "POST",
