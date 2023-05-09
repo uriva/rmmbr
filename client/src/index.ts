@@ -78,7 +78,7 @@ const abstractCache =
     );
   };
 
-const key =
+const inputToCacheKey =
   (secret: string) =>
   (x: JSONValue): string =>
     hash(jsonStableStringify(x) + secret);
@@ -88,7 +88,7 @@ export const memCache = <X extends JSONValue, Y extends JSONValue>(
 ) => {
   const cache: Record<string, Y> = {};
   return abstractCache({
-    key: key(""),
+    key: inputToCacheKey(""),
     f,
     read: (key: string) => Promise.resolve(key in cache ? cache[key] : null),
     write: (key, value) => {
@@ -101,7 +101,7 @@ export const memCache = <X extends JSONValue, Y extends JSONValue>(
 export const localCache =
   <X extends JSONValue, Y extends JSONValue>({ id }: { id: string }) =>
   (f: Unary<X, Y>) =>
-    abstractCache({ key: key(""), f, ...makeLocalReadWrite(id) });
+    abstractCache({ key: inputToCacheKey(""), f, ...makeLocalReadWrite(id) });
 
 const callAPI = (
   url: string,
@@ -135,7 +135,7 @@ export const cloudCache =
   <X extends JSONValue, Y extends JSONValue>(params: CloudParams) =>
   (f: Unary<X, Y>) =>
     abstractCache({
-      key: key(params.encryptionKey || ""),
+      key: inputToCacheKey(params.encryptionKey || ""),
       f,
       read: params.encryptionKey
         ? async (key) => {
