@@ -166,11 +166,11 @@ def cloud_cache(
     token: str,
     url: str,
     ttl: Optional[int],
-    encryption_key: Optional[bytes],
+    encryption_key: Optional[str],
 ):
     if encryption_key is not None:
-        encryptor = encryptor_from_key(encryption_key)
-        key_arguments_func = partial(_private_key_arguments, encryption_key)
+        encryptor = encryptor_from_key(encryption_key.encode())
+        key_arguments_func = partial(_private_key_arguments, encryption_key.encode())
         serialize_output_func = partial(_serialize_and_encrypt_output, encryptor)
         deserialize_output_func = partial(_decrypt_and_deserialize_output, encryptor)
 
