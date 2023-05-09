@@ -47,8 +47,10 @@ export type AuthenticatedHandler<Auth> = (
 ) => Response | Promise<Response>;
 
 export const authenticated =
-  <T>(authenticator: RequestAuthenticator<T>) =>
-  (handler: AuthenticatedHandler<T>): Handler =>
+  <T>(
+    authenticator: RequestAuthenticator<T>,
+    handler: AuthenticatedHandler<T>,
+  ): Handler =>
   async (request, connInfo) => {
     const auth = await authenticator(request);
     return auth

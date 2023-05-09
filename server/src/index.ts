@@ -25,19 +25,17 @@ const verifyAuth0 = async (request: Request) => {
   if (!jwt) {
     return null;
   }
-
   const { payload } = await jose.jwtVerify(jwt, Auth0JKWS, {
     issuer: auth0Tenant,
     audience: "rmmbr",
   });
-
   return payload.sub;
 };
 
 serve(
   app({
     "/": {
-      POST: authenticated(verifyApiToken)(async (request, uid) => {
+      POST: authenticated(verifyApiToken, async (request, uid) => {
         const { method, params } = await request.json();
         if (method === "get") {
           return new Response(
@@ -57,16 +55,15 @@ serve(
       }),
     },
     "/api-token/": {
-      GET: authenticated(verifyAuth0)(async (_request, uid) => {
+      GET: authenticated(verifyAuth0, async (_, uid) => {
         const token = await redisClient.get(`user-api-token:${uid}`);
         return token ? new Response(token) : Response404();
       }),
-      POST: authenticated(verifyAuth0)(async (_request, uid) => {
+      POST: authenticated(verifyAuth0, async (_, uid) => {
         const oldToken = await redisClient.get(`user-api-token:${uid}`);
-        if (oldToken != null) {
+        if (oldToken) {
           await redisClient.del(`api-token:${oldToken}`);
         }
-
         const token = crypto.randomUUID();
         await Promise.all([
           redisClient.set(`user-api-token:${uid}`, token),
