@@ -143,9 +143,9 @@ export const cloudCache =
       read: params.encryptionKey
         ? async (key) => {
             const value = await getRemote(params.token, params.url)(key);
-            if (value === null) return value;
-            return JSON.parse(
-              await decrypt(params.encryptionKey as string)(value),
+            return (
+              value &&
+              JSON.parse(await decrypt(params.encryptionKey as string)(value))
             );
           }
         : getRemote(params.token, params.url),
