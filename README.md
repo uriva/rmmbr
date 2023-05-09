@@ -6,6 +6,12 @@ Usage:
 npm i rmmbr
 ```
 
+or
+
+```sh
+yarn add rmmbr
+```
+
 ```js
 import { cloudCache, localCache } from "rmmbr";
 
