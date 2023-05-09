@@ -1,8 +1,7 @@
-import { decrypt, encrypt } from "./crypto.ts";
+import { decrypt, encrypt, hash } from "./crypto.ts";
 
 import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
 import jsonStableStringify from "npm:json-stable-stringify";
-import { sha256 } from "npm:js-sha256";
 
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>
@@ -10,11 +9,6 @@ const writeStringToFile = (filePath: string, s: string) =>
   );
 
 const pathToCache = (name: string) => `.rmmbr/${name}.json`;
-const hash = (x: string): string => {
-  const hasher = sha256.create();
-  hasher.update(x);
-  return hasher.hex();
-};
 
 // We would have wanted to do something like that, but can't because of
 // https://github.com/microsoft/TypeScript/issues/1897#issuecomment-1415776159
@@ -84,14 +78,17 @@ const abstractCache =
     );
   };
 
-const key = (x: JSONValue): string => hash(jsonStableStringify(x));
+const key =
+  (secret: string) =>
+  (x: JSONValue): string =>
+    hash(jsonStableStringify(x) + secret);
 
 export const memCache = <X extends JSONValue, Y extends JSONValue>(
   f: Unary<X, Y>,
 ) => {
   const cache: Record<string, Y> = {};
   return abstractCache({
-    key,
+    key: key(""),
     f,
     read: (key: string) => Promise.resolve(key in cache ? cache[key] : null),
     write: (key, value) => {
@@ -104,7 +101,7 @@ export const memCache = <X extends JSONValue, Y extends JSONValue>(
 export const localCache =
   <X extends JSONValue, Y extends JSONValue>({ id }: { id: string }) =>
   (f: Unary<X, Y>) =>
-    abstractCache({ key, f, ...makeLocalReadWrite(id) });
+    abstractCache({ key: key(""), f, ...makeLocalReadWrite(id) });
 
 const callAPI = (
   url: string,
@@ -138,7 +135,7 @@ export const cloudCache =
   <X extends JSONValue, Y extends JSONValue>(params: CloudParams) =>
   (f: Unary<X, Y>) =>
     abstractCache({
-      key,
+      key: key(params.encryptionKey || ""),
       f,
       read: params.encryptionKey
         ? async (key) => {

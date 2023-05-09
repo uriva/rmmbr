@@ -9,12 +9,10 @@ import httpx
 from aiofiles import os as aiofiles_os
 from rmmbr.crypto import (
     Encryptor,
-    Salt,
     decrypt,
     encrypt,
     encryptor_from_key,
     privacy_preserving_hash,
-    salt_from_key,
 )
 from rmmbr.serialization import (
     Serializable,
@@ -152,7 +150,7 @@ def _get_remote(token: str, url: str, deserialize: Callable[[str], Serializable]
     return func
 
 
-def _private_key_arguments(salt: Salt, *args, **kwargs):
+def _private_key_arguments(salt: bytes, *args, **kwargs):
     return privacy_preserving_hash(salt, serialize_arguments(*args, **kwargs))
 
 
@@ -168,13 +166,11 @@ def cloud_cache(
     token: str,
     url: str,
     ttl: Optional[int],
-    encryption_key: Optional[str],
+    encryption_key: Optional[bytes],
 ):
     if encryption_key is not None:
         encryptor = encryptor_from_key(encryption_key)
-        salt = salt_from_key(encryption_key)
-
-        key_arguments_func = partial(_private_key_arguments, salt)
+        key_arguments_func = partial(_private_key_arguments, encryption_key)
         serialize_output_func = partial(_serialize_and_encrypt_output, encryptor)
         deserialize_output_func = partial(_decrypt_and_deserialize_output, encryptor)
 

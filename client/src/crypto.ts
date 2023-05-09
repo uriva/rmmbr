@@ -3,8 +3,16 @@ import {
   hexToBuffer,
 } from "https://deno.land/x/hextools@v1.0.0/mod.ts";
 
+import { sha256 } from "npm:js-sha256";
+
 const getKey = (scope: "encrypt" | "decrypt", key: string) =>
   crypto.subtle.importKey("raw", hexToBuffer(key), "AES-CBC", true, [scope]);
+
+export const hash = (x: string): string => {
+  const hasher = sha256.create();
+  hasher.update(x);
+  return hasher.hex();
+};
 
 export const encrypt =
   (key: string) =>
