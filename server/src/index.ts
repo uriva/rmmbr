@@ -1,16 +1,38 @@
-import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
-
 import * as jose from "https://deno.land/x/jose@v4.14.1/index.ts";
 
+import { Response404, app, authenticated } from "./webFramework.ts";
+
 import { redisClient } from "./redis.ts";
-import { app, authenticated, Response404 } from "./webFramework.ts";
+import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
 
 const oneWeekInSeconds = 7 * 24 * 60 * 60;
 
 const auth0Tenant = "https://dev-gy4q5ggc5zaobhym.us.auth0.com/";
 const Auth0JKWS = jose.createRemoteJWKSet(
-  new URL(`${auth0Tenant}.well-known/jwks.json`)
+  new URL(`${auth0Tenant}.well-known/jwks.json`),
 );
+
+const getBearer = (request: Request) =>
+  request.headers.get("Authorization")?.split("Bearer ")[1];
+
+const verifyApiToken = (request: Request) => {
+  const token = getBearer(request);
+  return token && redisClient.get(`api-token:${token}`);
+};
+
+const verifyAuth0 = async (request: Request) => {
+  const jwt = getBearer(request);
+  if (!jwt) {
+    return null;
+  }
+
+  const { payload } = await jose.jwtVerify(jwt, Auth0JKWS, {
+    issuer: auth0Tenant,
+    audience: "rmmbr",
+  });
+
+  return payload.sub;
+};
 
 serve(
   app({
@@ -19,7 +41,7 @@ serve(
         const { method, params } = await request.json();
         if (method === "get") {
           return new Response(
-            (await redisClient.get(`${uid}:${params.key}`)) || "null"
+            (await redisClient.get(`${uid}:${params.key}`)) || "null",
           );
         }
         if (method === "set") {
@@ -54,28 +76,5 @@ serve(
       }),
     },
   }),
-  { port: parseInt(Deno.env.get("PORT") as string) }
+  { port: parseInt(Deno.env.get("PORT") as string) },
 );
-
-function getBearer(request: Request) {
-  return request.headers.get("Authorization")?.split("Bearer ")[1];
-}
-
-export async function verifyAuth0(request: Request) {
-  const jwt = getBearer(request);
-  if (!jwt) {
-    return null;
-  }
-
-  const { payload } = await jose.jwtVerify(jwt, Auth0JKWS, {
-    issuer: auth0Tenant,
-    audience: "rmmbr",
-  });
-
-  return payload.sub;
-}
-
-export function verifyApiToken(request: Request) {
-  const token = getBearer(request);
-  return token && redisClient.get(`api-token:${token}`);
-}
