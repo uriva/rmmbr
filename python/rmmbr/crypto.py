@@ -26,7 +26,7 @@ def encryptor_from_key(key: str) -> Encryptor:
 
 
 def salt_from_key(key: str) -> Salt:
-    return Salt(sha256(key.encode()).digest())
+    return sha256(key.encode()).digest()
 
 
 def privacy_preserving_hash(salt: Salt, data: str) -> str:
