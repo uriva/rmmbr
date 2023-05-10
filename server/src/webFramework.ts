@@ -35,16 +35,18 @@ export const app = (router: Router): Handler =>
   );
 
 export const Response404 = () => new Response("Not Found", { status: 404 });
+const badAuth = new Response("Authentication needed", { status: 401 });
 
-type RequestAuthenticator<Auth> = (
-  request: Request,
-) => Auth | null | Promise<Auth | null>;
+type RequestAuthenticator<T> = (token: string) => T | null | Promise<T | null>;
 
-export type AuthenticatedHandler<Auth> = (
+export type AuthenticatedHandler<T> = (
   request: Request,
-  auth: NonNullable<Awaited<Auth>>,
+  auth: NonNullable<Awaited<T>>,
   connInfo: ConnInfo,
 ) => Response | Promise<Response>;
+
+const getBearer = (request: Request) =>
+  request.headers.get("Authorization")?.split("Bearer ")[1];
 
 export const authenticated =
   <T>(
@@ -52,8 +54,8 @@ export const authenticated =
     handler: AuthenticatedHandler<T>,
   ): Handler =>
   async (request, connInfo) => {
-    const auth = await authenticator(request);
-    return auth
-      ? await handler(request, auth, connInfo)
-      : new Response("Authentication needed", { status: 401 });
+    const token = getBearer(request);
+    if (!token) return badAuth;
+    const auth = await authenticator(token);
+    return auth ? await handler(request, auth, connInfo) : badAuth;
   };
