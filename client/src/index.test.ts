@@ -57,6 +57,7 @@ Deno.test("remote cache", async () => {
   )(
     cloudCache({
       token: "some-token",
+      cacheId: "some name for the cache",
       url: mockBackendUrl,
     }),
   );
@@ -69,9 +70,10 @@ Deno.test("remote cache encryption", async () => {
     false,
   )(
     cloudCache({
-      encryptionKey: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-      token: "some-token",
       url: mockBackendUrl,
+      token: "some-token",
+      cacheId: "some name for the cache",
+      encryptionKey: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     }),
   );
 });
@@ -83,9 +85,10 @@ Deno.test("remote cache timeout", async () => {
     true,
   )(
     cloudCache({
-      ttl: 1,
-      token: "some-token",
       url: mockBackendUrl,
+      token: "some-token",
+      cacheId: "some name for the cache",
+      ttl: 1,
     }),
   );
 });
