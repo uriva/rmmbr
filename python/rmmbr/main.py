@@ -126,10 +126,14 @@ async def _call_api(url: str, token: str, method: str, params):
 
 
 def _set_remote(
-    token: str, url: str, ttl: Optional[int], serialize: Callable[[Serializable], str]
+    url: str,
+    token: str,
+    cache_id: str,
+    ttl: Optional[int],
+    serialize: Callable[[Serializable], str],
 ):
     async def func(key, value):
-        params = {"key": key, "value": serialize(value)}
+        params = {"key": key, "value": serialize(value), "cacheId": cache_id}
         if ttl is not None:
             params["ttl"] = ttl
         await _call_api(url, token, "set", params)
@@ -140,9 +144,11 @@ def _set_remote(
 _Key = str
 
 
-def _get_remote(token: str, url: str, deserialize: Callable[[str], Serializable]):
+def _get_remote(
+    url: str, token: str, cache_id: str, deserialize: Callable[[str], Serializable]
+):
     async def func(key: _Key):
-        value = await _call_api(url, token, "get", {"key": key})
+        value = await _call_api(url, token, "get", {"key": key, "cacheId": cache_id})
         if value is not None:
             value = deserialize(value)
         return value
@@ -163,8 +169,9 @@ def _decrypt_and_deserialize_output(encryptor: Encryptor, data: str) -> Serializ
 
 
 def cloud_cache(
-    token: str,
     url: str,
+    token: str,
+    cache_id: str,
     ttl: Optional[int],
     encryption_key: Optional[str],
 ):
@@ -183,8 +190,8 @@ def cloud_cache(
         return _abstract_cache_params(
             key_arguments_func,
             f,
-            _get_remote(token, url, deserialize_output_func),
-            _set_remote(token, url, ttl, serialize_output_func),
+            _get_remote(url, token, cache_id, deserialize_output_func),
+            _set_remote(url, token, cache_id, ttl, serialize_output_func),
         )
 
     return inner_func

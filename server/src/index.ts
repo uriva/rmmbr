@@ -28,18 +28,25 @@ serve(
       POST: authenticated(verifyApiToken, async (request, uid) => {
         const { method, params } = await request.json();
         if (method === "get") {
+          const { cacheId, key } = params;
           return new Response(
-            (await redisClient.get(`${uid}:${params.key}`)) ||
+            (await redisClient.get(`${uid}:${cacheId}:${key}`)) ||
               JSON.stringify(null),
           );
         }
         if (method === "set") {
-          const { key, value, ttl } = params;
+          const { cacheId, key, value, ttl } = params;
           const ttlOrDefault = ttl || oneWeekInSeconds;
-          await redisClient.set(`${uid}:${key}`, JSON.stringify(value), {
-            ex:
-              ttlOrDefault > oneWeekInSeconds ? oneWeekInSeconds : ttlOrDefault,
-          });
+          await redisClient.set(
+            `${uid}:${cacheId}:${key}`,
+            JSON.stringify(value),
+            {
+              ex:
+                ttlOrDefault > oneWeekInSeconds
+                  ? oneWeekInSeconds
+                  : ttlOrDefault,
+            },
+          );
           return new Response(JSON.stringify({}));
         }
         return new Response("Unknown method", { status: 400 });

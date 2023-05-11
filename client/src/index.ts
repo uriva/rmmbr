@@ -118,14 +118,19 @@ const callAPI = (
     body: JSON.stringify({ method, params }),
   }).then((x) => x.json());
 
-const setRemote = (params: CloudParams) => (key: string, value: JSONValue) =>
-  callAPI(params.url, params.token, "set", { key, value, ...params });
+const setRemote =
+  ({ cacheId, url, token, ttl }: CloudParams) =>
+  (key: string, value: JSONValue) =>
+    callAPI(url, token, "set", { key, value, ttl, cacheId });
 
-const getRemote = (token: string, url: string) => (key: string) =>
-  callAPI(url, token, "get", { key });
+const getRemote =
+  ({ url, token, cacheId }: CloudParams) =>
+  (key: string) =>
+    callAPI(url, token, "get", { key, cacheId });
 
 export type CloudParams = {
   token: string;
+  cacheId: string;
   url: string;
   ttl?: number;
   encryptionKey?: string;
@@ -139,13 +144,13 @@ export const cloudCache =
       f,
       read: params.encryptionKey
         ? async (key) => {
-            const value = await getRemote(params.token, params.url)(key);
+            const value = await getRemote(params)(key);
             return (
               value &&
               JSON.parse(await decrypt(params.encryptionKey as string)(value))
             );
           }
-        : getRemote(params.token, params.url),
+        : getRemote(params),
       write: params.encryptionKey
         ? async (key, value) =>
             setRemote(params)(
