@@ -1,5 +1,5 @@
-import { apiToken } from "./cli/apiToken.ts";
-import { login } from "./cli/login.ts";
+import { apiToken } from "./apiToken.ts";
+import { login } from "./login.ts";
 import { parse } from "https://deno.land/std@0.182.0/flags/mod.ts";
 
 const handleDefault = (value: string): boolean => {
