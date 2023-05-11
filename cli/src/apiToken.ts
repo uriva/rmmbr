@@ -1,7 +1,4 @@
-import {
-  AccessTokenError,
-  getAccessTokenPath,
-} from "./accessTokenPath.ts";
+import { AccessTokenError, getAccessTokenPath } from "./accessTokenPath.ts";
 import { Result, err, ok } from "./deps.ts";
 
 const serverURL = Deno.env.get("RMMBR_SERVER");
@@ -16,7 +13,7 @@ export const apiToken = () =>
     )
     .then((r) =>
       r.match({
-        Ok: (value: string) => {
+        Ok: (value) => {
           console.log(value);
           Deno.exit(0);
         },
