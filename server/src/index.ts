@@ -22,9 +22,11 @@ const verifyAuth0 = (token: string): Promise<string> =>
     audience: "rmmbr",
   }).then((x) => x.payload.sub || "");
 
+const joinColon = (prefix: string) => (suffix: string) => prefix + ":" + suffix;
+
 const redisKey = {
-  userToApiToken: (uid: string) => `user-api-token:${uid}`,
-  apiTokenToUser: (token: string) => `api-token:${token}`,
+  userToApiToken: joinColon("user-api-token"),
+  apiTokenToUser: joinColon("api-token"),
 };
 
 serve(
