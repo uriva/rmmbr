@@ -6,14 +6,13 @@ const handleDefault = (value: string): boolean => {
   if (["login", "api-token", "secret"].includes(value)) {
     return true;
   }
+  console.log(`${value} is not a valid command.`);
   help();
   Deno.exit(1);
 };
 
 const help = () => {
-  console.log(`cli [--help]
-
-Commands:
+  console.log(`Commands:
 
   login         Authenticate the CLI
   api-token     Get or generate an api-token
