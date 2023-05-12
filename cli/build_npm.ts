@@ -11,7 +11,7 @@ await build({
   shims: { deno: true },
   package: {
     name: "rmmbr-cli",
-    version: "0.0.2",
+    version: "0.0.3",
     description: "Easy caching.",
     license: "MIT",
     repository: {
@@ -22,7 +22,7 @@ await build({
       url: "https://github.com/uriva/rmmbr/issues",
     },
     bin: {
-      "rmmbr-cli": "src/index.js",
+      "rmmbr-cli": "src/index.ts",
     },
   },
   postBuild() {
