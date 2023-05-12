@@ -28,6 +28,13 @@ There is also a `memCache`, if you are feeling nostalgic 😉 and just want to s
 
 If you want to persist across devices, we offer a use cloud service, it is free to use up to a quota:
 
+Install the rmmbr CLI tool:
+
+`source <(curl -s https://raw.githubusercontent.com/uriva/rmmbr/main/cli/install.sh)`
+
+Restart your terminal and run: `rmmbr login`.
+Produce a usage token: `rmmbr api-token`.
+
 ```js
 const cacher = cloudCache({
   token: "service-token",
@@ -38,6 +45,10 @@ const cacher = cloudCache({
 ```
 
 If your data is sensitive, you can encrypt it by adding an `encryptionKey` parameter:
+
+Produce a secret for e2e encryption:
+
+Produce a secret via the cli: `rmmbr secret`.
 
 ```js
 const cacher = cloudCache({
