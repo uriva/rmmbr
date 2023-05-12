@@ -22,6 +22,11 @@ const verifyAuth0 = (token: string): Promise<string> =>
     audience: "rmmbr",
   }).then((x) => x.payload.sub || "");
 
+const redisKey = {
+  userToApiToken: (uid: string) => `user-api-token:${uid}`,
+  apiTokenToUser: (token: string) => `api-token:${token}`,
+};
+
 serve(
   app({
     "/": {
@@ -54,20 +59,19 @@ serve(
     },
     "/api-token/": {
       GET: authenticated(verifyAuth0, async (_, uid) => {
-        const token = await redisClient.get(`user-api-token:${uid}`);
+        const token = await redisClient.get(redisKey.userToApiToken(uid));
         return token ? new Response(token) : Response404();
       }),
       POST: authenticated(verifyAuth0, async (_, uid) => {
-        const oldToken = await redisClient.get(`user-api-token:${uid}`);
+        const oldToken = await redisClient.get(redisKey.userToApiToken(uid));
         if (oldToken) {
-          await redisClient.del(`api-token:${oldToken}`);
+          await redisClient.del(redisKey.apiTokenToUser(oldToken));
         }
         const token = crypto.randomUUID();
-        await Promise.all([
-          redisClient.set(`user-api-token:${uid}`, token),
-          redisClient.set(`api-token:${token}`, uid),
-        ]);
-        return new Response(token);
+        return Promise.all([
+          redisClient.set(redisKey.userToApiToken(uid), token),
+          redisClient.set(redisKey.apiTokenToUser(token), uid),
+        ]).then(() => new Response(token));
       }),
     },
   }),
