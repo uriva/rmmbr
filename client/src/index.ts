@@ -5,7 +5,7 @@ import jsonStableStringify from "npm:json-stable-stringify";
 
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>
-    Deno.writeTextFile(filePath, s),
+    Deno.writeTextFile(filePath, s)
   );
 
 const pathToCache = (name: string) => `.rmmbr/${name}.json`;
@@ -28,14 +28,16 @@ const readFileWithDefault = <T>(defaultF: () => T, filePath: string) =>
 
 const deserialize = (str: string): Cache =>
   Object.fromEntries(
-    JSON.parse(str).map(([k, v]: [string, JSONValue]) => [k, v]),
+    JSON.parse(str).map(([k, v]: [string, JSONValue]) => [k, v])
   );
 
-export type Unary<X, Y> = (x: X) => Promise<Y>;
+type JSONArr = readonly JSONValue[];
 
-type AbstractCacheParams<X, Y> = {
-  key: (x: X) => string;
-  f: Unary<X, Y>;
+export type Func<X extends JSONArr, Y> = (...x: X) => Promise<Y>;
+
+type AbstractCacheParams<X extends JSONArr, Y> = {
+  key: (...x: X) => string;
+  f: Func<X, Y>;
   read: (key: string) => Promise<Y | null>;
   write: (key: string, value: Y) => Promise<void>;
 };
@@ -68,23 +70,28 @@ const makeLocalReadWrite = (name: string) => {
 };
 
 const abstractCache =
-  <X, Y>({ key, f, read, write }: AbstractCacheParams<X, Y>): Unary<X, Y> =>
-  (x: X) => {
-    const keyResult = key(x);
+  <X extends JSONArr, Y>({
+    key,
+    f,
+    read,
+    write,
+  }: AbstractCacheParams<X, Y>): Func<X, Y> =>
+  (...x: X) => {
+    const keyResult = key(...x);
     return read(keyResult).then((value: Y | null) =>
       value !== null
         ? value
-        : f(x).then((y) => write(keyResult, y).then(() => y)),
+        : f(...x).then((y) => write(keyResult, y).then(() => y))
     );
   };
 
 const inputToCacheKey =
   (secret: string) =>
-  (x: JSONValue): string =>
+  (...x: JSONArr): string =>
     hash(jsonStableStringify(x) + secret);
 
-export const memCache = <X extends JSONValue, Y extends JSONValue>(
-  f: Unary<X, Y>,
+export const memCache = <X extends JSONArr, Y extends JSONValue>(
+  f: Func<X, Y>
 ) => {
   const cache: Record<string, Y> = {};
   return abstractCache({
@@ -99,15 +106,15 @@ export const memCache = <X extends JSONValue, Y extends JSONValue>(
 };
 
 export const localCache =
-  <X extends JSONValue, Y extends JSONValue>({ id }: { id: string }) =>
-  (f: Unary<X, Y>) =>
+  <X extends JSONArr, Y extends JSONValue>({ id }: { id: string }) =>
+  (f: Func<X, Y>) =>
     abstractCache({ key: inputToCacheKey(""), f, ...makeLocalReadWrite(id) });
 
 const callAPI = (
   url: string,
   token: string,
   method: "set" | "get",
-  params: JSONValue,
+  params: JSONValue
 ) =>
   fetch(url, {
     method: "POST",
@@ -137,8 +144,8 @@ export type CloudParams = {
 };
 
 export const cloudCache =
-  <X extends JSONValue, Y extends JSONValue>(params: CloudParams) =>
-  (f: Unary<X, Y>) =>
+  <X extends JSONArr, Y extends JSONValue>(params: CloudParams) =>
+  (f: Func<X, Y>) =>
     abstractCache({
       key: inputToCacheKey(params.encryptionKey || ""),
       f,
@@ -156,8 +163,8 @@ export const cloudCache =
             setRemote(params)(
               key,
               await encrypt(params.encryptionKey as string)(
-                jsonStableStringify(value),
-              ),
+                jsonStableStringify(value)
+              )
             )
         : setRemote(params),
     });
