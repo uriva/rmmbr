@@ -1,5 +1,7 @@
 # rmmbr
 
+![rmmbr](https://media.tenor.com/NcnMXggTODAAAAAC/yeah-i-member-memberberries.gif)
+
 `rmmbr` is the simplest way to cache your async functions, locally or in the cloud.
 
 ## Usage
