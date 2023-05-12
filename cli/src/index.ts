@@ -25,17 +25,23 @@ const args = parse(Deno.args, {
   unknown: handleDefault,
 });
 
-if (args.help || args._.length != 1) {
+if (args.help) {
   help();
-  Deno.exit(args.help ? 0 : 1);
+  Deno.exit(0);
 }
 
+if (!args._.length) {
+  console.error("No command given.");
+  help();
+  Deno.exit(1);
+}
+const command = args._[0];
 const commands: Record<string, () => void> = {
   login,
   "api-token": apiToken,
 };
 const fallback = () => {
-  console.error("Not implemented");
+  console.error(`Unrecognized command: ${command}`);
   Deno.exit(1);
 };
-(commands[args._[0]] || fallback)();
+(commands[command] || fallback)();
