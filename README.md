@@ -1,4 +1,4 @@
-`rmmbr` gives you a decorator you can place around async functions to have them be cached, locally or in the cloud.
+`rmmbr` is the simplest way to cache your async functions, locally or in the cloud.
 
 Usage:
 
@@ -9,7 +9,7 @@ npm i rmmbr
 ```js
 import { cloudCache, localCache } from "rmmbr";
 
-const cacher = localCache({ id: "some-id" });
+const cacher = localCache({ id: "name of cache for my function" });
 
 let nCalled = 0;
 const f = (x: number) => {
@@ -26,14 +26,20 @@ The local cache stores data in a text file under a `.rmmbr` directory.
 
 There is also a `memCache`, if you are feeling nostalgic 😉 and just want to store stuff in memory.
 
-If you want to persist across devices, we offer a use cloud service, it is free to use up to a quota:
+To persist the cache across devices, we offer a use cloud service, which is free to use up to a quota.
 
-Install the rmmbr CLI tool:
+To use it, you can install the CLI tool:
 
 `source <(curl -s https://raw.githubusercontent.com/uriva/rmmbr/main/cli/install.sh)`
 
-Restart your terminal and run: `rmmbr login`.
-Produce a usage token: `rmmbr api-token`.
+Then
+
+```sh
+rmmbr login
+rmmbr api-token
+```
+
+You can then use your token with the API as follows:
 
 ```js
 const cacher = cloudCache({
@@ -44,11 +50,15 @@ const cacher = cloudCache({
 });
 ```
 
-If your data is sensitive, you can encrypt it by adding an `encryptionKey` parameter:
+If your data is sensitive, you can e2e encrypt it by adding an `encryptionKey` parameter.
 
-Produce a secret for e2e encryption:
+To produce an encryption key:
 
-Produce a secret via the cli: `rmmbr secret`.
+```sh
+rmmbr secret
+```
+
+Then use it like so:
 
 ```js
 const cacher = cloudCache({
@@ -58,12 +68,6 @@ const cacher = cloudCache({
   encryptionKey: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
 });
 ```
-
-Note that this is implemented as e2e encryption.
-
-At the moment this service is with no guarantees, but we are working on a production tier as well. Please contact us or post an issue if you want to try it out!
-
-We also accept issues for feature requests 👩‍🔧
 
 ## Python
 
