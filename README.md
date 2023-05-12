@@ -1,6 +1,8 @@
+# rmmbr
+
 `rmmbr` is the simplest way to cache your async functions, locally or in the cloud.
 
-Usage:
+## Usage
 
 ```sh
 npm i rmmbr
@@ -26,6 +28,8 @@ The local cache stores data in a text file under a `.rmmbr` directory.
 
 There is also a `memCache`, if you are feeling nostalgic 😉 and just want to store stuff in memory.
 
+## Cross device caching
+
 To persist the cache across devices, we offer a use cloud service, which is free to use up to a quota.
 
 To use it, you can install the CLI tool:
@@ -39,7 +43,7 @@ rmmbr login
 rmmbr api-token
 ```
 
-You can then use your token with the API as follows:
+Use your token with the API as follows:
 
 ```js
 const cacher = cloudCache({
@@ -49,6 +53,8 @@ const cacher = cloudCache({
   ttl: 60 * 60 * 24, // Values will expire after one day, omission of this field implies max.
 });
 ```
+
+### End to end encryption
 
 If your data is sensitive, you can e2e encrypt it by adding an `encryptionKey` parameter.
 
