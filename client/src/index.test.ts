@@ -29,9 +29,22 @@ const testCache =
     assertEquals(nCalled, expiresAfter2Seconds ? 1 : 0);
   };
 
+const testVariadic = async (cacher: any) => {
+  const f2 = (x: number, y: string) => {
+    return Promise.resolve(x.toString() + y);
+  };
+  const f3 = (x: number, y: string, z: boolean) => {
+    return Promise.resolve(x.toString().concat(y, z ? "✅" : "❌"));
+  };
+
+  const f2Cached = cacher(f2);
+  const f3Cached = cacher(f3);
+  assertEquals(await f2Cached(2, " params"), "2 params");
+  assertEquals(await f3Cached(3, " params ", true), "3 params ✅");
+};
+
 Deno.test("local cache", () =>
-  testCache(false, false)(localCache({ id: "some-id" })),
-);
+  testCache(false, false)(localCache({ id: "some-id" })));
 
 Deno.test("memory cache", () => testCache(true, false)(memCache));
 
@@ -89,6 +102,22 @@ Deno.test("remote cache timeout", async () => {
       token: "some-token",
       cacheId: "some name for the cache",
       ttl: 1,
+    }),
+  );
+});
+
+Deno.test("local variadic cache", () =>
+  testVariadic(localCache({ id: "some-id" })));
+
+Deno.test("memory variadic cache", () => testVariadic(memCache));
+
+Deno.test("remote variadic cache", async () => {
+  await cleanRedis();
+  return testVariadic(
+    cloudCache({
+      token: "some-token",
+      cacheId: "some name for the cache",
+      url: mockBackendUrl,
     }),
   );
 });
