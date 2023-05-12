@@ -22,5 +22,8 @@
   "python.linting.flake8Args": ["--max-line-length=88"],
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

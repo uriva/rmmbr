@@ -31,4 +31,8 @@ Modify the version in `setup.py` and push to main with commit message `deploy-py
 
 ### npm
 
-Modify the version in `build_npm.ts` and push to main with commit message `deploy-npm`.
+Modify the version in `client/build_npm.ts` and push to main with commit message `deploy-npm`.
+
+### cli
+
+Modify the version in `cli/build_npm.ts` and push to main with commit message `deploy-cli`.
