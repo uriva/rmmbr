@@ -18,6 +18,7 @@ const help = () => {
   login         Authenticate the CLI
   api-token     Get or generate an api-token
   secret        Generate a secret key
+  update        Update the CLI
 `);
 };
 
