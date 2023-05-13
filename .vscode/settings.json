@@ -8,7 +8,7 @@
   },
   "editor.defaultFormatter": "denoland.vscode-deno",
   "[python]": {
-    "editor.defaultFormatter": "ms-python.python"
+    "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "python.analysis.typeCheckingMode": "basic",
   "cSpell.words": [
@@ -25,5 +25,6 @@
   },
   "[github-actions-workflow]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "python.formatting.provider": "none"
 }

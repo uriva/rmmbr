@@ -1,8 +1,6 @@
 import json
 from typing import Callable, Dict, List
 
-__all__ = ["serialize_arguments", "serialize_output", "deserialize_output"]
-
 
 Serializable = (
     str
@@ -16,7 +14,7 @@ Serializable = (
 
 
 def serialize_arguments(*args, **kwargs):
-    return json.dumps([args, kwargs], sort_keys=True)
+    return json.dumps([args, kwargs], separators=(",", ":"), sort_keys=True)
 
 
 serialize_output: Callable[[Serializable], str] = json.dumps
