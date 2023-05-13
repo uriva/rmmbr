@@ -5,8 +5,10 @@ import {
 
 import { sha256 } from "npm:js-sha256";
 
+const algo = "AES-CBC";
+
 const getKey = (scope: "encrypt" | "decrypt", key: string) =>
-  crypto.subtle.importKey("raw", hexToBuffer(key), "AES-CBC", true, [scope]);
+  crypto.subtle.importKey("raw", hexToBuffer(key), algo, true, [scope]);
 
 export const hash = (x: string): string => {
   const hasher = sha256.create();
@@ -22,7 +24,7 @@ export const encrypt =
       cipher: bufferToHex(
         new Uint8Array(
           await crypto.subtle.encrypt(
-            { name: "AES-CBC", iv },
+            { name: algo, iv },
             await getKey("encrypt", key),
             new TextEncoder().encode(plainText),
           ),

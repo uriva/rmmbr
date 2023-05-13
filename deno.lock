@@ -233,6 +233,7 @@
   },
   "npm": {
     "specifiers": {
+      "@types/node": "@types/node@18.11.18",
       "gamla": "gamla@6.0.0",
       "infisical-node": "infisical-node@1.0.37",
       "js-sha256": "js-sha256@0.9.0",
@@ -279,6 +280,10 @@
         "dependencies": {
           "@redis/client": "@redis/client@1.5.6"
         }
+      },
+      "@types/node@18.11.18": {
+        "integrity": "sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==",
+        "dependencies": {}
       },
       "asynckit@0.4.0": {
         "integrity": "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==",
