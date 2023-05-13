@@ -229,7 +229,12 @@
     "https://deno.land/x/ts_morph@17.0.1/common/ts_morph_common.d.ts": "ee7767b0c68b23c65bb607c94b6cb3512e8237fbcb7d1d8383a33235cde2c068",
     "https://deno.land/x/ts_morph@17.0.1/common/ts_morph_common.js": "49a79124b941ba2b35d81ac9eb90fc33c957b2640cdb97569c1941bac5a3bbdb",
     "https://deno.land/x/ts_morph@17.0.1/common/typescript.d.ts": "57e52a0882af4e835473dda27e4316cc31149866970210f9f79b940e916b7838",
-    "https://deno.land/x/ts_morph@17.0.1/common/typescript.js": "5dd669eb199ee2a539924c63a92e23d95df43dfe2fbe3a9d68c871648be1ad5e"
+    "https://deno.land/x/ts_morph@17.0.1/common/typescript.js": "5dd669eb199ee2a539924c63a92e23d95df43dfe2fbe3a9d68c871648be1ad5e",
+    "https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/accessTokenPath.ts": "271b67e6a4565df1352ecc6e17ade81cc5eebc6c7e966d8b50cb8ed86003ea9a",
+    "https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/apiToken.ts": "ae6e69e37c8fd2a2ee5be284abc15326a15d7eb89b024c9fc0a497ef847e7bab",
+    "https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/deps.ts": "1a51eb33165a22cdf42c1a37e878c5b3571b5101e7635e3063e26ac102fdcccd",
+    "https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/index.ts": "9fccb5f2332341cf6301cf8ba39177e8d9795caf79b7f50617c5533e824e62a9",
+    "https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/login.ts": "a68b4a0e55f389f05f0f89779c3d8cff75422c586266954d90b0558984c4e845"
   },
   "npm": {
     "specifiers": {
