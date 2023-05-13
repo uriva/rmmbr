@@ -16,8 +16,7 @@ deno task server
 
 ### Interacting with local redis
 
-Open a REPL that's configured like the local server
-and interact with redis:
+Open a REPL that's configured like the local server and interact with redis:
 
 ```sh
 deno task server-repl
@@ -27,12 +26,15 @@ deno task server-repl
 
 ### pypi
 
-Modify the version in `setup.py` and push to main with commit message `deploy-pypi`.
+Modify the version in `setup.py` and push to main with commit message
+`deploy-pypi`.
 
 ### npm
 
-Modify the version in `client/build_npm.ts` and push to main with commit message `deploy-npm`.
+Modify the version in `client/build_npm.ts` and push to main with commit message
+`deploy-npm`.
 
 ### cli
 
-Modify the version in `cli/build_npm.ts` and push to main with commit message `deploy-cli`.
+Modify the version in `cli/build_npm.ts` and push to main with commit message
+`deploy-cli`.

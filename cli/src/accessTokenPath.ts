@@ -1,4 +1,4 @@
-import { Result, err, ok } from "./deps.ts";
+import { err, ok, Result } from "./deps.ts";
 
 import { Path } from "https://deno.land/x/path@v3.0.0/mod.ts";
 import homeDir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";

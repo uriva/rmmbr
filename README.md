@@ -2,7 +2,8 @@
 
 ![rmmbr](https://media.tenor.com/NcnMXggTODAAAAAC/yeah-i-member-memberberries.gif)
 
-`rmmbr` is the simplest way to cache your async functions, locally or in the cloud.
+`rmmbr` is the simplest way to cache your async functions, locally or in the
+cloud.
 
 ## Usage
 
@@ -28,11 +29,13 @@ await fCached(3);
 
 The local cache stores data in a text file under a `.rmmbr` directory.
 
-There is also a `memCache`, if you are feeling nostalgic 😉 and just want to store stuff in memory.
+There is also a `memCache`, if you are feeling nostalgic 😉 and just want to
+store stuff in memory.
 
 ## Cross device caching
 
-To persist the cache across devices, we offer a use cloud service, which is free to use up to a quota.
+To persist the cache across devices, we offer a use cloud service, which is free
+to use up to a quota.
 
 To use it, you can install the CLI tool:
 
@@ -58,7 +61,8 @@ const cacher = cloudCache({
 
 ### End to end encryption
 
-If your data is sensitive, you can e2e encrypt it by adding an `encryptionKey` parameter.
+If your data is sensitive, you can e2e encrypt it by adding an `encryptionKey`
+parameter.
 
 To produce an encryption key:
 
@@ -83,4 +87,5 @@ const cacher = cloudCache({
 pip install rmmbr
 ```
 
-The python api mimicks the js one, with exported decorators named `mem_cache`, `local_cache` and `cloud_cache`.
+The python api mimicks the js one, with exported decorators named `mem_cache`,
+`local_cache` and `cloud_cache`.

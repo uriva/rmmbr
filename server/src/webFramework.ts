@@ -48,14 +48,13 @@ export type AuthenticatedHandler<T> = (
 const getBearer = (request: Request) =>
   request.headers.get("Authorization")?.split("Bearer ")[1];
 
-export const authenticated =
-  <T>(
-    authenticator: RequestAuthenticator<T>,
-    handler: AuthenticatedHandler<T>,
-  ): Handler =>
-  async (request, connInfo) => {
-    const token = getBearer(request);
-    if (!token) return badAuth;
-    const auth = await authenticator(token);
-    return auth ? await handler(request, auth, connInfo) : badAuth;
-  };
+export const authenticated = <T>(
+  authenticator: RequestAuthenticator<T>,
+  handler: AuthenticatedHandler<T>,
+): Handler =>
+async (request, connInfo) => {
+  const token = getBearer(request);
+  if (!token) return badAuth;
+  const auth = await authenticator(token);
+  return auth ? await handler(request, auth, connInfo) : badAuth;
+};

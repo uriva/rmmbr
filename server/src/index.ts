@@ -1,4 +1,4 @@
-import { Response404, app, authenticated } from "./webFramework.ts";
+import { app, authenticated, Response404 } from "./webFramework.ts";
 import {
   createRemoteJWKSet,
   jwtVerify,
@@ -48,10 +48,9 @@ serve(
             `${uid}:${cacheId}:${key}`,
             JSON.stringify(value),
             {
-              ex:
-                ttlOrDefault > oneWeekInSeconds
-                  ? oneWeekInSeconds
-                  : ttlOrDefault,
+              ex: ttlOrDefault > oneWeekInSeconds
+                ? oneWeekInSeconds
+                : ttlOrDefault,
             },
           );
           return new Response(JSON.stringify({}));

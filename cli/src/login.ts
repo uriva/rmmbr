@@ -1,8 +1,5 @@
-import {
-  AccessTokenError,
-  getAccessTokenPath,
-} from "./accessTokenPath.ts";
-import { Result, Unit, err, ok } from "./deps.ts";
+import { AccessTokenError, getAccessTokenPath } from "./accessTokenPath.ts";
+import { err, ok, Result, Unit } from "./deps.ts";
 
 import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
 import open from "npm:open@9.1.0";
@@ -22,8 +19,8 @@ export const login = async () => {
     }),
   });
 
-  const { device_code, interval, verification_uri_complete } =
-    await response.json();
+  const { device_code, interval, verification_uri_complete } = await response
+    .json();
 
   await open(verification_uri_complete);
 
