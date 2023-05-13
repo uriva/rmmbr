@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import pathlib
 
 import dotenv
@@ -68,6 +69,8 @@ async def _clean_redis():
 
 _port = _env_param("PORT")
 _mock_backend_url = f"http://localhost:{_port}"
+# TEST-NET-1 address
+_unavailable_server_url = f"http://192.0.2.0:31337"
 
 
 async def test_cloud_cache():
@@ -75,6 +78,27 @@ async def test_cloud_cache():
     await _cache_test_helper(False, False)(
         cloud_cache(_mock_backend_url, "some-token", "my_function_name", None, None)
     )
+
+
+async def test_unavailable_cloud_cache(caplog):
+    num_calls = 0
+
+    @cloud_cache(_unavailable_server_url, "some-token", "my_function_name", None, None)
+    async def identity(n):
+        nonlocal num_calls
+        num_calls += 1
+        return n
+
+    assert await identity(1) == 1
+    assert num_calls == 1
+    [(logger_name, severity, message)] = caplog.record_tuples
+
+    assert logger_name.startswith("rmmbr.")
+    assert severity == logging.ERROR
+    assert _unavailable_server_url in message
+
+    assert await identity(1) == 1
+    assert num_calls == 2
 
 
 async def test_cloud_cache_expiration():

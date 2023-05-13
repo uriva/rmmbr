@@ -1,7 +1,8 @@
-from functools import partial
 import json
 import os
+from functools import partial
 from hashlib import sha256
+from logging import getLogger
 from typing import Callable, Optional
 
 import aiofiles
@@ -20,6 +21,8 @@ from rmmbr.serialization import (
     serialize_arguments,
     serialize_output,
 )
+
+logger = getLogger(__name__)
 
 
 def _key_arguments(*args, **kwargs) -> str:
@@ -125,35 +128,53 @@ async def _call_api(url: str, token: str, method: str, params):
         return response.json()
 
 
-def _set_remote(
+_Key = str
+
+
+def _make_remote_read_write(
     url: str,
     token: str,
     cache_id: str,
     ttl: Optional[int],
     serialize: Callable[[Serializable], str],
+    deserialize: Callable[[str], Serializable],
 ):
-    async def func(key, value):
-        params = {"key": key, "value": serialize(value), "cacheId": cache_id}
-        if ttl is not None:
-            params["ttl"] = ttl
-        await _call_api(url, token, "set", params)
+    def track_availability(f, error_message):
+        state_cache_available = True
 
-    return func
+        async def wrapper(*args, **kwargs):
+            nonlocal state_cache_available
+            try:
+                ret = await f(*args, **kwargs)
+                state_cache_available = True
+                return ret
+            except Exception:
+                logger.exception(error_message)
+                state_cache_available = False
+                return None
 
+        wrapper.is_available = lambda: state_cache_available
+        return wrapper
 
-_Key = str
+    call_api_with_fallback = track_availability(
+        partial(_call_api, url, token), f"Cache at {url} unavailable"
+    )
 
-
-def _get_remote(
-    url: str, token: str, cache_id: str, deserialize: Callable[[str], Serializable]
-):
-    async def func(key: _Key):
-        value = await _call_api(url, token, "get", {"key": key, "cacheId": cache_id})
+    async def read(key: _Key):
+        value = await call_api_with_fallback("get", {"key": key, "cacheId": cache_id})
         if value is not None:
             value = deserialize(value)
         return value
 
-    return func
+    async def write(key, value):
+        if not call_api_with_fallback.is_available():
+            return
+        params = {"key": key, "value": serialize(value), "cacheId": cache_id}
+        if ttl is not None:
+            params["ttl"] = ttl
+        await call_api_with_fallback("set", params)
+
+    return read, write
 
 
 def _private_key_arguments(salt: bytes, *args, **kwargs):
@@ -186,12 +207,16 @@ def cloud_cache(
         serialize_output_func = serialize_output
         deserialize_output_func = deserialize_output
 
+    read, write = _make_remote_read_write(
+        url, token, cache_id, ttl, serialize_output_func, deserialize_output_func
+    )
+
     def inner_func(f):
         return _abstract_cache_params(
             key_arguments_func,
             f,
-            _get_remote(url, token, cache_id, deserialize_output_func),
-            _set_remote(url, token, cache_id, ttl, serialize_output_func),
+            read,
+            write,
         )
 
     return inner_func
