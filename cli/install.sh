@@ -6,7 +6,7 @@ cli_location=https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/index.ts
 tmp_rmmbr=$(mktemp)
 echo "
 if [ \"$1\" == \"update\" ] || [ \"$1\" == \"upgrade\" ]; then
-  deno cache --reload https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/index.ts
+  deno cache --reload $cli_location
 fi
 export RMMBR_SERVER=https://uriva-rmmbr.deno.dev;
 deno run --allow-run --allow-read --allow-net --allow-sys --allow-env $cli_location \"\$@\"
