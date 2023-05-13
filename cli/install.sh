@@ -5,7 +5,7 @@ fi
 cli_location=https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/index.ts
 tmp_rmmbr=$(mktemp)
 echo "
-if [ \"$1\" == \"update\" ] || [ \"$1\" == \"upgrade\" ]; then
+if [ \"\$1\" == \"update\" ] || [ \"\$1\" == \"upgrade\" ]; then
   deno cache --reload $cli_location;
   exit 0;
 fi
