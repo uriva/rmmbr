@@ -43,14 +43,11 @@ serve(
         }
         if (method === "set") {
           const { cacheId, key, value, ttl } = params;
-          const ttlOrDefault = ttl || oneWeekInSeconds;
           await redisClient.set(
             `${uid}:${cacheId}:${key}`,
             JSON.stringify(value),
             {
-              ex: ttlOrDefault > oneWeekInSeconds
-                ? oneWeekInSeconds
-                : ttlOrDefault,
+              ex: (ttl > oneWeekInSeconds || !ttl) ? oneWeekInSeconds : ttl,
             },
           );
           return new Response(JSON.stringify({}));
