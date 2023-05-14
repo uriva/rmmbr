@@ -34,8 +34,7 @@ store stuff in memory.
 
 ## Cross device caching
 
-To persist the cache across devices, we offer a use cloud service, which is free
-to use up to a quota.
+To persist the cache across devices, you can use our cloud service, which is free up to a quota.
 
 To use it, you can install the CLI tool:
 
@@ -55,13 +54,13 @@ const cacher = cloudCache({
   token: "service-token",
   cacheId: "some name for the cache",
   url: "https://uriva-rmmbr.deno.dev",
-  ttl: 60 * 60 * 24, // Values will expire after one day, omission of this field implies max.
+  ttl: 60 * 60 * 24, // Values will expire after one day. Omission implies max (one week).
 });
 ```
 
 ### End to end encryption
 
-If your data is sensitive, you can e2e encrypt it by adding an `encryptionKey`
+For sensitive data, you can e2e encrypt it by adding an `encryptionKey`
 parameter.
 
 To produce an encryption key:
@@ -74,10 +73,10 @@ Then use it like so:
 
 ```js
 const cacher = cloudCache({
-  token: "service-token",
+  token: "your-service-token",
   cacheId: "some name for the cache",
   url: "https://uriva-rmmbr.deno.dev",
-  encryptionKey: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  encryptionKey: "your-encryption-key",
 });
 ```
 
