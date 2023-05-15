@@ -58,6 +58,13 @@ const cacher = cloudCache({
 });
 ```
 
+### Pricing
+
+| Tier        | Requests  | Total data stored | Max entry size | # Entries |
+| ----------- | --------- | ----------------- | -------------- | --------- |
+| Free        | 10,000    | 10 MB             | 1 KB           | 1000      |
+| \$100/month | 1,000,000 | 1 GB              | 100 KB         | Unlimited |
+
 ### End to end encryption
 
 For sensitive data, you can e2e encrypt it by adding an `encryptionKey`
