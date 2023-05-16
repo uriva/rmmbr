@@ -40,9 +40,6 @@ rmmbr secret
 pip install rmmbr
 ```
 
-The python api mimicks the js one, with exported decorators named `mem_cache`,
-`local_cache` and `cloud_cache`.
-
 ```python
 import cloud_cache from "rmmbr"
 
