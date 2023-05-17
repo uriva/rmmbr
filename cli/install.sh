@@ -10,7 +10,7 @@ if [ \"\$1\" == \"update\" ] || [ \"\$1\" == \"upgrade\" ]; then
   exit 0;
 fi
 export RMMBR_SERVER=https://uriva-rmmbr.deno.dev;
-deno run --allow-run --allow-read --allow-net --allow-sys --allow-env $cli_location \"\$@\"
+deno run --allow-write --allow-run --allow-read --allow-net --allow-sys --allow-env $cli_location \"\$@\"
 " >$tmp_rmmbr
 chmod +x $tmp_rmmbr
 sudo mv $tmp_rmmbr /usr/local/bin/rmmbr
