@@ -1,5 +1,5 @@
 if ! command -v deno &>/dev/null; then
-  echo "Deno is not installed. Please install it and try again."
+  echo "Deno is required. Please install it and try again: https://deno.com/manual/getting_started/installation"
   exit 1
 fi
 cli_location=https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/index.ts
