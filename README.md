@@ -41,7 +41,7 @@ pip install rmmbr
 ```
 
 ```python
-import cloud_cache from "rmmbr"
+from rmmbr import cloud_cache
 
 cacher = cloud_cache(
     "https://uriva-rmmbr.deno.dev",
