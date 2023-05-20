@@ -86,7 +86,7 @@ Deno.test("remote cache encryption", async () => {
       url: mockBackendUrl,
       token: "some-token",
       cacheId: "some name for the cache",
-      encryptionKey: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      encryptionKey: "cddn22Nf1tWB1f5vbJCxl3ix5vCFKxXAcwQbFMtRdV4=",
     }),
   );
 });
