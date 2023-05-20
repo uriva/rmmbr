@@ -104,3 +104,7 @@ const cacher = cloudCache({
 | ----------- | --------- | ----------------- | -------------- | --------- |
 | Free        | 10,000    | 10 MB             | 1 KB           | 1000      |
 | \$100/month | 1,000,000 | 1 GB              | 100 KB         | Unlimited |
+
+## Regions
+
+We currently deploy a backend in us-east region. Please post an issue if you have a need to configure this.
