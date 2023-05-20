@@ -9,7 +9,7 @@ if [ \"\$1\" == \"update\" ] || [ \"\$1\" == \"upgrade\" ]; then
   deno cache --reload $cli_location;
   exit 0;
 fi
-export RMMBR_SERVER=https://uriva-rmmbr.deno.dev;
+export RMMBR_SERVER=https://rmmbr.net;
 deno run --allow-write --allow-run --allow-read --allow-net --allow-sys --allow-env $cli_location \"\$@\"
 " >$tmp_rmmbr
 chmod +x $tmp_rmmbr

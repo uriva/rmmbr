@@ -44,7 +44,7 @@ pip install rmmbr
 from rmmbr import cloud_cache
 
 cacher = cloud_cache(
-    "https://uriva-rmmbr.deno.dev",
+    "https://rmmbr.net",
     "your-service-token",
     "some name for the cache",
     60 * 60 * 24, # TTL is one day.
@@ -92,7 +92,7 @@ Cloud cache example:
 const cacher = cloudCache({
   token: "service-token",
   cacheId: "some name for the cache",
-  url: "https://uriva-rmmbr.deno.dev",
+  url: "https://rmmbr.net",
   ttl: 60 * 60 * 24, // Values will expire after one day. Omission implies max (one week).
   encryptionKey: "your-encryption-key", // This can be omitted if you don't need e2ee.
 });
