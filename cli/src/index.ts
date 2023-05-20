@@ -43,7 +43,7 @@ const commands: Record<string, () => void> = {
   login,
   "api-token": apiToken,
   secret: () => {
-    console.log(randomBytes(16).toString("hex"));
+    console.log(randomBytes(32).toString("base64url") + "=");
   },
 };
 const fallback = () => {
