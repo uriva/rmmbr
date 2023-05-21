@@ -1,7 +1,5 @@
-import { AccessTokenError, getAccessTokenPath } from "./accessTokenPath.ts";
-import { Result, Unit, err, ok } from "./deps.ts";
-
 import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
+import { getAccessTokenPath } from "./accessTokenPath.ts";
 import open from "npm:open@9.1.0";
 
 const clientId = "ARXipK0k64GivxcX9UVUWMp9g7ywQsqO";
@@ -49,16 +47,9 @@ and confirm to finish the login.
 
     const { access_token, error } = await response.json();
     if (access_token) {
-      (await storeAccessToken(access_token)).match({
-        Ok: () => {
-          console.log("Now logged in.");
-          Deno.exit(0);
-        },
-        Err: (e) => {
-          console.log(e);
-          Deno.exit(1);
-        },
-      });
+      return getAccessTokenPath()
+        .then((path) => Deno.writeTextFile(path.toString(), access_token))
+        .then(() => console.log("Now logged in."));
     }
     if (error === "authorization_pending") {
       // User hasn't authenticated yet, wait and try again:
@@ -72,15 +63,4 @@ and confirm to finish the login.
     }
     Deno.exit(1);
   }
-};
-
-const storeAccessToken = async (
-  accessToken: string,
-): Promise<Result<Unit, AccessTokenError>> => {
-  const accessTokenPath = await getAccessTokenPath();
-  if (accessTokenPath.isErr) {
-    return err(accessTokenPath.error);
-  }
-  await Deno.writeTextFile(accessTokenPath.value.toString(), accessToken);
-  return ok();
 };
