@@ -4,7 +4,7 @@ import pathlib
 import dotenv
 import redis.asyncio as redis
 
-from rmmbr import cloud_cache, local_cache, mem_cache
+from rmmbr import cloud_cache, local_cache, mem_cache, wait_all_writes
 
 
 def _cache_test_helper(instance_implies_new_cache: bool, expires_after_2_seconds: bool):
@@ -18,13 +18,18 @@ def _cache_test_helper(instance_implies_new_cache: bool, expires_after_2_seconds
 
         f_cached = cacher(f)
         await f_cached(3)
-        results = await asyncio.gather(*map(f_cached, [3, 3, 2, 1]))
+        results = []
+        for n in [3, 3, 2, 1]:
+            await wait_all_writes()
+            results.append(await f_cached(n))
         assert results == [3, 3, 2, 1]
         await cacher(f)(3)
+        await wait_all_writes()
         assert n_called == (4 if instance_implies_new_cache else 3)
         n_called = 0
         await asyncio.sleep(2)
         await f_cached(3)
+        await wait_all_writes()
         assert n_called == (1 if expires_after_2_seconds else 0)
 
     return inner

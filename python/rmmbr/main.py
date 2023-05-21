@@ -1,3 +1,4 @@
+import asyncio
 from functools import partial
 import json
 import os
@@ -52,6 +53,8 @@ def _deserialize(s):
     return dict(json.loads(s))
 
 
+_cache_background_writes = set()
+
 def _abstract_cache_params(key, f, read, write):
     async def func(*args, **kwargs):
         key_result = key(*args, **kwargs)
@@ -59,11 +62,18 @@ def _abstract_cache_params(key, f, read, write):
         if value is not None:
             return value
         y = await f(*args, **kwargs)
-        await write(key_result, y)
+        bg_write = asyncio.create_task(write(key_result, y))
+        # Avoid premature garbage collection, see notes:
+        # https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task
+        _cache_background_writes.add(bg_write)
+        bg_write.add_done_callback(_cache_background_writes.discard)
+
         return y
 
     return func
 
+def wait_all_writes():
+    return asyncio.gather(*_cache_background_writes, return_exceptions=True)
 
 def mem_cache(f):
     cache = {}
