@@ -81,7 +81,7 @@ const abstractCache = <X extends JSONArr, Y>({
   const keyResult = key(...x);
   return read(keyResult).then((value: Y | null) =>
     value !== null ? value : f(...x).then((y) => {
-      const writePromise = Promise.resolve(write(keyResult, y));
+      const writePromise = write(keyResult, y);
       writePromises.add(writePromise);
       writePromise.finally(() => writePromises.delete(writePromise));
       return y;
