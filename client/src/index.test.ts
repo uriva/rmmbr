@@ -1,4 +1,4 @@
-import { cloudCache, localCache, memCache } from "./index.ts";
+import { cloudCache, localCache, memCache, waitAllWrites } from "./index.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
@@ -16,9 +16,15 @@ const testCache =
       return Promise.resolve(x);
     };
     const fCached = cacher(f);
+
     assertEquals(await fCached(3), 3);
+    const results = [];
+    for (const n of [3, 3, 2, 1]) {
+      await waitAllWrites();
+      results.push(await fCached(n));
+    }
     assertEquals(
-      await Promise.all([fCached(3), fCached(3), fCached(2), fCached(1)]),
+      results,
       [3, 3, 2, 1],
     );
     assertEquals(await cacher(f)(3), 3);

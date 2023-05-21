@@ -69,6 +69,8 @@ const makeLocalReadWrite = (name: string) => {
   };
 };
 
+const writePromises = new Set<Promise<unknown>>();
+
 const abstractCache = <X extends JSONArr, Y>({
   key,
   f,
@@ -78,11 +80,16 @@ const abstractCache = <X extends JSONArr, Y>({
 (...x: X) => {
   const keyResult = key(...x);
   return read(keyResult).then((value: Y | null) =>
-    value !== null
-      ? value
-      : f(...x).then((y) => write(keyResult, y).then(() => y))
+    value !== null ? value : f(...x).then((y) => {
+      const writePromise = write(keyResult, y);
+      writePromises.add(writePromise);
+      writePromise.finally(() => writePromises.delete(writePromise));
+      return y;
+    })
   );
 };
+
+export const waitAllWrites = () => Promise.all(writePromises);
 
 const inputToCacheKey = (secret: string) => (...x: JSONArr): string =>
   hash(jsonStableStringify(x) + secret);
