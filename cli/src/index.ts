@@ -42,9 +42,7 @@ const command = args._[0];
 const commands: Record<string, () => void> = {
   login,
   "api-token": apiToken,
-  secret: () => {
-    console.log(randomBytes(32).toString("base64url") + "=");
-  },
+  secret: () => console.log(randomBytes(32).toString("base64url") + "="),
 };
 const fallback = () => {
   console.error(`Unrecognized command: ${command}`);

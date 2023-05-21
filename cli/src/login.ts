@@ -49,11 +49,7 @@ and confirm to finish the login.
     if (access_token) {
       return getAccessTokenPath()
         .then((path) => Deno.writeTextFile(path.toString(), access_token))
-        .then(
-          () => {
-            console.log("Now logged in.");
-          },
-        );
+        .then(() => console.log("Now logged in."));
     }
     if (error === "authorization_pending") {
       // User hasn't authenticated yet, wait and try again:
