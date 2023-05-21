@@ -1,5 +1,5 @@
 import { AccessTokenError, getAccessTokenPath } from "./accessTokenPath.ts";
-import { err, ok, Result } from "./deps.ts";
+import { Result, err, ok } from "./deps.ts";
 
 const serverURL = Deno.env.get("RMMBR_SERVER");
 
@@ -7,7 +7,7 @@ export const apiToken = () =>
   getAccessToken()
     .then((r) =>
       r.match({
-        Ok: (accessToken: string) => getOrCreateApiToken(accessToken),
+        Ok: getOrCreateApiToken,
         Err: (e: AccessTokenError) => Promise.resolve(err(e)),
       })
     )
