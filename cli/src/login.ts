@@ -1,5 +1,5 @@
 import { AccessTokenError, getAccessTokenPath } from "./accessTokenPath.ts";
-import { err, ok, Result, Unit } from "./deps.ts";
+import { Result, Unit, err, ok } from "./deps.ts";
 
 import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
 import open from "npm:open@9.1.0";
@@ -74,7 +74,7 @@ and confirm to finish the login.
   }
 };
 
-export const storeAccessToken = async (
+const storeAccessToken = async (
   accessToken: string,
 ): Promise<Result<Unit, AccessTokenError>> => {
   const accessTokenPath = await getAccessTokenPath();
