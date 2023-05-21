@@ -1,5 +1,5 @@
 import { AccessTokenError, getAccessTokenPath } from "./accessTokenPath.ts";
-import { Result, Unit, err, ok } from "./deps.ts";
+import { err, ok, Result, Unit } from "./deps.ts";
 
 import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
 import open from "npm:open@9.1.0";
@@ -74,13 +74,10 @@ and confirm to finish the login.
   }
 };
 
-const storeAccessToken = async (
-  accessToken: string,
-): Promise<Result<Unit, AccessTokenError>> => {
-  const accessTokenPath = await getAccessTokenPath();
-  if (accessTokenPath.isErr) {
-    return err(accessTokenPath.error);
-  }
-  await Deno.writeTextFile(accessTokenPath.value.toString(), accessToken);
-  return ok();
-};
+const storeAccessToken = (
+  token: string,
+): Promise<Result<Unit, AccessTokenError>> =>
+  getAccessTokenPath()
+    .then((path) => Deno.writeTextFile(path.toString(), token))
+    .then(ok<Unit, AccessTokenError>)
+    .catch((e) => err(e));

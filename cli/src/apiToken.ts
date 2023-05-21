@@ -30,14 +30,13 @@ const apiTokenRequest = (accessToken: string, method: "GET" | "POST") =>
     method,
   });
 
-const getAccessToken = async (): Promise<Result<string, AccessTokenError>> =>
-  (await getAccessTokenPath()).match({
-    Err: (e) => Promise.resolve(err(e)),
-    Ok: async (path) =>
+const getAccessToken = (): Promise<Result<string, AccessTokenError>> =>
+  getAccessTokenPath().then(
+    async (path) =>
       path.exists
-        ? ok(await Deno.readTextFile(path.toString()))
-        : err('Not logged-in, run the "login" command first.'),
-  });
+        ? ok<string, string>(await Deno.readTextFile(path.toString()))
+        : err<string, string>('Not logged-in, run the "login" command first.'),
+  ).catch((e: AccessTokenError) => err(e));
 
 const getOrCreateApiToken = async (
   accessToken: string,
