@@ -3,36 +3,23 @@ import {
   Handler,
 } from "https://deno.land/std@0.182.0/http/server.ts";
 
-type MethodHandler = { POST?: Handler; GET?: Handler };
+type MethodHandler = Record<string, Handler>;
 
-interface Router {
-  [index: string]: MethodHandler;
-}
+type Route = [string, MethodHandler];
 
-const appHandler =
-  (routes: Array<[RegExp, MethodHandler]>) =>
+const matchHandler =
+  ({ url, method }: Request) => ([pattern, methodHandler]: Route) =>
+    new URL(url).pathname.match(new RegExp(`^${pattern}$`)) &&
+    method in methodHandler;
+
+export const app =
+  (routes: Record<string, MethodHandler>) =>
   (request: Request, connInfo: ConnInfo): Response | Promise<Response> => {
-    for (const [pattern, methodHandler] of routes) {
-      if (!new URL(request.url).pathname.match(pattern)) {
-        continue;
-      }
-      const requestHandler =
-        methodHandler[request.method as keyof MethodHandler];
-      if (!requestHandler) {
-        continue;
-      }
-      return requestHandler(request, connInfo);
-    }
-    return Response404();
+    const matched = Object.entries(routes).find(matchHandler(request));
+    return matched
+      ? (matched[1][request.method])(request, connInfo)
+      : Response404();
   };
-
-export const app = (router: Router): Handler =>
-  appHandler(
-    Object.entries(router).map(([urlPattern, handler]) => [
-      new RegExp(`^${urlPattern}$`),
-      handler,
-    ]),
-  );
 
 export const Response404 = () => new Response("Not Found", { status: 404 });
 const badAuth = new Response("Authentication needed", { status: 401 });
