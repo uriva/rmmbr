@@ -2,15 +2,14 @@ import {
   bufferToHex,
   hexToBuffer,
 } from "https://deno.land/x/hextools@v1.0.0/mod.ts";
-import { Buffer } from "node:buffer";
+
+import { decode as base64UrlDecode } from "https://deno.land/std@0.82.0/encoding/base64url.ts";
 import { sha256 } from "npm:js-sha256";
 
 const algo = "AES-CBC";
 
 const getKey = (scope: "encrypt" | "decrypt", key: string) =>
-  crypto.subtle.importKey("raw", Buffer.from(key, "base64url"), algo, true, [
-    scope,
-  ]);
+  crypto.subtle.importKey("raw", base64UrlDecode(key), algo, true, [scope]);
 
 export const hash = (x: string): string => {
   const hasher = sha256.create();
