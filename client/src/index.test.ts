@@ -16,37 +16,34 @@ const testCache =
       return Promise.resolve(x);
     };
     const fCached = cacher(f);
-
     assertEquals(await fCached(3), 3);
+    await waitAllWrites();
     const results = [];
     for (const n of [3, 3, 2, 1]) {
-      await waitAllWrites();
       results.push(await fCached(n));
+      await waitAllWrites();
     }
-    assertEquals(
-      results,
-      [3, 3, 2, 1],
-    );
+    assertEquals(results, [3, 3, 2, 1]);
     assertEquals(await cacher(f)(3), 3);
+    await waitAllWrites();
     assertEquals(nCalled, instanceSpecificCache ? 4 : 3);
     nCalled = 0;
     await sleep(2);
     assertEquals(await fCached(3), 3);
+    await waitAllWrites();
     assertEquals(nCalled, expiresAfter2Seconds ? 1 : 0);
   };
 
 const testVariadic = async (cacher: any) => {
-  const f2 = (x: number, y: string) => {
-    return Promise.resolve(x.toString() + y);
-  };
-  const f3 = (x: number, y: string, z: boolean) => {
-    return Promise.resolve(x.toString().concat(y, z ? "✅" : "❌"));
-  };
-
+  const f2 = (x: number, y: string) => Promise.resolve(x.toString() + y);
+  const f3 = (x: number, y: string, z: boolean) =>
+    Promise.resolve(x.toString().concat(y, z ? "✅" : "❌"));
   const f2Cached = cacher(f2);
   const f3Cached = cacher(f3);
   assertEquals(await f2Cached(2, " params"), "2 params");
+  await waitAllWrites();
   assertEquals(await f3Cached(3, " params ", true), "3 params ✅");
+  await waitAllWrites();
 };
 
 Deno.test("local cache", () =>
