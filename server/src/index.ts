@@ -4,6 +4,7 @@ import {
   jwtVerify,
 } from "https://deno.land/x/jose@v4.14.1/index.ts";
 
+import { memCache } from "../../client/src/index.ts";
 import { redisClient } from "./redis.ts";
 import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
 
@@ -32,28 +33,31 @@ const redisKey = {
 serve(
   app({
     "/": {
-      POST: authenticated(verifyApiToken, async (request, uid) => {
-        const { method, params } = await request.json();
-        if (method === "get") {
-          const { cacheId, key } = params;
-          return new Response(
-            (await redisClient.get(`${uid}:${cacheId}:${key}`)) ||
-              JSON.stringify(null),
-          );
-        }
-        if (method === "set") {
-          const { cacheId, key, value, ttl } = params;
-          await redisClient.set(
-            `${uid}:${cacheId}:${key}`,
-            JSON.stringify(value),
-            {
-              ex: (ttl > oneWeekInSeconds || !ttl) ? oneWeekInSeconds : ttl,
-            },
-          );
-          return new Response(JSON.stringify({}));
-        }
-        return new Response("Unknown method", { status: 400 });
-      }),
+      POST: authenticated(
+        memCache({ ttl: 60 * 5 })(verifyApiToken),
+        async (request, uid) => {
+          const { method, params } = await request.json();
+          if (method === "get") {
+            const { cacheId, key } = params;
+            return new Response(
+              (await redisClient.get(`${uid}:${cacheId}:${key}`)) ||
+                JSON.stringify(null),
+            );
+          }
+          if (method === "set") {
+            const { cacheId, key, value, ttl } = params;
+            await redisClient.set(
+              `${uid}:${cacheId}:${key}`,
+              JSON.stringify(value),
+              {
+                ex: (ttl > oneWeekInSeconds || !ttl) ? oneWeekInSeconds : ttl,
+              },
+            );
+            return new Response(JSON.stringify({}));
+          }
+          return new Response("Unknown method", { status: 400 });
+        },
+      ),
     },
     "/api-token/": {
       GET: authenticated(verifyAuth0, async (_, uid) => {
