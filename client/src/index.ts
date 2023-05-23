@@ -18,7 +18,6 @@ const pathToCache = (name: string) => `.rmmbr/${name}.json`;
 //   | boolean
 //   | { [x: string]: JSONValue }
 //   | Array<JSONValue>;
-
 export type JSONValue = unknown;
 
 const serialize = (x: Cache) => JSON.stringify(Object.entries(x));
@@ -66,9 +65,7 @@ const makeLocalReadWrite = (name: string) => {
     write: async (key: string, value: JSONValue) => {
       const cache = await getCache();
       cache[key] = value;
-      const writeJob = writeStringToFile(pathToCache(name), serialize(cache));
-      enrollPromise(writeJob);
-      return Promise.resolve();
+      return writeStringToFile(pathToCache(name), serialize(cache));
     },
   };
 };
@@ -117,7 +114,7 @@ export const memCache =
     return abstractCache({
       key: inputToCacheKey(""),
       f,
-      read: (key: string) => {
+      read: (key: string): Promise<Y> => {
         if (!(key in keyToValue)) {
           return Promise.reject();
         }
@@ -128,7 +125,7 @@ export const memCache =
         }
         return Promise.resolve(keyToValue[key]);
       },
-      write: (key, value) => {
+      write: (key: string, value: Y) => {
         keyToValue[key] = value;
         keyToTimestamp[key] = Date.now();
         return Promise.resolve();
@@ -178,14 +175,18 @@ export const cloudCache =
     abstractCache({
       key: inputToCacheKey(params.encryptionKey || ""),
       f,
-      read: params.encryptionKey
-        ? (key) =>
-          getRemote(params)(key).then((value) => (
-            value
-              ? decrypt(params.encryptionKey as string)(value).then(JSON.parse)
-              : Promise.reject()
-          ))
-        : getRemote(params),
+      read: (key) =>
+        getRemote(params)(key).then((
+          value,
+        ) => (
+          value
+            ? params.encryptionKey
+              ? (decrypt(params.encryptionKey as string)(value).then(
+                JSON.parse,
+              ))
+              : JSON.parse(value)
+            : Promise.reject()
+        )),
       write: params.encryptionKey
         ? async (key, value) =>
           setRemote(params)(
