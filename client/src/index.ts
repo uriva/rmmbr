@@ -64,12 +64,19 @@ const makeLocalReadWrite = (name: string) => {
     write: async (key: string, value: JSONValue) => {
       const cache = await getCache();
       cache[key] = value;
-      return writeStringToFile(pathToCache(name), serialize(cache));
+      const writeJob = writeStringToFile(pathToCache(name), serialize(cache));
+      enrollPromise(writeJob);
+      return Promise.resolve();
     },
   };
 };
 
-const writePromises = new Set<Promise<unknown>>();
+const writePromises = new Set<Promise<void>>();
+
+const enrollPromise = (writePromise: Promise<void>) => {
+  writePromises.add(writePromise);
+  writePromise.finally(() => writePromises.delete(writePromise));
+};
 
 const abstractCache = <X extends JSONArr, Y>({
   key,
@@ -81,9 +88,7 @@ const abstractCache = <X extends JSONArr, Y>({
   const keyResult = key(...x);
   return read(keyResult).then((value: Y | null) =>
     value !== null ? value : f(...x).then((y) => {
-      const writePromise = write(keyResult, y);
-      writePromises.add(writePromise);
-      writePromise.finally(() => writePromises.delete(writePromise));
+      enrollPromise(write(keyResult, y));
       return y;
     })
   );
