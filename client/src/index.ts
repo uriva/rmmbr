@@ -1,7 +1,9 @@
 import { decrypt, encrypt, hash } from "./crypto.ts";
 
 import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
-import jsonStableStringify from "npm:json-stable-stringify";
+import { jsonStringify } from "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts";
+
+const jsonStableStringify = (x: any) => jsonStringify(x) as string;
 
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>
@@ -18,7 +20,6 @@ const pathToCache = (name: string) => `.rmmbr/${name}.json`;
 //   | boolean
 //   | { [x: string]: JSONValue }
 //   | Array<JSONValue>;
-
 export type JSONValue = unknown;
 
 const serialize = (x: Cache) => JSON.stringify(Object.entries(x));
@@ -38,7 +39,7 @@ export type Func<X extends JSONArr, Y> = (...x: X) => Promise<Y>;
 type AbstractCacheParams<X extends JSONArr, Y> = {
   key: (...x: X) => string;
   f: Func<X, Y>;
-  read: (key: string) => Promise<Y | null>;
+  read: (key: string) => Promise<Y>;
   write: (key: string, value: Y) => Promise<void>;
 };
 
@@ -60,13 +61,13 @@ const makeLocalReadWrite = (name: string) => {
         });
   return {
     read: (key: string) =>
-      getCache().then((cache: Cache) => (key in cache ? cache[key] : null)),
+      getCache().then((
+        cache: Cache,
+      ) => (key in cache ? cache[key] : Promise.reject())),
     write: async (key: string, value: JSONValue) => {
       const cache = await getCache();
       cache[key] = value;
-      const writeJob = writeStringToFile(pathToCache(name), serialize(cache));
-      enrollPromise(writeJob);
-      return Promise.resolve();
+      return writeStringToFile(pathToCache(name), serialize(cache));
     },
   };
 };
@@ -86,12 +87,14 @@ const abstractCache = <X extends JSONArr, Y>({
 }: AbstractCacheParams<X, Y>): Func<X, Y> =>
 (...x: X) => {
   const keyResult = key(...x);
-  return read(keyResult).then((value: Y | null) =>
-    value !== null ? value : f(...x).then((y) => {
-      enrollPromise(write(keyResult, y));
-      return y;
-    })
-  );
+  return read(keyResult)
+    .catch(() =>
+      f(...x)
+        .then((y) => {
+          enrollPromise(write(keyResult, y));
+          return y;
+        })
+    );
 };
 
 export const waitAllWrites = () => Promise.all(writePromises);
@@ -99,20 +102,38 @@ export const waitAllWrites = () => Promise.all(writePromises);
 const inputToCacheKey = (secret: string) => (...x: JSONArr): string =>
   hash(jsonStableStringify(x) + secret);
 
-export const memCache = <X extends JSONArr, Y extends JSONValue>(
-  f: Func<X, Y>,
-) => {
-  const cache: Record<string, Y> = {};
-  return abstractCache({
-    key: inputToCacheKey(""),
-    f,
-    read: (key: string) => Promise.resolve(key in cache ? cache[key] : null),
-    write: (key, value) => {
-      cache[key] = value;
-      return Promise.resolve();
-    },
-  });
+export type MemParams = {
+  ttl?: number;
 };
+
+export const memCache =
+  ({ ttl }: MemParams) =>
+  <X extends JSONArr, Y extends JSONValue>(
+    f: Func<X, Y>,
+  ) => {
+    const keyToValue: Record<string, Y> = {};
+    const keyToTimestamp: Record<string, number> = {};
+    return abstractCache({
+      key: inputToCacheKey(""),
+      f,
+      read: (key: string): Promise<Y> => {
+        if (!(key in keyToValue)) {
+          return Promise.reject();
+        }
+        if (ttl && Date.now() - keyToTimestamp[key] > ttl * 1000) {
+          delete keyToTimestamp[key];
+          delete keyToValue[key];
+          return Promise.reject();
+        }
+        return Promise.resolve(keyToValue[key]);
+      },
+      write: (key: string, value: Y) => {
+        keyToValue[key] = value;
+        keyToTimestamp[key] = Date.now();
+        return Promise.resolve();
+      },
+    });
+  };
 
 export const localCache =
   <X extends JSONArr, Y extends JSONValue>({ id }: { id: string }) =>
@@ -156,15 +177,18 @@ export const cloudCache =
     abstractCache({
       key: inputToCacheKey(params.encryptionKey || ""),
       f,
-      read: params.encryptionKey
-        ? async (key) => {
-          const value = await getRemote(params)(key);
-          return (
-            value &&
-            JSON.parse(await decrypt(params.encryptionKey as string)(value))
-          );
-        }
-        : getRemote(params),
+      read: (key) =>
+        getRemote(params)(key).then((
+          value,
+        ) => (
+          value
+            ? params.encryptionKey
+              ? (decrypt(params.encryptionKey as string)(value).then(
+                JSON.parse,
+              ))
+              : JSON.parse(value)
+            : Promise.reject()
+        )),
       write: params.encryptionKey
         ? async (key, value) =>
           setRemote(params)(

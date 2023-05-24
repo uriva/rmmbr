@@ -49,7 +49,9 @@ const testVariadic = async (cacher: any) => {
 Deno.test("local cache", () =>
   testCache(false, false)(localCache({ id: "some-id" })));
 
-Deno.test("memory cache", () => testCache(true, false)(memCache));
+Deno.test("memory cache", () => testCache(true, false)(memCache({})));
+Deno.test("memory cache ttl", () =>
+  testCache(true, true)(memCache({ ttl: 1 })));
 
 const cleanRedis = async () => {
   const { REDIS_PASSWORD, REDIS_URL, REDIS_PORT } = config();
@@ -112,7 +114,7 @@ Deno.test("remote cache timeout", async () => {
 Deno.test("local variadic cache", () =>
   testVariadic(localCache({ id: "some-id" })));
 
-Deno.test("memory variadic cache", () => testVariadic(memCache));
+Deno.test("memory variadic cache", () => testVariadic(memCache({})));
 
 Deno.test("remote variadic cache", async () => {
   await cleanRedis();
