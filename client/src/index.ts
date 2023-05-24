@@ -1,7 +1,9 @@
 import { decrypt, encrypt, hash } from "./crypto.ts";
 
 import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
-import jsonStableStringify from "npm:json-stable-stringify";
+import { jsonStringify } from "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts";
+
+const jsonStableStringify = (x: any) => jsonStringify(x) as string;
 
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>
