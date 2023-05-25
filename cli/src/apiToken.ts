@@ -6,30 +6,25 @@ type APITokenInterface =
   | { create: true }
   | { delete: string }
   | { list: true }
-  | { get: true }
-  | Record<string, never>;
+  | { get: true };
 
 export const apiToken = (
   cmd: APITokenInterface,
 ) => {
-  const action: (_: string) => Promise<unknown> = "create" in cmd
-    ? createApiToken
-    : "delete" in cmd
-    ? deleteApiToken(cmd["delete"])
-    : "list" in cmd
-    ? listApiTokens
-    : getOrCreateApiToken; // The default action is "get or create"
+  const [action, args] =
+    Object.entries(cmd).find(([action, _]) => action in commandMapping) ||
+    Deno.exit();
 
   return getAccessToken()
-    .then(action)
+    .then(commandMapping[action](args))
     .then(console.log);
 };
 
 const apiTokenRequest = (
-  accessToken: string,
   method: "GET" | "POST",
-  body?: unknown,
+  body: undefined | Record<string, string>,
 ) =>
+(accessToken: string) =>
   fetch(`${serverURL}/api-token/`, {
     headers: { Authorization: `Bearer ${accessToken}` },
     method,
@@ -49,13 +44,8 @@ const getAccessToken = (): Promise<string> =>
         : Promise.reject('Not logged-in, run the "login" command first.'),
   );
 
-const createApiToken = (accessToken: string): Promise<string> =>
-  apiTokenRequest(accessToken, "POST", {
-    action: "create",
-  });
-
-const listApiTokens = (accessToken: string): Promise<Array<string>> =>
-  apiTokenRequest(accessToken, "GET");
+const createApiToken = apiTokenRequest("POST", { action: "create" });
+const listApiTokens = apiTokenRequest("GET", undefined);
 
 const getOrCreateApiToken = (
   accessToken: string,
@@ -64,6 +54,13 @@ const getOrCreateApiToken = (
     (tokens) => tokens.length == 0 ? createApiToken(accessToken) : tokens[0],
   );
 
-const deleteApiToken =
-  (tokenId: string) => (accessToken: string): Promise<string> =>
-    apiTokenRequest(accessToken, "POST", { action: "delete", tokenId });
+const commandMapping: Record<
+  string,
+  ((..._: string[]) => (_: string) => Promise<unknown>)
+> = {
+  create: () => createApiToken,
+  delete: (tokenId: string) =>
+    apiTokenRequest("POST", { action: "delete", tokenId }),
+  list: () => listApiTokens,
+  get: () => getOrCreateApiToken,
+};

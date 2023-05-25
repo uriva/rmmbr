@@ -91,21 +91,19 @@ serve(
                     return Response404();
                   } else if (tokensToDelete.length > 1) {
                     return new Response("Ambiguous token ID", { status: 403 });
-                  } else {
-                    const deletedToken = tokensToDelete[0];
-                    return Promise.all([
-                      redisClient.lrem(
-                        redisKey.userToApiTokenSet(uid),
-                        1,
-                        deletedToken,
-                      ),
-                      redisClient.del(redisKey.apiTokenToUser(deletedToken)),
-                    ]).then(() => new Response(JSON.stringify(deletedToken)));
                   }
+                  const deletedToken = tokensToDelete[0];
+                  return Promise.all([
+                    redisClient.lrem(
+                      redisKey.userToApiTokenSet(uid),
+                      1,
+                      deletedToken,
+                    ),
+                    redisClient.del(redisKey.apiTokenToUser(deletedToken)),
+                  ]).then(() => new Response(JSON.stringify(deletedToken)));
                 });
-              } else {
-                return new Response("Unknown command", { status: 403 });
               }
+              return new Response("Unknown command", { status: 403 });
             },
           ),
       ),
