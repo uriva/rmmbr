@@ -1,51 +1,62 @@
 import { apiToken } from "./apiToken.ts";
 import { login } from "./login.ts";
-import { parse } from "https://deno.land/std@0.182.0/flags/mod.ts";
+
+import yargs from "https://deno.land/x/yargs@v17.7.2-deno/deno.ts";
 import { randomBytes } from "node:crypto";
 
-const handleDefault = (value: string): boolean => {
-  if (["login", "api-token", "secret"].includes(value)) {
-    return true;
-  }
-  console.log(`${value} is not a valid command.`);
-  help();
-  Deno.exit(1);
-};
-
-const help = () => {
-  console.log(`Commands:
-
-  login         Authenticate the CLI
-  api-token     Get or generate an api-token
-  secret        Generate a secret key
-  update        Update the CLI
-`);
-};
-
-const args = parse(Deno.args, {
-  boolean: ["help"],
-  unknown: handleDefault,
-});
-
-if (args.help) {
-  help();
-  Deno.exit(0);
-}
-
-if (!args._.length) {
-  console.error("No command given.");
-  help();
-  Deno.exit(1);
-}
+const args = yargs(Deno.args)
+  .scriptName("rmmbr")
+  .command("login", "Authenticate the CLI")
+  .command(
+    "api-token",
+    "Manage API tokens",
+    (yargs: any) =>
+      yargs.option("get", {
+        alias: "g",
+        description: "(Default) Get or create the first API token",
+        boolean: true,
+      }).option(
+        "create",
+        {
+          alias: "c",
+          description: "Create a new API token",
+          boolean: true,
+        },
+      ).option(
+        "delete",
+        {
+          alias: "d",
+          description: "Delete an API token",
+          string: true,
+        },
+      ).option("list", {
+        alias: "l",
+        description: "List API tokens",
+        boolean: true,
+      }).strict().check(
+        ({ g, c, d, l }: any) => {
+          return [g, c, d, l].filter((o) => o != undefined).length > 1
+            ? "Too many options"
+            : true;
+        },
+      ),
+  )
+  .command("secret", "Generate a secret key")
+  .command("update", "Update the CLI")
+  .strictCommands()
+  .demandCommand(1)
+  .version("0.1")
+  .parse();
 
 const command = args._[0];
-const commands: Record<string, () => void> = {
+const commands: Record<string, () => Promise<unknown>> = {
   login,
-  "api-token": apiToken,
-  secret: () => console.log(randomBytes(32).toString("base64url") + "="),
+  "api-token": () => apiToken(args),
+  secret: () =>
+    Promise.resolve(console.log(randomBytes(32).toString("base64url") + "=")),
 };
-const fallback = () => {
-  console.error(`Unrecognized command: ${command}`);
+
+commands[command]().catch((msg) => {
+  console.error(msg);
   Deno.exit(1);
-};
-(commands[command] || fallback)();
+});

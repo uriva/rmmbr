@@ -1,4 +1,4 @@
-import { Response404, app, authenticated } from "./webFramework.ts";
+import { app, authenticated, Response404 } from "./webFramework.ts";
 import {
   createRemoteJWKSet,
   jwtVerify,
@@ -15,7 +15,15 @@ const Auth0JKWS = createRemoteJWKSet(
   new URL(`${auth0Tenant}.well-known/jwks.json`),
 );
 
-const verifyApiToken = (token: string) => redisClient.get(`api-token:${token}`);
+const joinColon = (prefix: string) => (suffix: string) => prefix + ":" + suffix;
+
+const redisKey = {
+  userToApiTokenSet: joinColon("user-api-token-set"),
+  apiTokenToUser: joinColon("api-token"),
+};
+
+const verifyApiToken = (token: string) =>
+  redisClient.get(redisKey.apiTokenToUser(token));
 
 const verifyAuth0 = (token: string): Promise<string> =>
   jwtVerify(token, Auth0JKWS, {
@@ -23,12 +31,8 @@ const verifyAuth0 = (token: string): Promise<string> =>
     audience: "rmmbr",
   }).then((x) => x.payload.sub || "");
 
-const joinColon = (prefix: string) => (suffix: string) => prefix + ":" + suffix;
-
-const redisKey = {
-  userToApiToken: joinColon("user-api-token"),
-  apiTokenToUser: joinColon("api-token"),
-};
+type CREATE_TOKEN = { action: "create" };
+type DELETE_TOKEN = { action: "delete"; tokenId: string };
 
 serve(
   app({
@@ -60,22 +64,59 @@ serve(
       ),
     },
     "/api-token/": {
-      GET: authenticated(verifyAuth0, async (_, uid) => {
-        const token = await redisClient.get(redisKey.userToApiToken(uid));
-        return token ? new Response(token) : Response404();
-      }),
-      POST: authenticated(verifyAuth0, async (_, uid) => {
-        const oldToken = await redisClient.get(redisKey.userToApiToken(uid));
-        if (oldToken) {
-          await redisClient.del(redisKey.apiTokenToUser(oldToken));
-        }
-        const token = crypto.randomUUID();
-        return Promise.all([
-          redisClient.set(redisKey.userToApiToken(uid), token),
-          redisClient.set(redisKey.apiTokenToUser(token), uid),
-        ]).then(() => new Response(token));
-      }),
+      GET: authenticated(
+        verifyAuth0,
+        (_, uid) =>
+          getApiTokens(uid).then((tokens) =>
+            new Response(JSON.stringify(tokens))
+          ),
+      ),
+      POST: authenticated(
+        verifyAuth0,
+        (request, uid) =>
+          request.json().then(
+            (call: CREATE_TOKEN | DELETE_TOKEN) => {
+              if (call.action == "create") {
+                const token = crypto.randomUUID();
+                return Promise.all([
+                  redisClient.rpush(redisKey.userToApiTokenSet(uid), token),
+                  redisClient.set(redisKey.apiTokenToUser(token), uid),
+                ]).then(() => new Response(JSON.stringify(token)));
+              } else if (call.action == "delete") {
+                return getApiTokens(uid).then((tokens) => {
+                  const tokensToDelete = tokens.filter((t) =>
+                    t.startsWith(call.tokenId)
+                  );
+                  if (tokensToDelete.length == 0) {
+                    return Response404();
+                  } else if (tokensToDelete.length > 1) {
+                    return new Response("Ambiguous token ID", { status: 403 });
+                  } else {
+                    const deletedToken = tokensToDelete[0];
+                    return Promise.all([
+                      redisClient.lrem(
+                        redisKey.userToApiTokenSet(uid),
+                        1,
+                        deletedToken,
+                      ),
+                      redisClient.del(redisKey.apiTokenToUser(deletedToken)),
+                    ]).then(() => new Response(JSON.stringify(deletedToken)));
+                  }
+                });
+              } else {
+                return new Response("Unknown command", { status: 403 });
+              }
+            },
+          ),
+      ),
     },
   }),
   { port: parseInt(Deno.env.get("PORT") as string) },
 );
+
+const getApiTokens = (uid: string) =>
+  redisClient.lrange(
+    redisKey.userToApiTokenSet(uid),
+    0,
+    -1,
+  );
