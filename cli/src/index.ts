@@ -35,9 +35,9 @@ const args = yargs(Deno.args)
         boolean: true,
       }).strict().check(
         ({ g, c, d, l }: any) => {
-          return [g, c, d, l].filter((o) => o != undefined).length > 1
-            ? "Too many options"
-            : true;
+          return [g, c, d, l].filter((o) => o != undefined).length == 1
+            ? true
+            : "Choose one option";
         },
       ),
   )
