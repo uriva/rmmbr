@@ -112,3 +112,9 @@ We currently deploy a backend in us-east region. Please post an issue if you hav
 Currently the cloud cache adds around 190ms to the call in miss cases and takes 124ms in hit cases.
 
 ![Benchmark](benchmark.png)
+
+## Legal
+
+- [Terms of service](legal/terms_of_service.md)
+- [Privacy policy](legal/privacy_policy.md)
+- [Service level agreement](legal/service_level_agreement.md)
