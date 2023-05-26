@@ -119,6 +119,10 @@ def local_cache(id: str):
     return lambda f: _abstract_cache_params(_key_arguments, f, read, write)
 
 
+class RmmbrAuthError(Exception):
+    pass
+
+
 async def _call_api(url: str, token: str, method: str, params):
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -132,6 +136,10 @@ async def _call_api(url: str, token: str, method: str, params):
                 "Authorization": f"Bearer {token}",
             },
         )
+        if response.status_code == 401:
+            raise RmmbrAuthError(
+                "rmmbr authentication failure. Is the API token valid?"
+            )
         return response.json()
 
 
