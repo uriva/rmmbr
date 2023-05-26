@@ -22,7 +22,7 @@ export const app =
   };
 
 export const Response404 = () => new Response("Not Found", { status: 404 });
-const badAuth = new Response("Authentication needed", { status: 401 });
+const badAuth = () => new Response("Authentication needed", { status: 401 });
 
 type RequestAuthenticator<T> = (token: string) => T | null | Promise<T | null>;
 
@@ -41,7 +41,7 @@ export const authenticated = <T>(
 ): Handler =>
 async (request, connInfo) => {
   const token = getBearer(request);
-  if (!token) return badAuth;
+  if (!token) return badAuth();
   const auth = await authenticator(token);
-  return auth ? await handler(request, auth, connInfo) : badAuth;
+  return auth ? await handler(request, auth, connInfo) : badAuth();
 };

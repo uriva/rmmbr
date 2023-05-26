@@ -25,11 +25,11 @@ const redisKey = {
 const verifyApiToken = (token: string) =>
   redisClient.get(redisKey.apiTokenToUser(token));
 
-const verifyAuth0 = (token: string): Promise<string> =>
+const verifyAuth0 = (token: string): Promise<string | null> =>
   jwtVerify(token, Auth0JKWS, {
     issuer: auth0Tenant,
     audience: "rmmbr",
-  }).then((x) => x.payload.sub || "");
+  }).then((x) => x.payload.sub || null).catch(() => null);
 
 type CREATE_TOKEN = { action: "create" };
 type DELETE_TOKEN = { action: "delete"; tokenId: string };
