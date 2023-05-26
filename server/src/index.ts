@@ -78,10 +78,12 @@ serve(
             (call: CREATE_TOKEN | DELETE_TOKEN) => {
               if (call.action == "create") {
                 const token = crypto.randomUUID();
-                return Promise.all([
-                  redisClient.rpush(redisKey.userToApiTokenSet(uid), token),
-                  redisClient.set(redisKey.apiTokenToUser(token), uid),
-                ]).then(() => new Response(JSON.stringify(token)));
+                const tx = redisClient.tx();
+                tx.rpush(redisKey.userToApiTokenSet(uid), token);
+                tx.set(redisKey.apiTokenToUser(token), uid);
+                return tx.flush().then(() =>
+                  new Response(JSON.stringify(token))
+                );
               } else if (call.action == "delete") {
                 return getApiTokens(uid).then((tokens) => {
                   const tokensToDelete = tokens.filter((t) =>
@@ -93,14 +95,16 @@ serve(
                     return new Response("Ambiguous token ID", { status: 403 });
                   }
                   const deletedToken = tokensToDelete[0];
-                  return Promise.all([
-                    redisClient.lrem(
-                      redisKey.userToApiTokenSet(uid),
-                      1,
-                      deletedToken,
-                    ),
-                    redisClient.del(redisKey.apiTokenToUser(deletedToken)),
-                  ]).then(() => new Response(JSON.stringify(deletedToken)));
+                  const tx = redisClient.tx();
+                  tx.lrem(
+                    redisKey.userToApiTokenSet(uid),
+                    1,
+                    deletedToken,
+                  );
+                  tx.del(redisKey.apiTokenToUser(deletedToken));
+                  return tx.flush().then(() =>
+                    new Response(JSON.stringify(deletedToken))
+                  );
                 });
               }
               return new Response("Unknown command", { status: 403 });
