@@ -12,12 +12,11 @@ export const apiToken = (
   cmd: APITokenInterface,
 ) => {
   const [action, args] =
-    Object.entries(cmd).find(([action, _]) => action in commandMapping) ||
+    Object.entries(cmd).find(([action]) => action in commandMapping) ||
     Deno.exit();
 
   return getAccessToken()
-    .then(commandMapping[action](args))
-    .then(console.log);
+    .then(commandMapping[action](args));
 };
 
 const apiTokenRequest = (
@@ -56,7 +55,7 @@ const getOrCreateApiToken = (
 
 const commandMapping: Record<
   string,
-  ((..._: string[]) => (_: string) => Promise<unknown>)
+  ((..._: string[]) => (_: string) => Promise<string>)
 > = {
   create: () => createApiToken,
   delete: (tokenId: string) =>

@@ -49,14 +49,13 @@ const args = yargs(Deno.args)
   .parse();
 
 const command = args._[0];
-const commands: Record<string, () => Promise<unknown>> = {
+const commands: Record<string, () => Promise<string>> = {
   login,
   "api-token": () => apiToken(args),
-  secret: () =>
-    Promise.resolve(console.log(randomBytes(32).toString("base64url") + "=")),
+  secret: () => Promise.resolve(randomBytes(32).toString("base64url") + "="),
 };
 
-commands[command]().catch((msg) => {
+commands[command]().then(console.log).catch((msg) => {
   console.error(msg);
   Deno.exit(1);
 });

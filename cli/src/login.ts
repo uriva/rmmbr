@@ -49,18 +49,17 @@ and confirm to finish the login.
     if (access_token) {
       return getAccessTokenPath()
         .then((path) => Deno.writeTextFile(path.toString(), access_token))
-        .then(() => console.log("Now logged in."));
+        .then(() => "Now logged in.");
     }
     if (error === "authorization_pending") {
       // User hasn't authenticated yet, wait and try again:
       continue;
     } else if (error === "expired_token") {
-      console.error("Waited too long, try again.");
+      throw new Error("Waited too long, try again.");
     } else {
-      console.error(
+      throw new Error(
         `Unexpected error while waiting for authentication: ${error}`,
       );
     }
-    Deno.exit(1);
   }
 };
