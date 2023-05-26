@@ -43,17 +43,15 @@ pip install rmmbr
 ```python
 from rmmbr import cloud_cache
 
-cacher = cloud_cache(
+n_called = 0
+
+@cloud_cache(
     "https://rmmbr.net",
     "your-service-token",
     "some name for the cache",
     60 * 60 * 24, # TTL is one day.
     "Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",
 )
-
-n_called = 0
-
-@cacher
 async def f(x: int):
   nonlocal n_called
   n_called += 1
