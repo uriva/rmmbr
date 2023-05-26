@@ -118,3 +118,17 @@ Currently the cloud cache adds around 190ms to the call in miss cases and takes 
 - [Terms of service](legal/terms_of_service.md)
 - [Privacy policy](legal/privacy_policy.md)
 - [Service level agreement](legal/service_level_agreement.md)
+
+## FAQ
+
+### How do I sign up?
+
+Download the cli and run:
+
+```sh
+rmmbr login
+```
+
+### How do I change tier?
+
+We will contact you when your exceeds the free tier.
