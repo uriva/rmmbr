@@ -136,8 +136,8 @@ export const memCache =
   };
 
 export const localCache =
-  <X extends JSONArr, Y extends JSONValue>({ id }: { id: string }) =>
-  (f: Func<X, Y>) =>
+  ({ id }: { id: string }) =>
+  <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) =>
     abstractCache({ key: inputToCacheKey(""), f, ...makeLocalReadWrite(id) });
 
 const callAPI = (
@@ -172,8 +172,8 @@ export type CloudParams = {
 };
 
 export const cloudCache =
-  <X extends JSONArr, Y extends JSONValue>(params: CloudParams) =>
-  (f: Func<X, Y>) =>
+  (params: CloudParams) =>
+  <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) =>
     abstractCache({
       key: inputToCacheKey(params.encryptionKey || ""),
       f,
