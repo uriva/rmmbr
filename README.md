@@ -5,6 +5,16 @@
 `rmmbr` is the simplest way to persistently cache async functions, locally or in the
 cloud with end to end encryption (e2ee).
 
+## Why is a managed caching service required?
+
+Caching is a great way to save costs and time calling remote APIs.
+
+Most programming languages have great caching libraries for in-memory caching. These libraries work well if your service is long-running on one machine. However, if your service restarts, then you lose your cache and if you are running more than one instance, they cannot share caches.
+
+Making your cache persistent across runs requries another service which writes to disk or to a managed database. But usually when you need caching, the last thing you want to think of is another service to maintain, and how to write code to communicate to this service.
+
+This is where `rmmbr` comes in. It gives you a <1 minute setup time, all inside your code, way to do persistent caching without context switching from the work you actually want to do.
+
 ## Usage
 
 `rmmbr` provides three APIs, in python and javascript.
