@@ -102,9 +102,7 @@ export const waitAllWrites = () => Promise.all(writePromises);
 const inputToCacheKey = (secret: string) => (...x: JSONArr): string =>
   hash(jsonStableStringify(x) + secret);
 
-export type MemParams = {
-  ttl?: number;
-};
+type MemParams = { ttl?: number };
 
 export const memCache =
   ({ ttl }: MemParams) =>
@@ -135,10 +133,14 @@ export const memCache =
     });
   };
 
-export const localCache =
-  ({ id }: { id: string }) =>
+const localCache =
+  ({ cacheId }: CacheParams) =>
   <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) =>
-    abstractCache({ key: inputToCacheKey(""), f, ...makeLocalReadWrite(id) });
+    abstractCache({
+      key: inputToCacheKey(""),
+      f,
+      ...makeLocalReadWrite(cacheId),
+    });
 
 const callAPI = (
   url: string,
@@ -155,24 +157,37 @@ const callAPI = (
     body: JSON.stringify({ method, params }),
   }).then((x) => x.json());
 
+const assertString = (s: string | null | undefined): string => {
+  if (!s) throw "expected a string";
+  return s;
+};
+
 const setRemote =
-  ({ cacheId, url, token, ttl }: CloudParams) =>
+  ({ cacheId, url, token, ttl }: CacheParams) =>
   (key: string, value: JSONValue) =>
-    callAPI(url, token, "set", { key, value, ttl, cacheId });
+    callAPI(assertString(url), assertString(token), "set", {
+      key,
+      value,
+      ttl,
+      cacheId,
+    });
 
-const getRemote = ({ url, token, cacheId }: CloudParams) => (key: string) =>
-  callAPI(url, token, "get", { key, cacheId });
+const getRemote = ({ url, token, cacheId }: CacheParams) => (key: string) =>
+  callAPI(assertString(url), assertString(token), "get", { key, cacheId });
 
-export type CloudParams = {
-  token: string;
+type CacheParams = {
   cacheId: string;
-  url: string;
+  token?: string;
+  url?: string;
   ttl?: number;
   encryptionKey?: string;
 };
 
-export const cloudCache =
-  (params: CloudParams) =>
+export const cache = (params: CacheParams) =>
+  params.token ? cloudCache(params) : localCache(params);
+
+const cloudCache =
+  (params: CacheParams) =>
   <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) =>
     abstractCache({
       key: inputToCacheKey(params.encryptionKey || ""),
