@@ -175,7 +175,7 @@ const setRemote =
       ),
       assertString(
         token,
-        "Missing `token` parameter. You can produce a token using `rmmbr access-token` command.",
+        "Missing `token` parameter. You can produce a token using `rmmbr token -g` command.",
       ),
       "set",
       {

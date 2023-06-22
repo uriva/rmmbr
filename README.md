@@ -41,7 +41,7 @@ Produce a service token:
 
 ```sh
 rmmbr login
-rmmbr api-token
+rmmbr token -g
 ```
 
 For sensitive data, you can e2e encrypt it by adding an encryption key
