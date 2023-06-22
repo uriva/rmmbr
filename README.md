@@ -2,18 +2,27 @@
 
 ![rmmbr](https://media.tenor.com/NcnMXggTODAAAAAC/yeah-i-member-memberberries.gif)
 
-`rmmbr` is the simplest way to persistently cache async functions, locally or in the
-cloud with end to end encryption (e2ee).
+`rmmbr` is the simplest way to persistently cache async functions, locally or in
+the cloud with end to end encryption (e2ee).
 
 ## Motivation
 
 Caching is a great way to save costs and time calling remote APIs.
 
-Most programming languages already have solutions for in-memory caching. These work well if your service is long-running on one machine. However, if your service restarts, then you lose your cache. In addition if you are running more than one instance, they don't share caches.
+Most programming languages already have solutions for in-memory caching. These
+work well if your service is long-running on one machine. However, if your
+service restarts, then you lose your cache. In addition if you are running more
+than one instance, they don't share caches.
 
-Making caches persistent across runs requires deploying another service which writes to disk or to a database. This means to set it up is a substantial context switch for the developer. The last thing you want to think of while doing unrelated work is another service to maintain, and how to write code to communicate to this service.
+Making caches persistent across runs requires deploying another service which
+writes to disk or to a database. This means to set it up is a substantial
+context switch for the developer. The last thing you want to think of while
+doing unrelated work is another service to maintain, and how to write code to
+communicate to this service.
 
-As this use case is quite common, it would be desired to have an easy way to do it, right from your command line and code editor, and without any context switching.
+As this use case is quite common, it would be desired to have an easy way to do
+it, right from your command line and code editor, and without any context
+switching.
 
 ## Usage
 
@@ -115,7 +124,8 @@ const cacher = cloudCache({
 
 ## Regions
 
-We currently deploy a backend in us-east region. Please post an issue if you have a need to configure this.
+We currently deploy a backend in us-east region. Please post an issue if you
+have a need to configure this.
 
 ## Legal
 
