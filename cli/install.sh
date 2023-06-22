@@ -1,3 +1,4 @@
+set -e
 if ! command -v deno &>/dev/null;
 then
   echo "Deno is required. Please install it and try again: https://deno.com/manual/getting_started/installation"
