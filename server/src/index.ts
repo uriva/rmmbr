@@ -1,4 +1,4 @@
-import { Response404, app, authenticated } from "./webFramework.ts";
+import { app, authenticated, Response404 } from "./webFramework.ts";
 import {
   createRemoteJWKSet,
   jwtVerify,

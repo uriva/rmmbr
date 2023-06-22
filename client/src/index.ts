@@ -157,20 +157,34 @@ const callAPI = (
     body: JSON.stringify({ method, params }),
   }).then((x) => x.json());
 
-const assertString = (s: string | null | undefined): string => {
-  if (!s) throw "expected a string";
+const assertString = (
+  s: string | null | undefined,
+  message: string,
+): string => {
+  if (!s) throw message;
   return s;
 };
 
 const setRemote =
   ({ cacheId, url, token, ttl }: CacheParams) =>
   (key: string, value: JSONValue) =>
-    callAPI(assertString(url), assertString(token), "set", {
-      key,
-      value,
-      ttl,
-      cacheId,
-    });
+    callAPI(
+      assertString(
+        url,
+        'Missing `url` parameter for backend. Try with "https://rmmbr.net".',
+      ),
+      assertString(
+        token,
+        "Missing `token` parameter. You can produce a token using `rmmbr access-token` command.",
+      ),
+      "set",
+      {
+        key,
+        value,
+        ttl,
+        cacheId,
+      },
+    );
 
 const getRemote = ({ url, token, cacheId }: CacheParams) => (key: string) =>
   callAPI(assertString(url), assertString(token), "get", { key, cacheId });

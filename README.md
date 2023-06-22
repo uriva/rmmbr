@@ -2,24 +2,34 @@
 
 ![rmmbr](https://media.tenor.com/NcnMXggTODAAAAAC/yeah-i-member-memberberries.gif)
 
-`rmmbr` is the simplest way to persistently cache async functions, locally or in the
-cloud with end to end encryption (e2ee).
+`rmmbr` is the simplest way to persistently cache async functions, locally or in
+the cloud with end to end encryption (e2ee).
 
 ## Motivation
 
 Caching is a great way to save costs and time calling remote APIs.
 
-Most programming languages already have solutions for in-memory caching. These work well if your service is long-running on one machine. However, if your service restarts, then you lose your cache. In addition if you are running more than one instance, they don't share caches.
+Most programming languages already have solutions for in-memory caching. These
+work well if your service is long-running on one machine. However, if your
+service restarts, then you lose your cache. In addition if you are running more
+than one instance, they don't share caches.
 
-Making caches persistent across runs requires deploying another service which writes to disk or to a database. This means to set it up is a substantial context switch for the developer. The last thing you want to think of while doing unrelated work is another service to maintain, and how to write code to communicate to this service.
+Making caches persistent across runs requires deploying another service which
+writes to disk or to a database. This means to set it up is a substantial
+context switch for the developer. The last thing you want to think of while
+doing unrelated work is another service to maintain, and how to write code to
+communicate to this service.
 
-As this use case is quite common, it would be desired to have an easy way to do it, right from your command line and code editor, and without any context switching.
+As this use case is quite common, it would be desired to have an easy way to do
+it, right from your command line and code editor, and without any context
+switching.
 
 ## Usage
 
 `rmmbr` provides APIs in Python and JavaScript/TypeScript.
 
-If token is provided, the library will persist the cache across devices, otherwise everything would be stored in a file under a `.rmmbr` directory.
+If token is provided, the library will persist the cache across devices,
+otherwise everything would be stored in a file under a `.rmmbr` directory.
 
 Install the CLI tool:
 
@@ -34,7 +44,8 @@ rmmbr login
 rmmbr api-token
 ```
 
-For sensitive data, you can e2e encrypt it by adding an encryption key parameter.
+For sensitive data, you can e2e encrypt it by adding an encryption key
+parameter.
 
 Produce an encryption key:
 
@@ -107,7 +118,8 @@ await fCached(3);
 
 ## Regions
 
-We currently deploy a backend in us-east region. Please post an issue if you have a need to configure this.
+We currently deploy a backend in us-east region. Please post an issue if you
+have a need to configure this.
 
 ## Legal
 
