@@ -24,7 +24,7 @@ If token is provided, the library will persist the cache across devices, otherwi
 Install the CLI tool:
 
 ```sh
-source <(curl -s https://raw.githubusercontent.com/uriva/rmmbr/main/cli/install.sh)
+curl -s https://raw.githubusercontent.com/uriva/rmmbr/main/cli/install.sh | sudo bash
 ```
 
 Produce a service token:
