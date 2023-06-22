@@ -26,28 +26,28 @@ switching.
 
 ## Usage
 
-`rmmbr` provides three APIs, in python and javascript.
+`rmmbr` provides APIs in Python and JavaScript/TypeScript.
 
-1. cloud caching - persist the cache across devices
-1. local file caching - persist on one device in a text file under a `.rmmbr` directory
-1. In memory caching - no persistence, if you are feeling nostalgic 😉
+If token is provided, the library will persist the cache across devices,
+otherwise everything would be stored in a file under a `.rmmbr` directory.
 
-The cloud cache is free up to a quota. To use it, install the CLI tool:
+Install the CLI tool:
 
 ```sh
 curl -s https://raw.githubusercontent.com/uriva/rmmbr/main/cli/install.sh | sudo bash
 ```
 
-To produce a service token:
+Produce a service token:
 
 ```sh
 rmmbr login
-rmmbr api-token
+rmmbr token -g
 ```
 
-For sensitive data, you can e2e encrypt it by adding an encryption key parameter.
+For sensitive data, you can e2e encrypt it by adding an encryption key
+parameter.
 
-To produce an encryption key:
+Produce an encryption key:
 
 ```sh
 rmmbr secret
@@ -60,16 +60,16 @@ pip install rmmbr
 ```
 
 ```python
-from rmmbr import cloud_cache
+from rmmbr import cache
 
 n_called = 0
 
-@cloud_cache(
-    "https://rmmbr.net",
-    "your-service-token",
+@cache(
     "some name for the cache",
     60 * 60 * 24, # TTL is one day.
     "Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",
+    "https://rmmbr.net",
+    "your-service-token",
 )
 async def f(x: int):
   nonlocal n_called
@@ -88,9 +88,15 @@ npm i rmmbr
 ```
 
 ```js
-import { cloudCache, localCache } from "rmmbr";
+import { cache } from "rmmbr";
 
-const cacher = localCache({ id: "name of cache for my function" });
+const cacher = cache({
+  cacheId: "some name for the cache",
+  ttl: 60 * 60 * 24, // Values will expire after one day. Omission implies max (one week).
+  token: "service-token",
+  url: "https://rmmbr.net",
+  encryptionKey: "your-encryption-key", // This can be omitted if you don't need e2ee.
+});
 
 let nCalled = 0;
 const f = (x: number) => {
@@ -101,18 +107,6 @@ const fCached = cacher(f);
 await fCached(3);
 await fCached(3);
 // nCalled is 1 here
-```
-
-Cloud cache example:
-
-```js
-const cacher = cloudCache({
-  token: "service-token",
-  cacheId: "some name for the cache",
-  url: "https://rmmbr.net",
-  ttl: 60 * 60 * 24, // Values will expire after one day. Omission implies max (one week).
-  encryptionKey: "your-encryption-key", // This can be omitted if you don't need e2ee.
-});
 ```
 
 ## Pricing

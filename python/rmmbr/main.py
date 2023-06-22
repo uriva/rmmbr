@@ -55,6 +55,7 @@ def _deserialize(s):
 
 _cache_background_writes = set()
 
+
 def _abstract_cache_params(key, f, read, write):
     async def func(*args, **kwargs):
         key_result = key(*args, **kwargs)
@@ -72,21 +73,9 @@ def _abstract_cache_params(key, f, read, write):
 
     return func
 
+
 def wait_all_writes():
     return asyncio.gather(*_cache_background_writes, return_exceptions=True)
-
-def mem_cache(f):
-    cache = {}
-
-    async def func(*args, **kwargs):
-        key_result = _key_arguments(*args, **kwargs)
-        if key_result in cache:
-            return cache[key_result]
-        y = await f(*args, **kwargs)
-        cache[key_result] = y
-        return y
-
-    return func
 
 
 def _make_local_read_write(name: str):
@@ -114,8 +103,8 @@ def _make_local_read_write(name: str):
     return read, write
 
 
-def local_cache(id: str):
-    read, write = _make_local_read_write(id)
+def _local_cache(cache_id: str):
+    read, write = _make_local_read_write(cache_id)
     return lambda f: _abstract_cache_params(_key_arguments, f, read, write)
 
 
@@ -186,13 +175,15 @@ def _decrypt_and_deserialize_output(encryptor: Encryptor, data: str) -> Serializ
     return deserialize_output(decrypt(encryptor, data))
 
 
-def cloud_cache(
-    url: str,
-    token: str,
+def cache(
     cache_id: str,
     ttl: Optional[int],
     encryption_key: Optional[str],
+    url: Optional[str],
+    token: Optional[str],
 ):
+    if not token or not url:
+        return _local_cache(cache_id)
     if encryption_key is not None:
         encryptor = encryptor_from_key(encryption_key.encode())
         key_arguments_func = partial(_private_key_arguments, encryption_key.encode())

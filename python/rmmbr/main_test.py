@@ -4,7 +4,7 @@ import pathlib
 import dotenv
 import redis.asyncio as redis
 
-from rmmbr import cloud_cache, local_cache, mem_cache, wait_all_writes
+from rmmbr import cache, wait_all_writes
 
 
 def _cache_test_helper(instance_implies_new_cache: bool, expires_after_2_seconds: bool):
@@ -46,13 +46,8 @@ def _rmdir(directory):
 
 
 async def test_local_cache():
-    cacher = local_cache("some-id")
-    await _cache_test_helper(False, False)(cacher)
+    await _cache_test_helper(False, False)(cache("some-id", None, None, None, None))
     _rmdir("./.rmmbr")
-
-
-async def test_memory_cache():
-    await _cache_test_helper(True, False)(mem_cache)
 
 
 def _env_param(s: str) -> str:
@@ -78,25 +73,31 @@ _mock_backend_url = f"http://localhost:{_port}"
 async def test_cloud_cache():
     await _clean_redis()
     await _cache_test_helper(False, False)(
-        cloud_cache(_mock_backend_url, "some-token", "my_function_name", None, None)
+        cache(
+            "my_function_name",
+            None,
+            None,
+            _mock_backend_url,
+            "some-token",
+        )
     )
 
 
 async def test_cloud_cache_expiration():
     await _clean_redis()
     await _cache_test_helper(False, True)(
-        cloud_cache(_mock_backend_url, "some-token", "my_function_name", 1, None)
+        cache("my_function_name", 1, None, _mock_backend_url, "some-token")
     )
 
 
 async def test_cloud_cache_encryption():
     await _clean_redis()
     await _cache_test_helper(False, False)(
-        cloud_cache(
-            _mock_backend_url,
-            "some-token",
+        cache(
             "my_function_name",
             None,
             "Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",
+            _mock_backend_url,
+            "some-token",
         )
     )

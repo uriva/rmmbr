@@ -1,4 +1,4 @@
-import { cloudCache, localCache, memCache, waitAllWrites } from "./index.ts";
+import { cache, waitAllWrites } from "./index.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
@@ -47,11 +47,7 @@ const testVariadic = async (cacher: any) => {
 };
 
 Deno.test("local cache", () =>
-  testCache(false, false)(localCache({ id: "some-id" })));
-
-Deno.test("memory cache", () => testCache(true, false)(memCache({})));
-Deno.test("memory cache ttl", () =>
-  testCache(true, true)(memCache({ ttl: 1 })));
+  testCache(false, false)(cache({ cacheId: "some-id" })));
 
 const cleanRedis = async () => {
   const { REDIS_PASSWORD, REDIS_URL, REDIS_PORT } = config();
@@ -73,7 +69,7 @@ Deno.test("remote cache", async () => {
     false,
     false,
   )(
-    cloudCache({
+    cache({
       token: "some-token",
       cacheId: "some name for the cache",
       url: mockBackendUrl,
@@ -87,7 +83,7 @@ Deno.test("remote cache encryption", async () => {
     false,
     false,
   )(
-    cloudCache({
+    cache({
       url: mockBackendUrl,
       token: "some-token",
       cacheId: "some name for the cache",
@@ -102,7 +98,7 @@ Deno.test("remote cache timeout", async () => {
     false,
     true,
   )(
-    cloudCache({
+    cache({
       url: mockBackendUrl,
       token: "some-token",
       cacheId: "some name for the cache",
@@ -112,14 +108,12 @@ Deno.test("remote cache timeout", async () => {
 });
 
 Deno.test("local variadic cache", () =>
-  testVariadic(localCache({ id: "some-id" })));
-
-Deno.test("memory variadic cache", () => testVariadic(memCache({})));
+  testVariadic(cache({ cacheId: "some-id" })));
 
 Deno.test("remote variadic cache", async () => {
   await cleanRedis();
   return testVariadic(
-    cloudCache({
+    cache({
       token: "some-token",
       cacheId: "some name for the cache",
       url: mockBackendUrl,
