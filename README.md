@@ -26,7 +26,7 @@ As this use case is quite common, it would be desired to have an easy way to do 
 The cloud cache is free up to a quota. To use it, install the CLI tool:
 
 ```sh
-source <(curl -s https://raw.githubusercontent.com/uriva/rmmbr/main/cli/install.sh)
+curl -s https://raw.githubusercontent.com/uriva/rmmbr/main/cli/install.sh | sudo bash
 ```
 
 To produce a service token:
