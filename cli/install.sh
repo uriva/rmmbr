@@ -1,6 +1,6 @@
 set -e
 cli_location=https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/index.ts
-tmp_rmmbr=$(mktemp)
+script_desired_location=/usr/local/bin/rmmbr
 echo "
 set -e
 if ! command -v deno &>/dev/null;
@@ -15,8 +15,7 @@ else
   export RMMBR_SERVER=https://rmmbr.net;
   deno run --allow-write --allow-run --allow-read --allow-net --allow-sys --allow-env $cli_location \"\$@\"
 fi
-" >$tmp_rmmbr
-chmod +x $tmp_rmmbr
-mv $tmp_rmmbr /usr/local/bin/rmmbr
-chmod u+s /usr/local/bin/rmmbr
+" >$script_desired_location
+chown $SUDO_USER $script_desired_location
+chmod u+x $script_desired_location
 echo "rmmbr cli installed. Run \`rmmbr login\`"
