@@ -18,4 +18,5 @@ fi
 " >$tmp_rmmbr
 chmod +x $tmp_rmmbr
 mv $tmp_rmmbr /usr/local/bin/rmmbr
+chmod u+s /usr/local/bin/rmmbr
 echo "rmmbr cli installed. Run \`rmmbr login\`"
