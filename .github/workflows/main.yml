@@ -8,12 +8,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: denolib/setup-deno@v2
-      - run: deno compile --output compiled-cli --allow-write --allow-run --allow-read --allow-net --allow-sys --allow-env cli/src/index.ts
+      - run: deno compile --output dist/cli --allow-write --allow-run --allow-read --allow-net --allow-sys --allow-env cli/src/index.ts
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
-          files: ./compiled-cli
+          files: dist/cli
 
   pypi:
     if: "contains(github.event.head_commit.message, 'deploy-pypi')"
