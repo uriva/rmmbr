@@ -4,7 +4,6 @@ jobs:
   cli:
     if: "contains(github.event.head_commit.message, 'deploy-cli')"
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - uses: actions/checkout@v3
       - uses: denolib/setup-deno@v2
@@ -13,6 +12,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
+          title: "cli"
           files: ./compiled-cli
 
   pypi:
