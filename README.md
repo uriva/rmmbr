@@ -44,30 +44,52 @@ rmmbr secret
 
 ### Python
 
+Here's a python example showing use with OpenAI's API.
+
+Try running this twice. In the second time you will notice no print occurs.
+
 ```sh
 pip install rmmbr
+pip install openai
 ```
 
 ```python
-from rmmbr import cache
+import asyncio
+import openai
+import rmmbr
 
-n_called = 0
+openai.api_key = "<your openai api key>"
 
-@cache(
-    "some name for the cache",
+
+@rmmbr.cache(
+    "grammar checks cache",
     60 * 60 * 24, # TTL is one day.
-    "Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",
+    "Cqq33cbHu9AEUaP_wS3LCDQN7wy40XKWzALoPHbU5S8=",  # encryption key, or None if not required
     "https://rmmbr.net",
-    "your-service-token",
+    "<your rmmbr api key>",
 )
-async def f(x: int):
-  nonlocal n_called
-  n_called += 1
-  return x
+async def fix_grmmar(sentence: str):
+    print("sending request to openai")
+    return await openai.Completion.acreate(
+        model="text-davinci-003",
+        prompt="Correct this to standard English:\n\n" + sentence,
+        temperature=0,
+        max_tokens=60,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0,
+    )
 
-await f(3)
-await f(3)
-# nCalled is 1 here
+
+async def main():
+    print(await fix_grmmar("She no went to the market."))
+    # This is required only if you want to make sure a cache write occurs before
+    # the program ends.
+    await rmmbr.wait_all_writes()
+
+
+asyncio.run(main())
+
 ```
 
 ### Javascript / Typescript
