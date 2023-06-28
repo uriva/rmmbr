@@ -1,4 +1,4 @@
-import { app, authenticated, Response404 } from "./webFramework.ts";
+import { Response404, app, authenticated } from "./webFramework.ts";
 import {
   createRemoteJWKSet,
   jwtVerify,
@@ -36,7 +36,7 @@ type DELETE_TOKEN = { action: "delete"; tokenId: string };
 
 serve(
   app({
-    "landing-page": {
+    "/landing-page": {
       GET: () => new Response("rmmbr landing page", { status: 200 }),
     },
     "/": {
