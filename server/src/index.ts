@@ -36,6 +36,9 @@ type DELETE_TOKEN = { action: "delete"; tokenId: string };
 
 serve(
   app({
+    "landing-page": {
+      GET: () => new Response("rmmbr landing page", { status: 200 }),
+    },
     "/": {
       POST: authenticated(
         memCache({ ttl: 60 * 5 })(verifyApiToken),
