@@ -6,6 +6,7 @@ await emptyDir(outDir);
 
 await build({
   typeCheck: false,
+  test: false,
   entryPoints: ["./client/src/index.ts"],
   outDir,
   shims: { deno: true },
