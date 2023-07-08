@@ -1,4 +1,4 @@
-import { cache, waitAllWrites } from "./index.ts";
+import { CacheParams, cache, waitAllWrites } from "./index.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
@@ -7,32 +7,54 @@ import { connect } from "https://deno.land/x/redis@v0.29.2/mod.ts";
 const sleep = (seconds: number) =>
   new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 
-const testCache =
-  (instanceSpecificCache: boolean, expiresAfter2Seconds: boolean) =>
-  async (cacher: any) => {
-    let nCalled = 0;
-    const f = (x: number) => {
-      nCalled++;
-      return Promise.resolve(x);
-    };
-    const fCached = cacher(f);
-    assertEquals(await fCached(3), 3);
-    await waitAllWrites();
-    const results = [];
-    for (const n of [3, 3, 2, 1]) {
-      results.push(await fCached(n));
-      await waitAllWrites();
-    }
-    assertEquals(results, [3, 3, 2, 1]);
-    assertEquals(await cacher(f)(3), 3);
-    await waitAllWrites();
-    assertEquals(nCalled, instanceSpecificCache ? 4 : 3);
-    nCalled = 0;
-    await sleep(2);
-    assertEquals(await fCached(3), 3);
-    await waitAllWrites();
-    assertEquals(nCalled, expiresAfter2Seconds ? 1 : 0);
+const testCache = async (
+  instanceSpecificCache: boolean,
+  expiresAfter2Seconds: boolean,
+  cacheParams: CacheParams,
+) => {
+  let i = 0;
+  for (const innerLogic of [(x: any) => ({ result: x }), (x: any) => x]) {
+    await testCacheHelper(
+      { ...cacheParams, cacheId: cacheParams.cacheId + i },
+      innerLogic,
+      expiresAfter2Seconds,
+      instanceSpecificCache,
+    );
+    i++;
+  }
+};
+
+const testCacheHelper = async (
+  cacheParams: CacheParams,
+  innerLogic: (x: any) => any,
+  expiresAfter2Seconds: boolean,
+  instanceSpecificCache: boolean,
+) => {
+  const cacher = cache(cacheParams);
+  let nCalled = 0;
+  const f = (x: number) => {
+    nCalled++;
+    return Promise.resolve(innerLogic(x));
   };
+  const fCached = cacher(f);
+  assertEquals(await fCached(3), innerLogic(3));
+  await waitAllWrites();
+  const results = [];
+  const inputs = [3, 3, 2, 1];
+  for (const n of inputs) {
+    results.push(await fCached(n));
+    await waitAllWrites();
+  }
+  assertEquals(results, inputs.map(innerLogic));
+  assertEquals(await cacher(f)(3), innerLogic(3));
+  await waitAllWrites();
+  assertEquals(nCalled, instanceSpecificCache ? 4 : 3);
+  nCalled = 0;
+  await sleep(2);
+  assertEquals(await fCached(3), innerLogic(3));
+  await waitAllWrites();
+  assertEquals(nCalled, expiresAfter2Seconds ? 1 : 0);
+};
 
 const testVariadic = async (cacher: any) => {
   const f2 = (x: number, y: string) => Promise.resolve(x.toString() + y);
@@ -46,8 +68,7 @@ const testVariadic = async (cacher: any) => {
   await waitAllWrites();
 };
 
-Deno.test("local cache", () =>
-  testCache(false, false)(cache({ cacheId: "some-id" })));
+Deno.test("local cache", () => testCache(false, false, { cacheId: "some-id" }));
 
 const cleanRedis = async () => {
   const { REDIS_PASSWORD, REDIS_URL, REDIS_PORT } = config();
@@ -68,12 +89,11 @@ Deno.test("remote cache", async () => {
   return testCache(
     false,
     false,
-  )(
-    cache({
+    {
       token: "some-token",
       cacheId: "some name for the cache",
       url: mockBackendUrl,
-    }),
+    },
   );
 });
 
@@ -82,13 +102,12 @@ Deno.test("remote cache encryption", async () => {
   return testCache(
     false,
     false,
-  )(
-    cache({
+    {
       url: mockBackendUrl,
       token: "some-token",
       cacheId: "some name for the cache",
       encryptionKey: "cddn22Nf1tWB1f5vbJCxl3ix5vCFKxXAcwQbFMtRdV4=",
-    }),
+    },
   );
 });
 
@@ -97,13 +116,12 @@ Deno.test("remote cache timeout", async () => {
   return testCache(
     false,
     true,
-  )(
-    cache({
+    {
       url: mockBackendUrl,
       token: "some-token",
       cacheId: "some name for the cache",
       ttl: 1,
-    }),
+    },
   );
 });
 

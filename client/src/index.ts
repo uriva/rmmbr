@@ -61,9 +61,9 @@ const makeLocalReadWrite = (name: string) => {
         });
   return {
     read: (key: string) =>
-      getCache().then((
-        cache: Cache,
-      ) => (key in cache ? cache[key] : Promise.reject())),
+      getCache().then((cache: Cache) =>
+        key in cache ? cache[key] : Promise.reject()
+      ),
     write: async (key: string, value: JSONValue) => {
       const cache = await getCache();
       cache[key] = value;
@@ -87,14 +87,12 @@ const abstractCache = <X extends JSONArr, Y>({
 }: AbstractCacheParams<X, Y>): Func<X, Y> =>
 (...x: X) => {
   const keyResult = key(...x);
-  return read(keyResult)
-    .catch(() =>
-      f(...x)
-        .then((y) => {
-          enrollPromise(write(keyResult, y));
-          return y;
-        })
-    );
+  return read(keyResult).catch(() =>
+    f(...x).then((y) => {
+      enrollPromise(write(keyResult, y));
+      return y;
+    })
+  );
 };
 
 export const waitAllWrites = () => Promise.all(writePromises);
@@ -106,9 +104,7 @@ type MemParams = { ttl?: number };
 
 export const memCache =
   ({ ttl }: MemParams) =>
-  <X extends JSONArr, Y extends JSONValue>(
-    f: Func<X, Y>,
-  ) => {
+  <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) => {
     const keyToValue: Record<string, Y> = {};
     const keyToTimestamp: Record<string, number> = {};
     return abstractCache({
@@ -165,31 +161,30 @@ const assertString = (
   return s;
 };
 
+const urlParamMissing =
+  'Missing `url` parameter for backend. Try with "https://rmmbr.net".';
+const tokenParamMissing =
+  "Missing `token` parameter. You can produce a token using `rmmbr token -g` command.";
+
 const setRemote =
   ({ cacheId, url, token, ttl }: CacheParams) =>
   (key: string, value: JSONValue) =>
     callAPI(
-      assertString(
-        url,
-        'Missing `url` parameter for backend. Try with "https://rmmbr.net".',
-      ),
-      assertString(
-        token,
-        "Missing `token` parameter. You can produce a token using `rmmbr token -g` command.",
-      ),
+      assertString(url, urlParamMissing),
+      assertString(token, tokenParamMissing),
       "set",
-      {
-        key,
-        value,
-        ttl,
-        cacheId,
-      },
+      { key, value, ttl, cacheId },
     );
 
 const getRemote = ({ url, token, cacheId }: CacheParams) => (key: string) =>
-  callAPI(assertString(url), assertString(token), "get", { key, cacheId });
+  callAPI(
+    assertString(url, urlParamMissing),
+    assertString(token, tokenParamMissing),
+    "get",
+    { key, cacheId },
+  );
 
-type CacheParams = {
+export type CacheParams = {
   cacheId: string;
   token?: string;
   url?: string;
@@ -207,17 +202,16 @@ const cloudCache =
       key: inputToCacheKey(params.encryptionKey || ""),
       f,
       read: (key) =>
-        getRemote(params)(key).then((
-          value,
-        ) => (
-          value
-            ? params.encryptionKey
-              ? (decrypt(params.encryptionKey as string)(value).then(
-                JSON.parse,
-              ))
-              : JSON.parse(value)
-            : Promise.reject()
-        )),
+        getRemote(params)(key)
+          .then((value) =>
+            value
+              ? params.encryptionKey
+                ? decrypt(params.encryptionKey as string)(value).then(
+                  JSON.parse,
+                )
+                : value
+              : Promise.reject()
+          ),
       write: params.encryptionKey
         ? async (key, value) =>
           setRemote(params)(
