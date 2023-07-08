@@ -43,6 +43,7 @@ serve(
           const { method, params } = await request.json();
           if (method === "get") {
             const { cacheId, key } = params;
+            console.log(`incoming get request for key ${key}`);
             return new Response(
               (await redisClient.get(`${uid}:${cacheId}:${key}`)) ||
                 JSON.stringify(null),
@@ -50,6 +51,7 @@ serve(
           }
           if (method === "set") {
             const { cacheId, key, value, ttl } = params;
+            console.log(`incoming set request for key ${key}`);
             await redisClient.set(
               `${uid}:${cacheId}:${key}`,
               JSON.stringify(value),
