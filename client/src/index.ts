@@ -34,7 +34,7 @@ const deserialize = (str: string): Cache =>
 
 type JSONArr = readonly JSONValue[];
 
-export type Func<X extends JSONArr, Y> = (...x: X) => Promise<Y>;
+type Func<X extends JSONArr, Y> = (...x: X) => Promise<Y>;
 
 type AbstractCacheParams<X extends JSONArr, Y> = {
   key: (...x: X) => string;
@@ -85,7 +85,7 @@ const abstractCache = <X extends JSONArr, Y>({
   read,
   write,
 }: AbstractCacheParams<X, Y>): Func<X, Y> =>
-(...x: X) => {
+(...x: X): Promise<Y> => {
   const keyResult = key(...x);
   return read(keyResult).catch(() =>
     f(...x).then((y) => {
