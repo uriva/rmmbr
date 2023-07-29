@@ -3,7 +3,7 @@ import { decrypt, encrypt, hash } from "./crypto.ts";
 import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
 import { jsonStringify } from "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts";
 
-const jsonStableStringify = (x: any) => jsonStringify(x) as string;
+const jsonStableStringify = <Args>(x: Args) => jsonStringify(x) as string;
 
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>
@@ -11,60 +11,53 @@ const writeStringToFile = (filePath: string, s: string) =>
   );
 
 const pathToCache = (name: string) => `.rmmbr/${name}.json`;
-
-// We would have wanted to do something like that, but can't because of
-// https://github.com/microsoft/TypeScript/issues/1897#issuecomment-1415776159
-// export type JSONValue =
-//   | string
-//   | number
-//   | boolean
-//   | { [x: string]: JSONValue }
-//   | Array<JSONValue>;
-export type JSONValue = unknown;
-
-const serialize = (x: Cache) => JSON.stringify(Object.entries(x));
+const serialize = <Output>(x: Cache<Output>) =>
+  JSON.stringify(Object.entries(x));
 
 const readFileWithDefault = <T>(defaultF: () => T, filePath: string) =>
   Deno.readTextFile(filePath).catch(defaultF);
 
-const deserialize = (str: string): Cache =>
+// deno-lint-ignore no-explicit-any
+type CachedFunctionOutput = any;
+
+const deserialize = <Output>(str: string): Cache<Output> =>
   Object.fromEntries(
-    JSON.parse(str).map(([k, v]: [string, JSONValue]) => [k, v]),
+    JSON.parse(str).map(([k, v]: [string, CachedFunctionOutput]) => [k, v]),
   );
 
-type JSONArr = readonly JSONValue[];
+// deno-lint-ignore no-explicit-any
+type Func = (...x: any[]) => Promise<CachedFunctionOutput>;
 
-type Func<X extends JSONArr, Y> = (...x: X) => Promise<Y>;
-
-type AbstractCacheParams<X extends JSONArr, Y> = {
-  key: (...x: X) => string;
-  f: Func<X, Y>;
-  read: (key: string) => Promise<Y>;
-  write: (key: string, value: Y) => Promise<void>;
+type AbstractCacheParams<F extends Func> = {
+  key: (...x: Parameters<F>) => string;
+  f: F;
+  read: (key: string) => ReturnType<F>;
+  write: (key: string, value: Awaited<ReturnType<F>>) => Promise<void>;
 };
 
-type Cache = Record<string, JSONValue>;
+type Cache<Output> = Record<string, Output>;
 
-const newCache = (): Cache => ({});
+const newCache = <Output>(): Cache<Output> => ({});
 
-const makeLocalReadWrite = (name: string) => {
-  let cache: null | Cache = null;
+const makeLocalReadWrite = <Output>(name: string) => {
+  let cache: null | Cache<Output> = null;
   const getCache = () =>
-    cache
-      ? Promise.resolve(cache)
-      : readFileWithDefault(() => serialize(newCache()), pathToCache(name))
-        .then((x) => x.toString())
-        .then(deserialize)
-        .then((newCache) => {
-          cache = newCache;
-          return newCache;
-        });
+    cache ? Promise.resolve(cache) : readFileWithDefault(
+      () => serialize(newCache<Output>()),
+      pathToCache(name),
+    )
+      .then((x) => x.toString())
+      .then(deserialize<Output>)
+      .then((newCache) => {
+        cache = newCache;
+        return newCache;
+      });
   return {
     read: (key: string) =>
-      getCache().then((cache: Cache) =>
+      getCache().then((cache: Cache<Output>) =>
         key in cache ? cache[key] : Promise.reject()
       ),
-    write: async (key: string, value: JSONValue) => {
+    write: async (key: string, value: Output) => {
       const cache = await getCache();
       cache[key] = value;
       return writeStringToFile(pathToCache(name), serialize(cache));
@@ -79,70 +72,73 @@ const enrollPromise = (writePromise: Promise<void>) => {
   writePromise.finally(() => writePromises.delete(writePromise));
 };
 
-const abstractCache = <X extends JSONArr, Y>({
+const abstractCache = <F extends Func>({
   key,
   f,
   read,
   write,
-}: AbstractCacheParams<X, Y>): Func<X, Y> =>
-(...x: X): Promise<Y> => {
-  const keyResult = key(...x);
-  return read(keyResult).catch(() =>
-    f(...x).then((y) => {
-      enrollPromise(write(keyResult, y));
-      return y;
-    })
-  );
-};
+}: AbstractCacheParams<F>): F =>
+  ((...x: Parameters<F>) => {
+    const keyResult = key(...x);
+    return read(keyResult).catch(() =>
+      f(...x).then((y) => {
+        enrollPromise(write(keyResult, y));
+        return y;
+      })
+    );
+  }) as F;
 
 export const waitAllWrites = () => Promise.all(writePromises);
 
-const inputToCacheKey = (secret: string) => (...x: JSONArr): string =>
-  hash(jsonStableStringify(x) + secret);
+const inputToCacheKey =
+  // deno-lint-ignore no-explicit-any
+  <Args extends any[]>(secret: string) => (...x: Args): string =>
+    hash(jsonStableStringify(x) + secret);
 
 type MemParams = { ttl?: number };
 
-export const memCache =
-  ({ ttl }: MemParams) =>
-  <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) => {
-    const keyToValue: Record<string, Y> = {};
-    const keyToTimestamp: Record<string, number> = {};
-    return abstractCache({
-      key: inputToCacheKey(""),
-      f,
-      read: (key: string): Promise<Y> => {
-        if (!(key in keyToValue)) {
-          return Promise.reject();
-        }
-        if (ttl && Date.now() - keyToTimestamp[key] > ttl * 1000) {
-          delete keyToTimestamp[key];
-          delete keyToValue[key];
-          return Promise.reject();
-        }
-        return Promise.resolve(keyToValue[key]);
-      },
-      write: (key: string, value: Y) => {
-        keyToValue[key] = value;
-        keyToTimestamp[key] = Date.now();
-        return Promise.resolve();
-      },
-    });
-  };
+export const memCache = ({ ttl }: MemParams) => <F extends Func>(f: F) => {
+  const keyToValue: Record<string, Awaited<ReturnType<F>>> = {};
+  const keyToTimestamp: Record<string, number> = {};
+  return abstractCache({
+    key: inputToCacheKey<Parameters<F>>(""),
+    f,
+    // @ts-expect-error Promise<Awaited<Awaited<X>>> is just Promise<X>
+    read: (key: string) => {
+      if (!(key in keyToValue)) {
+        return Promise.reject();
+      }
+      if (ttl && Date.now() - keyToTimestamp[key] > ttl * 1000) {
+        delete keyToTimestamp[key];
+        delete keyToValue[key];
+        return Promise.reject();
+      }
+      return Promise.resolve(keyToValue[key]);
+    },
+    write: (key: string, value: Awaited<ReturnType<F>>) => {
+      keyToValue[key] = value;
+      keyToTimestamp[key] = Date.now();
+      return Promise.resolve();
+    },
+  });
+};
 
-const localCache =
-  ({ cacheId }: CacheParams) =>
-  <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) =>
-    abstractCache({
-      key: inputToCacheKey(""),
-      f,
-      ...makeLocalReadWrite(cacheId),
-    });
+const localCache = ({ cacheId }: LocalCacheParams) => <F extends Func>(f: F) =>
+  // @ts-expect-error Promise+Awaited = nothing
+  abstractCache({
+    key: inputToCacheKey<Parameters<F>>(""),
+    f,
+    ...makeLocalReadWrite<Awaited<ReturnType<F>>>(cacheId),
+  });
+
+// deno-lint-ignore no-explicit-any
+type ServerParams = any;
 
 const callAPI = (
   url: string,
   token: string,
   method: "set" | "get",
-  params: JSONValue,
+  params: ServerParams,
 ) =>
   fetch(url, {
     method: "POST",
@@ -167,8 +163,8 @@ const tokenParamMissing =
   "Missing `token` parameter. You can produce a token using `rmmbr token -g` command.";
 
 const setRemote =
-  ({ cacheId, url, token, ttl }: CacheParams) =>
-  (key: string, value: JSONValue) =>
+  ({ cacheId, url, token, ttl }: CloudCacheParams) =>
+  (key: string, value: CachedFunctionOutput) =>
     callAPI(
       assertString(url, urlParamMissing),
       assertString(token, tokenParamMissing),
@@ -176,49 +172,52 @@ const setRemote =
       { key, value, ttl, cacheId },
     );
 
-const getRemote = ({ url, token, cacheId }: CacheParams) => (key: string) =>
-  callAPI(
-    assertString(url, urlParamMissing),
-    assertString(token, tokenParamMissing),
-    "get",
-    { key, cacheId },
-  );
+const getRemote =
+  ({ url, token, cacheId }: CloudCacheParams) => (key: string) =>
+    callAPI(
+      assertString(url, urlParamMissing),
+      assertString(token, tokenParamMissing),
+      "get",
+      { key, cacheId },
+    );
 
-export type CacheParams = {
+export type CacheParams = LocalCacheParams | CloudCacheParams;
+
+type LocalCacheParams = { cacheId: string };
+
+type CloudCacheParams = {
   cacheId: string;
-  token?: string;
-  url?: string;
+  token: string;
+  url: string;
   ttl?: number;
   encryptionKey?: string;
 };
 
 export const cache = (params: CacheParams) =>
-  params.token ? cloudCache(params) : localCache(params);
+  "token" in params ? cloudCache(params) : localCache(params);
 
-const cloudCache =
-  (params: CacheParams) =>
-  <X extends JSONArr, Y extends JSONValue>(f: Func<X, Y>) =>
-    abstractCache({
-      key: inputToCacheKey(params.encryptionKey || ""),
-      f,
-      read: (key) =>
-        getRemote(params)(key)
-          .then((value) =>
-            value
-              ? params.encryptionKey
-                ? decrypt(params.encryptionKey as string)(value).then(
-                  JSON.parse,
-                )
-                : value
-              : Promise.reject()
+const cloudCache = (params: CloudCacheParams) => <F extends Func>(f: F) =>
+  abstractCache({
+    key: inputToCacheKey<Parameters<F>>(params.encryptionKey || ""),
+    f,
+    read: (key) =>
+      getRemote(params)(key)
+        .then((value) =>
+          value
+            ? params.encryptionKey
+              ? decrypt(params.encryptionKey as string)(value).then(
+                JSON.parse,
+              )
+              : value
+            : Promise.reject()
+        ) as ReturnType<F>,
+    write: params.encryptionKey
+      ? async (key, value) =>
+        setRemote(params)(
+          key,
+          await encrypt(params.encryptionKey as string)(
+            jsonStableStringify(value),
           ),
-      write: params.encryptionKey
-        ? async (key, value) =>
-          setRemote(params)(
-            key,
-            await encrypt(params.encryptionKey as string)(
-              jsonStableStringify(value),
-            ),
-          )
-        : setRemote(params),
-    });
+        )
+      : setRemote(params),
+  });
