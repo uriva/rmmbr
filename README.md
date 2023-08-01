@@ -100,13 +100,29 @@ async def main():
 
 
 asyncio.run(main())
+```
 
+If you're writing tests and get a message about unresolved promises, this can
+happen if your tests end before all writes.
+
+In these cases you can use
+
+```py
+from rmmbr import wait_all_writes
+# After test completion
+await wait_all_writes()
 ```
 
 ### Javascript / Typescript
 
 ```sh
 npm i rmmbr
+```
+
+or if you're on deno:
+
+```
+import { cache } from "https://deno.land/x/rmmbr/client/src/index.ts";
 ```
 
 ```js
@@ -129,6 +145,17 @@ const fCached = cacher(f);
 await fCached(3);
 await fCached(3);
 // nCalled is 1 here
+```
+
+If you're writing tests and get a message about unresolved promises, this can
+happen if your tests end before all writes.
+
+In these cases you can use
+
+```js
+import { waitAllWrites } from "rmmbr";
+// After test completion
+await waitAllWrites();
 ```
 
 ## Pricing
