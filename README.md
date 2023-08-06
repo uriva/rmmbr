@@ -16,7 +16,7 @@ work well if your service is long-running on one machine. However, if your
 service restarts, then you lose your cache. In addition if you are running more
 than one instance, they don't share caches.
 
-Making caches persistent acros runs requires deploying another service which
+Making caches persistent across runs requires deploying another service which
 writes to disk or to a database. This means to set it up is a substantial
 context switch for the developer. The last thing you want to think of while
 doing unrelated work is another service to maintain, and how to write code to
