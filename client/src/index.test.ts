@@ -70,6 +70,26 @@ const testVariadic = async (cacher: any) => {
 
 Deno.test("local cache", () => testCache(false, false, { cacheId: "some-id" }));
 
+Deno.test("custom key function", async () => {
+  let nCalled = 0;
+  const f = cache({
+    cacheId: "some id",
+    customKeyFn: (x, y) => x % 2 === 0,
+  })((x: number, y: number) => {
+    nCalled++;
+    return Promise.resolve(x);
+  });
+  await f(1, 1);
+  await waitAllWrites();
+  await f(1, 1); // should not cause a call
+  assertEquals(nCalled, 1);
+  await f(3, 1); // should also not cause a call
+  assertEquals(nCalled, 1);
+  await f(2, 1);
+  assertEquals(nCalled, 2);
+  await waitAllWrites();
+});
+
 const cleanRedis = async () => {
   const { REDIS_PASSWORD, REDIS_URL, REDIS_PORT } = config();
   const redisClient = await connect({

@@ -90,46 +90,51 @@ const abstractCache = <F extends Func>({
 
 export const waitAllWrites = () => Promise.all(writePromises);
 
+type CustomKeyFn = (..._: any[]) => any;
+
 const inputToCacheKey =
   // deno-lint-ignore no-explicit-any
-  <Args extends any[]>(secret: string) => (...x: Args): string =>
-    hash(jsonStableStringify(x) + secret);
+  <Args extends any[]>(secret: string, customKeyFn: CustomKeyFn | undefined) =>
+  (...x: Args): string =>
+    hash(jsonStableStringify(customKeyFn ? customKeyFn(...x) : x) + secret);
 
-type MemParams = { ttl?: number };
+type MemParams = { ttl?: number; customKeyFn?: (..._: any[]) => string };
 
-export const memCache = ({ ttl }: MemParams) => <F extends Func>(f: F) => {
-  const keyToValue: Record<string, Awaited<ReturnType<F>>> = {};
-  const keyToTimestamp: Record<string, number> = {};
-  return abstractCache({
-    key: inputToCacheKey<Parameters<F>>(""),
-    f,
-    // @ts-expect-error Promise<Awaited<Awaited<X>>> is just Promise<X>
-    read: (key: string) => {
-      if (!(key in keyToValue)) {
-        return Promise.reject();
-      }
-      if (ttl && Date.now() - keyToTimestamp[key] > ttl * 1000) {
-        delete keyToTimestamp[key];
-        delete keyToValue[key];
-        return Promise.reject();
-      }
-      return Promise.resolve(keyToValue[key]);
-    },
-    write: (key: string, value: Awaited<ReturnType<F>>) => {
-      keyToValue[key] = value;
-      keyToTimestamp[key] = Date.now();
-      return Promise.resolve();
-    },
-  });
-};
+export const memCache =
+  ({ ttl, customKeyFn }: MemParams) => <F extends Func>(f: F) => {
+    const keyToValue: Record<string, Awaited<ReturnType<F>>> = {};
+    const keyToTimestamp: Record<string, number> = {};
+    return abstractCache({
+      key: inputToCacheKey<Parameters<F>>("", customKeyFn),
+      f,
+      // @ts-expect-error Promise<Awaited<Awaited<X>>> is just Promise<X>
+      read: (key: string) => {
+        if (!(key in keyToValue)) {
+          return Promise.reject();
+        }
+        if (ttl && Date.now() - keyToTimestamp[key] > ttl * 1000) {
+          delete keyToTimestamp[key];
+          delete keyToValue[key];
+          return Promise.reject();
+        }
+        return Promise.resolve(keyToValue[key]);
+      },
+      write: (key: string, value: Awaited<ReturnType<F>>) => {
+        keyToValue[key] = value;
+        keyToTimestamp[key] = Date.now();
+        return Promise.resolve();
+      },
+    });
+  };
 
-const localCache = ({ cacheId }: LocalCacheParams) => <F extends Func>(f: F) =>
-  // @ts-expect-error Promise+Awaited = nothing
-  abstractCache({
-    key: inputToCacheKey<Parameters<F>>(""),
-    f,
-    ...makeLocalReadWrite<Awaited<ReturnType<F>>>(cacheId),
-  });
+const localCache =
+  ({ cacheId, customKeyFn }: LocalCacheParams) => <F extends Func>(f: F) =>
+    // @ts-expect-error Promise+Awaited = nothing
+    abstractCache({
+      key: inputToCacheKey<Parameters<F>>("", customKeyFn),
+      f,
+      ...makeLocalReadWrite<Awaited<ReturnType<F>>>(cacheId),
+    });
 
 // deno-lint-ignore no-explicit-any
 type ServerParams = any;
@@ -183,7 +188,10 @@ const getRemote =
 
 export type CacheParams = LocalCacheParams | CloudCacheParams;
 
-type LocalCacheParams = { cacheId: string };
+type LocalCacheParams = {
+  cacheId: string;
+  customKeyFn?: CustomKeyFn;
+};
 
 type CloudCacheParams = {
   cacheId: string;
@@ -191,6 +199,7 @@ type CloudCacheParams = {
   url: string;
   ttl?: number;
   encryptionKey?: string;
+  customKeyFn?: CustomKeyFn;
 };
 
 export const cache = (params: CacheParams) =>
@@ -198,7 +207,10 @@ export const cache = (params: CacheParams) =>
 
 const cloudCache = (params: CloudCacheParams) => <F extends Func>(f: F) =>
   abstractCache({
-    key: inputToCacheKey<Parameters<F>>(params.encryptionKey || ""),
+    key: inputToCacheKey<Parameters<F>>(
+      params.encryptionKey || "",
+      params.customKeyFn,
+    ),
     f,
     read: (key) =>
       getRemote(params)(key)

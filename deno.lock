@@ -1,5 +1,226 @@
 {
-  "version": "2",
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:open@9.1.0": "npm:open@9.1.0"
+    },
+    "npm": {
+      "big-integer@1.6.51": {
+        "integrity": "sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==",
+        "dependencies": {}
+      },
+      "bplist-parser@0.2.0": {
+        "integrity": "sha512-z0M+byMThzQmD9NILRniCUXYsYpjwnlO8N5uCFaCqIOpqRsJCrQL9NK3JsD67CN5a08nF5oIL2bD6loTdHOuKw==",
+        "dependencies": {
+          "big-integer": "big-integer@1.6.51"
+        }
+      },
+      "bundle-name@3.0.0": {
+        "integrity": "sha512-PKA4BeSvBpQKQ8iPOGCSiell+N8P+Tf1DlwqmYhpe2gAhKPHn8EYOxVT+ShuGmhg8lN8XiSlS80yiExKXrURlw==",
+        "dependencies": {
+          "run-applescript": "run-applescript@5.0.0"
+        }
+      },
+      "cross-spawn@7.0.3": {
+        "integrity": "sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==",
+        "dependencies": {
+          "path-key": "path-key@3.1.1",
+          "shebang-command": "shebang-command@2.0.0",
+          "which": "which@2.0.2"
+        }
+      },
+      "default-browser-id@3.0.0": {
+        "integrity": "sha512-OZ1y3y0SqSICtE8DE4S8YOE9UZOJ8wO16fKWVP5J1Qz42kV9jcnMVFrEE/noXb/ss3Q4pZIH79kxofzyNNtUNA==",
+        "dependencies": {
+          "bplist-parser": "bplist-parser@0.2.0",
+          "untildify": "untildify@4.0.0"
+        }
+      },
+      "default-browser@4.0.0": {
+        "integrity": "sha512-wX5pXO1+BrhMkSbROFsyxUm0i/cJEScyNhA4PPxc41ICuv05ZZB/MX28s8aZx6xjmatvebIapF6hLEKEcpneUA==",
+        "dependencies": {
+          "bundle-name": "bundle-name@3.0.0",
+          "default-browser-id": "default-browser-id@3.0.0",
+          "execa": "execa@7.1.1",
+          "titleize": "titleize@3.0.0"
+        }
+      },
+      "define-lazy-prop@3.0.0": {
+        "integrity": "sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg==",
+        "dependencies": {}
+      },
+      "execa@5.1.1": {
+        "integrity": "sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==",
+        "dependencies": {
+          "cross-spawn": "cross-spawn@7.0.3",
+          "get-stream": "get-stream@6.0.1",
+          "human-signals": "human-signals@2.1.0",
+          "is-stream": "is-stream@2.0.1",
+          "merge-stream": "merge-stream@2.0.0",
+          "npm-run-path": "npm-run-path@4.0.1",
+          "onetime": "onetime@5.1.2",
+          "signal-exit": "signal-exit@3.0.7",
+          "strip-final-newline": "strip-final-newline@2.0.0"
+        }
+      },
+      "execa@7.1.1": {
+        "integrity": "sha512-wH0eMf/UXckdUYnO21+HDztteVv05rq2GXksxT4fCGeHkBhw1DROXh40wcjMcRqDOWE7iPJ4n3M7e2+YFP+76Q==",
+        "dependencies": {
+          "cross-spawn": "cross-spawn@7.0.3",
+          "get-stream": "get-stream@6.0.1",
+          "human-signals": "human-signals@4.3.1",
+          "is-stream": "is-stream@3.0.0",
+          "merge-stream": "merge-stream@2.0.0",
+          "npm-run-path": "npm-run-path@5.1.0",
+          "onetime": "onetime@6.0.0",
+          "signal-exit": "signal-exit@3.0.7",
+          "strip-final-newline": "strip-final-newline@3.0.0"
+        }
+      },
+      "get-stream@6.0.1": {
+        "integrity": "sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==",
+        "dependencies": {}
+      },
+      "human-signals@2.1.0": {
+        "integrity": "sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==",
+        "dependencies": {}
+      },
+      "human-signals@4.3.1": {
+        "integrity": "sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==",
+        "dependencies": {}
+      },
+      "is-docker@2.2.1": {
+        "integrity": "sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ==",
+        "dependencies": {}
+      },
+      "is-docker@3.0.0": {
+        "integrity": "sha512-eljcgEDlEns/7AXFosB5K/2nCM4P7FQPkGc/DWLy5rmFEWvZayGrik1d9/QIY5nJ4f9YsVvBkA6kJpHn9rISdQ==",
+        "dependencies": {}
+      },
+      "is-inside-container@1.0.0": {
+        "integrity": "sha512-KIYLCCJghfHZxqjYBE7rEy0OBuTd5xCHS7tHVgvCLkx7StIoaxwNW3hCALgEUjFfeRk+MG/Qxmp/vtETEF3tRA==",
+        "dependencies": {
+          "is-docker": "is-docker@3.0.0"
+        }
+      },
+      "is-stream@2.0.1": {
+        "integrity": "sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==",
+        "dependencies": {}
+      },
+      "is-stream@3.0.0": {
+        "integrity": "sha512-LnQR4bZ9IADDRSkvpqMGvt/tEJWclzklNgSw48V5EAaAeDd6qGvN8ei6k5p0tvxSR171VmGyHuTiAOfxAbr8kA==",
+        "dependencies": {}
+      },
+      "is-wsl@2.2.0": {
+        "integrity": "sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==",
+        "dependencies": {
+          "is-docker": "is-docker@2.2.1"
+        }
+      },
+      "isexe@2.0.0": {
+        "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==",
+        "dependencies": {}
+      },
+      "merge-stream@2.0.0": {
+        "integrity": "sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==",
+        "dependencies": {}
+      },
+      "mimic-fn@2.1.0": {
+        "integrity": "sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==",
+        "dependencies": {}
+      },
+      "mimic-fn@4.0.0": {
+        "integrity": "sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==",
+        "dependencies": {}
+      },
+      "npm-run-path@4.0.1": {
+        "integrity": "sha512-S48WzZW777zhNIrn7gxOlISNAqi9ZC/uQFnRdbeIHhZhCA6UqpkOT8T1G7BvfdgP4Er8gF4sUbaS0i7QvIfCWw==",
+        "dependencies": {
+          "path-key": "path-key@3.1.1"
+        }
+      },
+      "npm-run-path@5.1.0": {
+        "integrity": "sha512-sJOdmRGrY2sjNTRMbSvluQqg+8X7ZK61yvzBEIDhz4f8z1TZFYABsqjjCBd/0PUNE9M6QDgHJXQkGUEm7Q+l9Q==",
+        "dependencies": {
+          "path-key": "path-key@4.0.0"
+        }
+      },
+      "onetime@5.1.2": {
+        "integrity": "sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==",
+        "dependencies": {
+          "mimic-fn": "mimic-fn@2.1.0"
+        }
+      },
+      "onetime@6.0.0": {
+        "integrity": "sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==",
+        "dependencies": {
+          "mimic-fn": "mimic-fn@4.0.0"
+        }
+      },
+      "open@9.1.0": {
+        "integrity": "sha512-OS+QTnw1/4vrf+9hh1jc1jnYjzSG4ttTBB8UxOwAnInG3Uo4ssetzC1ihqaIHjLJnA5GGlRl6QlZXOTQhRBUvg==",
+        "dependencies": {
+          "default-browser": "default-browser@4.0.0",
+          "define-lazy-prop": "define-lazy-prop@3.0.0",
+          "is-inside-container": "is-inside-container@1.0.0",
+          "is-wsl": "is-wsl@2.2.0"
+        }
+      },
+      "path-key@3.1.1": {
+        "integrity": "sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==",
+        "dependencies": {}
+      },
+      "path-key@4.0.0": {
+        "integrity": "sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ==",
+        "dependencies": {}
+      },
+      "run-applescript@5.0.0": {
+        "integrity": "sha512-XcT5rBksx1QdIhlFOCtgZkB99ZEouFZ1E2Kc2LHqNW13U3/74YGdkQRmThTwxy4QIyookibDKYZOPqX//6BlAg==",
+        "dependencies": {
+          "execa": "execa@5.1.1"
+        }
+      },
+      "shebang-command@2.0.0": {
+        "integrity": "sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==",
+        "dependencies": {
+          "shebang-regex": "shebang-regex@3.0.0"
+        }
+      },
+      "shebang-regex@3.0.0": {
+        "integrity": "sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==",
+        "dependencies": {}
+      },
+      "signal-exit@3.0.7": {
+        "integrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==",
+        "dependencies": {}
+      },
+      "strip-final-newline@2.0.0": {
+        "integrity": "sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==",
+        "dependencies": {}
+      },
+      "strip-final-newline@3.0.0": {
+        "integrity": "sha512-dOESqjYr96iWYylGObzd39EuNTa5VJxyvVAEm5Jnh7KGo75V43Hk1odPQkNDyXNmUR6k+gEiDVXnjB8HJ3crXw==",
+        "dependencies": {}
+      },
+      "titleize@3.0.0": {
+        "integrity": "sha512-KxVu8EYHDPBdUYdKZdKtU2aj2XfEx9AfjXxE/Aj0vT06w2icA09Vus1rh6eSu1y01akYg6BjIK/hxyLJINoMLQ==",
+        "dependencies": {}
+      },
+      "untildify@4.0.0": {
+        "integrity": "sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==",
+        "dependencies": {}
+      },
+      "which@2.0.2": {
+        "integrity": "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==",
+        "dependencies": {
+          "isexe": "isexe@2.0.0"
+        }
+      }
+    }
+  },
+  "redirects": {
+    "https://denopkg.com/chiefbiiko/std-encoding/mod.ts": "https://denopkg.com/chiefbiiko/std-encoding@master/mod.ts"
+  },
   "remote": {
     "https://deno.land/std@0.140.0/_util/assert.ts": "e94f2eb37cebd7f199952e242c77654e43333c1ac4c5c700e929ea3aa5489f74",
     "https://deno.land/std@0.140.0/_util/os.ts": "3b4c6e27febd119d36a416d7a97bd3b0251b77c88942c8f16ee5953ea13e2e49",
@@ -279,223 +500,5 @@
     "https://deno.land/x/yargs_parser@v20.2.4-deno/deno.ts": "ad53c0c82c3982c4fc5be9472384b259e0a32ce1f7ae0f68de7b2445df5642fc",
     "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts": "eca3d13a2cd11839e451055737ccde0c7c6cdbd331fcd0a8f7e954ee857bb13a",
     "https://denopkg.com/chiefbiiko/std-encoding@master/mod.ts": "e61017da4cef146863d614a961b4e61f1df14b72c906092bd02161f913e76522"
-  },
-  "npm": {
-    "specifiers": {
-      "open@9.1.0": "open@9.1.0"
-    },
-    "packages": {
-      "big-integer@1.6.51": {
-        "integrity": "sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==",
-        "dependencies": {}
-      },
-      "bplist-parser@0.2.0": {
-        "integrity": "sha512-z0M+byMThzQmD9NILRniCUXYsYpjwnlO8N5uCFaCqIOpqRsJCrQL9NK3JsD67CN5a08nF5oIL2bD6loTdHOuKw==",
-        "dependencies": {
-          "big-integer": "big-integer@1.6.51"
-        }
-      },
-      "bundle-name@3.0.0": {
-        "integrity": "sha512-PKA4BeSvBpQKQ8iPOGCSiell+N8P+Tf1DlwqmYhpe2gAhKPHn8EYOxVT+ShuGmhg8lN8XiSlS80yiExKXrURlw==",
-        "dependencies": {
-          "run-applescript": "run-applescript@5.0.0"
-        }
-      },
-      "cross-spawn@7.0.3": {
-        "integrity": "sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==",
-        "dependencies": {
-          "path-key": "path-key@3.1.1",
-          "shebang-command": "shebang-command@2.0.0",
-          "which": "which@2.0.2"
-        }
-      },
-      "default-browser-id@3.0.0": {
-        "integrity": "sha512-OZ1y3y0SqSICtE8DE4S8YOE9UZOJ8wO16fKWVP5J1Qz42kV9jcnMVFrEE/noXb/ss3Q4pZIH79kxofzyNNtUNA==",
-        "dependencies": {
-          "bplist-parser": "bplist-parser@0.2.0",
-          "untildify": "untildify@4.0.0"
-        }
-      },
-      "default-browser@4.0.0": {
-        "integrity": "sha512-wX5pXO1+BrhMkSbROFsyxUm0i/cJEScyNhA4PPxc41ICuv05ZZB/MX28s8aZx6xjmatvebIapF6hLEKEcpneUA==",
-        "dependencies": {
-          "bundle-name": "bundle-name@3.0.0",
-          "default-browser-id": "default-browser-id@3.0.0",
-          "execa": "execa@7.1.1",
-          "titleize": "titleize@3.0.0"
-        }
-      },
-      "define-lazy-prop@3.0.0": {
-        "integrity": "sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg==",
-        "dependencies": {}
-      },
-      "execa@5.1.1": {
-        "integrity": "sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==",
-        "dependencies": {
-          "cross-spawn": "cross-spawn@7.0.3",
-          "get-stream": "get-stream@6.0.1",
-          "human-signals": "human-signals@2.1.0",
-          "is-stream": "is-stream@2.0.1",
-          "merge-stream": "merge-stream@2.0.0",
-          "npm-run-path": "npm-run-path@4.0.1",
-          "onetime": "onetime@5.1.2",
-          "signal-exit": "signal-exit@3.0.7",
-          "strip-final-newline": "strip-final-newline@2.0.0"
-        }
-      },
-      "execa@7.1.1": {
-        "integrity": "sha512-wH0eMf/UXckdUYnO21+HDztteVv05rq2GXksxT4fCGeHkBhw1DROXh40wcjMcRqDOWE7iPJ4n3M7e2+YFP+76Q==",
-        "dependencies": {
-          "cross-spawn": "cross-spawn@7.0.3",
-          "get-stream": "get-stream@6.0.1",
-          "human-signals": "human-signals@4.3.1",
-          "is-stream": "is-stream@3.0.0",
-          "merge-stream": "merge-stream@2.0.0",
-          "npm-run-path": "npm-run-path@5.1.0",
-          "onetime": "onetime@6.0.0",
-          "signal-exit": "signal-exit@3.0.7",
-          "strip-final-newline": "strip-final-newline@3.0.0"
-        }
-      },
-      "get-stream@6.0.1": {
-        "integrity": "sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==",
-        "dependencies": {}
-      },
-      "human-signals@2.1.0": {
-        "integrity": "sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==",
-        "dependencies": {}
-      },
-      "human-signals@4.3.1": {
-        "integrity": "sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==",
-        "dependencies": {}
-      },
-      "is-docker@2.2.1": {
-        "integrity": "sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ==",
-        "dependencies": {}
-      },
-      "is-docker@3.0.0": {
-        "integrity": "sha512-eljcgEDlEns/7AXFosB5K/2nCM4P7FQPkGc/DWLy5rmFEWvZayGrik1d9/QIY5nJ4f9YsVvBkA6kJpHn9rISdQ==",
-        "dependencies": {}
-      },
-      "is-inside-container@1.0.0": {
-        "integrity": "sha512-KIYLCCJghfHZxqjYBE7rEy0OBuTd5xCHS7tHVgvCLkx7StIoaxwNW3hCALgEUjFfeRk+MG/Qxmp/vtETEF3tRA==",
-        "dependencies": {
-          "is-docker": "is-docker@3.0.0"
-        }
-      },
-      "is-stream@2.0.1": {
-        "integrity": "sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==",
-        "dependencies": {}
-      },
-      "is-stream@3.0.0": {
-        "integrity": "sha512-LnQR4bZ9IADDRSkvpqMGvt/tEJWclzklNgSw48V5EAaAeDd6qGvN8ei6k5p0tvxSR171VmGyHuTiAOfxAbr8kA==",
-        "dependencies": {}
-      },
-      "is-wsl@2.2.0": {
-        "integrity": "sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==",
-        "dependencies": {
-          "is-docker": "is-docker@2.2.1"
-        }
-      },
-      "isexe@2.0.0": {
-        "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==",
-        "dependencies": {}
-      },
-      "merge-stream@2.0.0": {
-        "integrity": "sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==",
-        "dependencies": {}
-      },
-      "mimic-fn@2.1.0": {
-        "integrity": "sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==",
-        "dependencies": {}
-      },
-      "mimic-fn@4.0.0": {
-        "integrity": "sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==",
-        "dependencies": {}
-      },
-      "npm-run-path@4.0.1": {
-        "integrity": "sha512-S48WzZW777zhNIrn7gxOlISNAqi9ZC/uQFnRdbeIHhZhCA6UqpkOT8T1G7BvfdgP4Er8gF4sUbaS0i7QvIfCWw==",
-        "dependencies": {
-          "path-key": "path-key@3.1.1"
-        }
-      },
-      "npm-run-path@5.1.0": {
-        "integrity": "sha512-sJOdmRGrY2sjNTRMbSvluQqg+8X7ZK61yvzBEIDhz4f8z1TZFYABsqjjCBd/0PUNE9M6QDgHJXQkGUEm7Q+l9Q==",
-        "dependencies": {
-          "path-key": "path-key@4.0.0"
-        }
-      },
-      "onetime@5.1.2": {
-        "integrity": "sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==",
-        "dependencies": {
-          "mimic-fn": "mimic-fn@2.1.0"
-        }
-      },
-      "onetime@6.0.0": {
-        "integrity": "sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==",
-        "dependencies": {
-          "mimic-fn": "mimic-fn@4.0.0"
-        }
-      },
-      "open@9.1.0": {
-        "integrity": "sha512-OS+QTnw1/4vrf+9hh1jc1jnYjzSG4ttTBB8UxOwAnInG3Uo4ssetzC1ihqaIHjLJnA5GGlRl6QlZXOTQhRBUvg==",
-        "dependencies": {
-          "default-browser": "default-browser@4.0.0",
-          "define-lazy-prop": "define-lazy-prop@3.0.0",
-          "is-inside-container": "is-inside-container@1.0.0",
-          "is-wsl": "is-wsl@2.2.0"
-        }
-      },
-      "path-key@3.1.1": {
-        "integrity": "sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==",
-        "dependencies": {}
-      },
-      "path-key@4.0.0": {
-        "integrity": "sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ==",
-        "dependencies": {}
-      },
-      "run-applescript@5.0.0": {
-        "integrity": "sha512-XcT5rBksx1QdIhlFOCtgZkB99ZEouFZ1E2Kc2LHqNW13U3/74YGdkQRmThTwxy4QIyookibDKYZOPqX//6BlAg==",
-        "dependencies": {
-          "execa": "execa@5.1.1"
-        }
-      },
-      "shebang-command@2.0.0": {
-        "integrity": "sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==",
-        "dependencies": {
-          "shebang-regex": "shebang-regex@3.0.0"
-        }
-      },
-      "shebang-regex@3.0.0": {
-        "integrity": "sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==",
-        "dependencies": {}
-      },
-      "signal-exit@3.0.7": {
-        "integrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==",
-        "dependencies": {}
-      },
-      "strip-final-newline@2.0.0": {
-        "integrity": "sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==",
-        "dependencies": {}
-      },
-      "strip-final-newline@3.0.0": {
-        "integrity": "sha512-dOESqjYr96iWYylGObzd39EuNTa5VJxyvVAEm5Jnh7KGo75V43Hk1odPQkNDyXNmUR6k+gEiDVXnjB8HJ3crXw==",
-        "dependencies": {}
-      },
-      "titleize@3.0.0": {
-        "integrity": "sha512-KxVu8EYHDPBdUYdKZdKtU2aj2XfEx9AfjXxE/Aj0vT06w2icA09Vus1rh6eSu1y01akYg6BjIK/hxyLJINoMLQ==",
-        "dependencies": {}
-      },
-      "untildify@4.0.0": {
-        "integrity": "sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==",
-        "dependencies": {}
-      },
-      "which@2.0.2": {
-        "integrity": "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==",
-        "dependencies": {
-          "isexe": "isexe@2.0.0"
-        }
-      }
-    }
   }
 }
