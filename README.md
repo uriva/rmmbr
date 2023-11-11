@@ -5,7 +5,8 @@
 `rmmbr` is the simplest way to persistently cache async functions, locally or in
 the cloud with end to end encryption (e2ee).
 
-Most importantly, it does not require any DevOps work, or cloud configurations. It just works.
+Most importantly, it does not require any DevOps work, or cloud configurations.
+It just works.
 
 ## Motivation
 
@@ -158,6 +159,27 @@ In these cases you can use
 import { waitAllWrites } from "rmmbr";
 // After test completion
 await waitAllWrites();
+```
+
+#### Custom key function
+
+By default, `rmmbr` will generate a cache key for you, from any serializable
+simple json object. If you want to override this behaviour, you can give your
+own key function, which should get the same parameters as your function, and
+return any simple json object.
+
+For example:
+
+```ts
+const f = cache({
+  cacheId: "some id",
+  customKeyFn: (x) => x % 2 === 0, // check if x is even or odd
+})((x: number, y: number) => Promise.resolve(x));
+
+await f(1);
+await f(1); // identical call, will use cache
+await f(3); // odd number, and the custom ket function treats it the same as `1`, so will use the cache
+await f(2); // would cause a call, because 2 is even
 ```
 
 ## Pricing
