@@ -1,4 +1,7 @@
 {
+  "imports": {
+    "gamla": "https://deno.land/x/gamla@33.0.0/src/index.ts"
+  },
   "tasks": {
     "server": "export REDIS_PORT=6666; export REDIS_URL=127.0.0.1; export REDIS_PASSWORD=12345; export PORT=8000; deno run --allow-read --allow-net --allow-env server/src/index.ts",
     "server-repl": "export REDIS_PORT=6666; export REDIS_URL=127.0.0.1; export REDIS_PASSWORD=12345; export PORT=8000; deno",

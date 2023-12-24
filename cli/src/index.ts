@@ -49,6 +49,7 @@ const args = yargs(Deno.args)
         description: "List API tokens",
         boolean: true,
       }).strict().check(
+        // deno-lint-ignore no-explicit-any
         ({ g, c, d, l }: any) =>
           [g, c, d, l].filter((o) => o != undefined).length == 1
             ? true

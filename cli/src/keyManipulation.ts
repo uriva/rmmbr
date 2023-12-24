@@ -1,17 +1,17 @@
 import { callServer } from "./rpc.ts";
 import { inputToCacheKey } from "../../client/src/index.ts";
+import { sideLog } from "gamla";
 
-const parseCacheIdAndKey = (hashKey: (...xs: any[]) => string, x: string) => {
-  const [cacheId, key] = x.split(" ");
-  return { cacheId, key: hashKey(...JSON.parse(key)) };
+const actOnKey = (method: string) => (args: string) => () => {
+  const [token, cacheId, key] = args.split(" ");
+  return callServer("", "POST", {
+    method,
+    params: {
+      cacheId,
+      key: inputToCacheKey(token, undefined)(...sideLog(JSON.parse(key))),
+    },
+  })(token);
 };
-const actOnKey = (action: string) => (args: string) => (secret: string) =>
-  callServer("", "POST", {
-    action,
-    ...parseCacheIdAndKey(inputToCacheKey(secret, undefined), args),
-  })(
-    secret,
-  );
 
 export const keyManipulations = {
   delete: actOnKey("delete"),
