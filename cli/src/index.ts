@@ -13,13 +13,12 @@ const args = yargs(Deno.args)
     yargs
       .option("get", {
         alias: "g",
-        description: "Get a value for a given key: `<secret>:<input json>``",
+        description: "Get a value for a given key: `<secret> <input json>`",
         string: true,
       })
       .option("delete", {
         alias: "d",
-        description:
-          "Deletes a value for a given key: `<secret>:<input json>``",
+        description: "Deletes a value for a given key: `<secret> <input json>`",
         string: true,
       }))
   .command(
