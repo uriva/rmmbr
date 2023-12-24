@@ -1,4 +1,5 @@
 import { apiToken } from "./apiToken.ts";
+import { keyManipulation } from "./keyManipulation.ts";
 import { login } from "./login.ts";
 import { randomBytes } from "node:crypto";
 import yargs from "https://deno.land/x/yargs@v17.7.2-deno/deno.ts";
@@ -46,11 +47,10 @@ const args = yargs(Deno.args)
         description: "List API tokens",
         boolean: true,
       }).strict().check(
-        ({ g, c, d, l }: any) => {
-          return [g, c, d, l].filter((o) => o != undefined).length == 1
+        ({ g, c, d, l }: any) =>
+          [g, c, d, l].filter((o) => o != undefined).length == 1
             ? true
-            : "Choose one option";
-        },
+            : "Choose one option",
       ),
   )
   .command("secret", "Generate a secret key")
@@ -64,7 +64,7 @@ const command = args._[0];
 const commands: Record<string, () => Promise<string>> = {
   login,
   key: () => keyManipulation(args),
-  "token": () => apiToken(args),
+  token: () => apiToken(args),
   secret: () => Promise.resolve(randomBytes(32).toString("base64url") + "="),
 };
 
