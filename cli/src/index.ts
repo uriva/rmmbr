@@ -6,6 +6,19 @@ import yargs from "https://deno.land/x/yargs@v17.7.2-deno/deno.ts";
 const args = yargs(Deno.args)
   .scriptName("rmmbr")
   .command("login", "Authenticate the CLI")
+  .command("key", "Manage cache keys", (yargs: any) =>
+    yargs
+      .option("get", {
+        alias: "g",
+        description: "Get a value for a given key: `<secret>:<input json>``",
+        string: true,
+      })
+      .option("delete", {
+        alias: "d",
+        description:
+          "Deletes a value for a given key: `<secret>:<input json>``",
+        string: true,
+      }))
   .command(
     "token",
     "Manage API tokens",
@@ -50,6 +63,7 @@ const args = yargs(Deno.args)
 const command = args._[0];
 const commands: Record<string, () => Promise<string>> = {
   login,
+  key: () => keyManipulation(args),
   "token": () => apiToken(args),
   secret: () => Promise.resolve(randomBytes(32).toString("base64url") + "="),
 };

@@ -1,6 +1,6 @@
 import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
-import { getAccessTokenPath } from "./accessTokenPath.ts";
 import open from "npm:open@9.1.0";
+import { writeAccessToken } from "./accessToken.ts";
 
 const clientId = "ARXipK0k64GivxcX9UVUWMp9g7ywQsqO";
 const auth0Tenant = "https://dev-gy4q5ggc5zaobhym.us.auth0.com";
@@ -47,8 +47,7 @@ and confirm to finish the login.
 
     const { access_token, error } = await response.json();
     if (access_token) {
-      return getAccessTokenPath()
-        .then((path) => Deno.writeTextFile(path.toString(), access_token))
+      return writeAccessToken(access_token)
         .then(() => "Now logged in.");
     }
     if (error === "authorization_pending") {

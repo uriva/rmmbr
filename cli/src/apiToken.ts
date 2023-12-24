@@ -1,4 +1,4 @@
-import { getAccessTokenPath } from "./accessTokenPath.ts";
+import { getAccessToken } from "./accessToken.ts";
 
 const serverURL = Deno.env.get("RMMBR_SERVER");
 
@@ -14,9 +14,7 @@ export const apiToken = (
   const [action, args] =
     Object.entries(cmd).find(([action]) => action in commandMapping) ||
     Deno.exit();
-
-  return getAccessToken()
-    .then(commandMapping[action](args));
+  return getAccessToken().then(commandMapping[action](args));
 };
 
 const apiTokenRequest = (
@@ -33,14 +31,6 @@ const apiTokenRequest = (
       response.status === 200
         ? response.json()
         : Promise.reject(await response.text()),
-  );
-
-const getAccessToken = (): Promise<string> =>
-  getAccessTokenPath().then(
-    (path) =>
-      path.exists
-        ? Deno.readTextFile(path.toString())
-        : Promise.reject('Not logged-in, run the "login" command first.'),
   );
 
 const createApiToken = apiTokenRequest("POST", { action: "create" });
