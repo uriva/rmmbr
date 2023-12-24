@@ -6,7 +6,7 @@ const parseCacheIdAndKey = (hashKey: (...xs: any[]) => string, x: string) => {
   return { cacheId, key: hashKey(...JSON.parse(key)) };
 };
 const actOnKey = (action: string) => (args: string) => (secret: string) =>
-  callServer("", "GET", {
+  callServer("", "POST", {
     action,
     ...parseCacheIdAndKey(inputToCacheKey(secret, undefined), args),
   })(
