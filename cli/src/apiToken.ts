@@ -1,55 +1,13 @@
-import { getAccessToken } from "./accessToken.ts";
+import { callServer } from "./rpc.ts";
 
-const serverURL = Deno.env.get("RMMBR_SERVER");
+const list = callServer("api-token/", "GET", undefined);
+const create = callServer("api-token/", "POST", { action: "create" });
 
-type APITokenInterface =
-  | { create: true }
-  | { delete: string }
-  | { list: true }
-  | { get: true };
-
-export const apiToken = (
-  cmd: APITokenInterface,
-) => {
-  const [action, args] =
-    Object.entries(cmd).find(([action]) => action in commandMapping) ||
-    Deno.exit();
-  return getAccessToken().then(commandMapping[action](args));
-};
-
-const apiTokenRequest = (
-  method: "GET" | "POST",
-  body: undefined | Record<string, string>,
-) =>
-(accessToken: string) =>
-  fetch(`${serverURL}/api-token/`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    method,
-    body: JSON.stringify(body),
-  }).then(
-    async (response) =>
-      response.status === 200
-        ? response.json()
-        : Promise.reject(await response.text()),
-  );
-
-const createApiToken = apiTokenRequest("POST", { action: "create" });
-const listApiTokens = apiTokenRequest("GET", undefined);
-
-const getOrCreateApiToken = (
-  accessToken: string,
-): Promise<string> =>
-  listApiTokens(accessToken).then(
-    (tokens) => tokens.length == 0 ? createApiToken(accessToken) : tokens[0],
-  );
-
-const commandMapping: Record<
-  string,
-  ((..._: string[]) => (_: string) => Promise<string>)
-> = {
-  create: () => createApiToken,
+export const apiTokenCommands = {
+  create,
+  list,
   delete: (tokenId: string) =>
-    apiTokenRequest("POST", { action: "delete", tokenId }),
-  list: () => listApiTokens,
-  get: () => getOrCreateApiToken,
+    callServer("api-token/", "POST", { action: "delete", tokenId }),
+  get: (secret: string) =>
+    list(secret).then((tokens: string[]) => tokens[0] || create(secret)),
 };

@@ -92,7 +92,7 @@ export const waitAllWrites = () => Promise.all(writePromises);
 
 type CustomKeyFn = (..._: any[]) => any;
 
-const inputToCacheKey =
+export const inputToCacheKey =
   // deno-lint-ignore no-explicit-any
   <Args extends any[]>(secret: string, customKeyFn: CustomKeyFn | undefined) =>
   (...x: Args): string =>
@@ -110,12 +110,12 @@ export const memCache =
       // @ts-expect-error Promise<Awaited<Awaited<X>>> is just Promise<X>
       read: (key: string) => {
         if (!(key in keyToValue)) {
-          return Promise.reject();
+          return Promise.reject(new Error());
         }
         if (ttl && Date.now() - keyToTimestamp[key] > ttl * 1000) {
           delete keyToTimestamp[key];
           delete keyToValue[key];
-          return Promise.reject();
+          return Promise.reject(new Error());
         }
         return Promise.resolve(keyToValue[key]);
       },
@@ -217,17 +217,17 @@ const cloudCache = (params: CloudCacheParams) => <F extends Func>(f: F) =>
         .then((value) =>
           value
             ? params.encryptionKey
-              ? decrypt(params.encryptionKey as string)(value).then(
+              ? decrypt(params.encryptionKey!)(value).then(
                 JSON.parse,
               )
               : value
-            : Promise.reject()
+            : Promise.reject(new Error())
         ) as ReturnType<F>,
     write: params.encryptionKey
       ? async (key, value) =>
         setRemote(params)(
           key,
-          await encrypt(params.encryptionKey as string)(
+          await encrypt(params.encryptionKey!)(
             jsonStableStringify(value),
           ),
         )

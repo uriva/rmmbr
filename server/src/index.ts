@@ -31,8 +31,10 @@ const verifyAuth0 = (token: string): Promise<string | null> =>
     audience: "rmmbr",
   }).then((x) => x.payload.sub || null).catch(() => null);
 
-type CREATE_TOKEN = { action: "create" };
-type DELETE_TOKEN = { action: "delete"; tokenId: string };
+type ApiTokenAction = { action: "create" } | {
+  action: "delete";
+  tokenId: string;
+};
 
 serve(
   app({
@@ -41,17 +43,22 @@ serve(
         memCache({ ttl: 60 * 5 })(verifyApiToken),
         async (request, uid) => {
           const { method, params } = await request.json();
+          console.log("incoming request", method, params);
           if (method === "get") {
             const { cacheId, key } = params;
-            console.log(`incoming get request for key ${key}`);
             return new Response(
               (await redisClient.get(`${uid}:${cacheId}:${key}`)) ||
                 JSON.stringify(null),
             );
           }
+          if (method === "delete") {
+            const { cacheId, key } = params;
+            return new Response(
+              JSON.stringify(await redisClient.del(`${uid}:${cacheId}:${key}`)),
+            );
+          }
           if (method === "set") {
             const { cacheId, key, value, ttl } = params;
-            console.log(`incoming set request for key ${key}`);
             await redisClient.set(
               `${uid}:${cacheId}:${key}`,
               JSON.stringify(value),
@@ -77,8 +84,8 @@ serve(
         verifyAuth0,
         (request, uid) =>
           request.json().then(
-            (call: CREATE_TOKEN | DELETE_TOKEN) => {
-              if (call.action == "create") {
+            (call: ApiTokenAction) => {
+              if (call.action === "create") {
                 const token = crypto.randomUUID();
                 const tx = redisClient.tx();
                 tx.rpush(redisKey.userToApiTokenSet(uid), token);
@@ -86,7 +93,8 @@ serve(
                 return tx.flush().then(() =>
                   new Response(JSON.stringify(token))
                 );
-              } else if (call.action == "delete") {
+              }
+              if (call.action === "delete") {
                 return getApiTokens(uid).then((tokens) => {
                   const tokensToDelete = tokens.filter((t) =>
                     t.startsWith(call.tokenId)

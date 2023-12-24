@@ -1,23 +1,19 @@
-import { getAccessToken } from "./accessToken.ts";
+import { callServer } from "./rpc.ts";
+import { inputToCacheKey } from "../../client/src/index.ts";
 
-const commandMapping: Record<
-  string,
-  ((..._: string[]) => (_: string) => Promise<string>)
-> = {
-  delete: (apiToken: string) => (secretAndKey: string) =>
-    Promise.resolve("not yet implemented"),
-  get: (apiToken: string) => (secretAndKey: string) =>
-    Promise.resolve("not yet implemented"),
+const parseCacheIdAndKey = (hashKey: (...xs: any[]) => string, x: string) => {
+  const [cacheId, key] = x.split(":");
+  return { cacheId, key: hashKey(...JSON.parse(key)) };
 };
+const actOnKey = (action: string) => (args: string) => (secret: string) =>
+  callServer("", "GET", {
+    action,
+    ...parseCacheIdAndKey(inputToCacheKey(secret, undefined), args),
+  })(
+    secret,
+  );
 
-type APITokenInterface =
-  | { delete: string }
-  | { get: true };
-
-export const keyManipulation = (cmd: APITokenInterface) => {
-  const [action, args] =
-    Object.entries(cmd).find(([action]) => action in commandMapping) ||
-    Deno.exit();
-  return getAccessToken()
-    .then(commandMapping[action](args));
+export const keyManipulations = {
+  delete: actOnKey("delete"),
+  get: actOnKey("get"),
 };
