@@ -82,7 +82,11 @@ const abstractCache = <F extends Func>({
     const keyResult = key(...x);
     return read(keyResult).catch(() =>
       f(...x).then((y) => {
-        enrollPromise(write(keyResult, y));
+        enrollPromise(
+          write(keyResult, y).catch((e) => {
+            console.error("failed writing to rmmbr cache", e);
+          }),
+        );
         return y;
       })
     );
