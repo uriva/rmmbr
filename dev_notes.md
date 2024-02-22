@@ -33,3 +33,7 @@ Modify the version in `setup.py` and push to main with commit message
 
 Modify the version in `client/build_npm.ts` and push to main with commit message
 `deploy-npm`.
+
+### deno.land
+
+`gh release create` > "Create a new tag" > ... > Publish release
