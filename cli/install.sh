@@ -1,5 +1,5 @@
 set -e
-cli_location=https://deno.land/x/rmmbr/cli/src/index.ts
+cli_location=https://deno.land/x/rmmbr/cli/src/index.ts@23.0.0
 script_desired_location=/usr/local/bin/rmmbr
 echo "
 set -e
