@@ -14,13 +14,13 @@ const args = yargs(Deno.args)
       .option("get", {
         alias: "g",
         description:
-          "Get a value for a given key: `<token> <cacheId> <jsonString>`",
+          'Get value for given key. Expects a space delimited string after command: `"<token> <cacheId> <jsonString>"`',
         string: true,
       })
       .option("delete", {
         alias: "d",
         description:
-          "Deletes a value for a given key: `<token> <cacheId> <jsonString>`",
+          'Deletes a value for a given key. Expects a space delimited string after command: `"<token> <cacheId> <jsonString>"`',
         string: true,
       }))
   .command(
