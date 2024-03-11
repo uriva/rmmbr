@@ -1,4 +1,3 @@
-import { sideLog } from "gamla";
 const serverURL = Deno.env.get("RMMBR_SERVER");
 
 export const callServer = (
