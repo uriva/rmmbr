@@ -37,3 +37,7 @@ Modify the version in `client/build_npm.ts` and push to main with commit message
 ### deno.land
 
 `gh release create` > "Create a new tag" > ... > Publish release
+
+### cli
+
+release to deno.land, then update version in installer script
