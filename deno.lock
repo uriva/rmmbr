@@ -222,6 +222,7 @@
     "https://deno.land/std/fmt/printf.ts": "https://deno.land/std@0.210.0/fmt/printf.ts",
     "https://deno.land/std/path/mod.ts": "https://deno.land/std@0.210.0/path/mod.ts",
     "https://deno.land/std/testing/asserts.ts": "https://deno.land/std@0.210.0/testing/asserts.ts",
+    "https://deno.land/x/rmmbr/cli/src/index.ts": "https://deno.land/x/rmmbr@22.0.0/cli/src/index.ts",
     "https://denopkg.com/chiefbiiko/std-encoding/mod.ts": "https://denopkg.com/chiefbiiko/std-encoding@master/mod.ts"
   },
   "remote": {
@@ -597,6 +598,14 @@
     "https://deno.land/x/redis@v0.29.2/vendor/https/deno.land/std/async/delay.ts": "07bb8709c87bf457da6a7460668aa63afcda738719f5941237cb74ef795f49a8",
     "https://deno.land/x/redis@v0.29.2/vendor/https/deno.land/std/io/buf_reader.ts": "b8cd05912ca54ebebc77bddbd38612bfff585ca7f053d94038b8c644e6a17e0b",
     "https://deno.land/x/redis@v0.29.2/vendor/https/deno.land/std/io/buf_writer.ts": "2137f495110ebfa615bf9ab684ffc5af902a41ab3911cdd997eefc1ae529c54a",
+    "https://deno.land/x/rmmbr@22.0.0/cli/src/accessToken.ts": "70248d6c75ec767dffbebe7d6bf48ac381af81307739e33cc02303700a496092",
+    "https://deno.land/x/rmmbr@22.0.0/cli/src/apiToken.ts": "5eb3d431abcf1c0f2c04eb752bdc81ecd17624e5227221371db2e1ef8a86edb4",
+    "https://deno.land/x/rmmbr@22.0.0/cli/src/index.ts": "f8a3a94e8e0d768dd9079d866c952752a98ee7f1fb1527616088a2bd1692203c",
+    "https://deno.land/x/rmmbr@22.0.0/cli/src/keyManipulation.ts": "bf63ebf1460fb7ac5bf7acfaf9d4dc74bb95612f5e6a6495dc3dda8efe5896d2",
+    "https://deno.land/x/rmmbr@22.0.0/cli/src/login.ts": "1765ecca53d899e6cdc3d8c5a0d1136c7d1fa82dbafc1557f48f7f453a2b08f1",
+    "https://deno.land/x/rmmbr@22.0.0/cli/src/rpc.ts": "24737466dfd6f8479990a5243b50ae3f9eba6c27fc007afa12c9ef7be2721b4f",
+    "https://deno.land/x/rmmbr@22.0.0/client/src/crypto.ts": "065f652bb54fa85e28de2b2897c2f10ddd38a9ab912865e4b80be6d864a8045a",
+    "https://deno.land/x/rmmbr@22.0.0/client/src/index.ts": "0f4c0a5ca155e54b6f84f9d9d4b1b6e8efbdee15a7015ab6f51befd07afe60a5",
     "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts": "ecc35c851e68e762add0c20c3f86e7dc4e3cd4eb3368a0ed0830644d34ed40c0",
     "https://deno.land/x/ts_morph@17.0.1/bootstrap/mod.ts": "b53aad517f106c4079971fcd4a81ab79fadc40b50061a3ab2b741a09119d51e9",
     "https://deno.land/x/ts_morph@17.0.1/bootstrap/ts_morph_bootstrap.js": "91a954daa993c5acb3361aa5279394f81ea6fe18b3854345c86111b336491cfc",
