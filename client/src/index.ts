@@ -33,6 +33,7 @@ type AbstractCacheParams<F extends Func> = {
   f: F;
   read: (key: string) => ReturnType<F>;
   write: (key: string, value: Awaited<ReturnType<F>>) => Promise<void>;
+  forceWrite?: boolean;
 };
 
 type Cache<Output> = Record<string, Output>;
@@ -55,7 +56,9 @@ const makeLocalReadWrite = <Output>(name: string) => {
   return {
     read: (key: string) =>
       getCache().then((cache: Cache<Output>) =>
-        key in cache ? cache[key] : Promise.reject()
+        key in cache
+          ? cache[key]
+          : Promise.reject(new Error("key not in cache"))
       ),
     write: async (key: string, value: Output) => {
       const cache = await getCache();
@@ -77,23 +80,27 @@ const abstractCache = <F extends Func>({
   f,
   read,
   write,
+  forceWrite,
 }: AbstractCacheParams<F>): F =>
   ((...x: Parameters<F>) => {
     const keyResult = key(...x);
-    return read(keyResult).catch(() =>
-      f(...x).then((y) => {
-        enrollPromise(
-          write(keyResult, y).catch((e) => {
-            console.error("failed writing to rmmbr cache", e);
-          }),
-        );
-        return y;
-      })
-    );
+    return (forceWrite
+      ? Promise.reject(new Error("forced write is on"))
+      : read(keyResult)).catch(() =>
+        f(...x).then((y) => {
+          enrollPromise(
+            write(keyResult, y).catch((e) => {
+              console.error("failed writing to rmmbr cache", e);
+            }),
+          );
+          return y;
+        })
+      );
   }) as F;
 
 export const waitAllWrites = () => Promise.all(writePromises);
 
+// deno-lint-ignore no-explicit-any
 type CustomKeyFn = (..._: any[]) => any;
 
 export const inputToCacheKey =
@@ -102,10 +109,14 @@ export const inputToCacheKey =
   (...x: Args): string =>
     hash(jsonStableStringify(customKeyFn ? customKeyFn(...x) : x) + secret);
 
-type MemParams = { ttl?: number; customKeyFn?: (..._: any[]) => string };
+type MemParams = {
+  ttl?: number;
+  customKeyFn?: (..._: any[]) => string;
+  forceWrite?: boolean;
+};
 
 export const memCache =
-  ({ ttl, customKeyFn }: MemParams) => <F extends Func>(f: F) => {
+  ({ ttl, customKeyFn, forceWrite }: MemParams) => <F extends Func>(f: F) => {
     const keyToValue: Record<string, Awaited<ReturnType<F>>> = {};
     const keyToTimestamp: Record<string, number> = {};
     return abstractCache({
@@ -128,13 +139,16 @@ export const memCache =
         keyToTimestamp[key] = Date.now();
         return Promise.resolve();
       },
+      forceWrite,
     });
   };
 
 const localCache =
-  ({ cacheId, customKeyFn }: LocalCacheParams) => <F extends Func>(f: F) =>
+  ({ cacheId, customKeyFn, forceWrite }: LocalCacheParams) =>
+  <F extends Func>(f: F) =>
     // @ts-expect-error Promise+Awaited = nothing
     abstractCache({
+      forceWrite,
       key: inputToCacheKey<Parameters<F>>("", customKeyFn),
       f,
       ...makeLocalReadWrite<Awaited<ReturnType<F>>>(cacheId),
@@ -194,6 +208,7 @@ export type CacheParams = LocalCacheParams | CloudCacheParams;
 
 type LocalCacheParams = {
   cacheId: string;
+  forceWrite?: boolean;
   customKeyFn?: CustomKeyFn;
 };
 
@@ -204,6 +219,7 @@ type CloudCacheParams = {
   ttl?: number;
   encryptionKey?: string;
   customKeyFn?: CustomKeyFn;
+  forceWrite?: boolean;
 };
 
 export const cache = (params: CacheParams) =>
@@ -211,6 +227,7 @@ export const cache = (params: CacheParams) =>
 
 const cloudCache = (params: CloudCacheParams) => <F extends Func>(f: F) =>
   abstractCache({
+    forceWrite: params.forceWrite,
     key: inputToCacheKey<Parameters<F>>(
       params.encryptionKey || "",
       params.customKeyFn,
