@@ -7,7 +7,7 @@ const actOnKey = (method: string) => (args: string) => () => {
     method,
     params: {
       cacheId,
-      key: inputToCacheKey(token, undefined)(...JSON.parse(jsonString)),
+      key: inputToCacheKey("", undefined)(...JSON.parse(jsonString)),
     },
   })(token);
 };
