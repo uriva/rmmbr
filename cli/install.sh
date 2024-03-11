@@ -1,5 +1,5 @@
 set -e
-cli_location=https://raw.githubusercontent.com/uriva/rmmbr/main/cli/src/index.ts
+cli_location=https://deno.land/x/rmmbr/cli/src/index.ts
 script_desired_location=/usr/local/bin/rmmbr
 echo "
 set -e
