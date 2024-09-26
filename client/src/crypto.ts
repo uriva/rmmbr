@@ -3,16 +3,15 @@ import {
   hexToBuffer,
 } from "https://deno.land/x/hextools@v1.0.0/mod.ts";
 import { jsonStringify } from "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts";
-
+import sjcl from "npm:sjcl";
 import { decode as base64UrlDecode } from "https://deno.land/std@0.82.0/encoding/base64url.ts";
-import { sha256 } from "https://denopkg.com/chiefbiiko/sha256@v1.0.0/mod.ts";
 
 const algo = "AES-CBC";
 
 const getKey = (scope: "encrypt" | "decrypt", key: string) =>
   crypto.subtle.importKey("raw", base64UrlDecode(key), algo, true, [scope]);
 
-const hash = (x: string): string => sha256(x, "utf8", "hex") as string;
+const sha256 = (x: string) => sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(x));
 
 export const encrypt =
   (key: string) => async (plainText: string): Promise<Encrypted> => {
@@ -57,4 +56,4 @@ export const inputToCacheKey =
   // deno-lint-ignore no-explicit-any
   <Args extends any[]>(secret: string, customKeyFn: CustomKeyFn | undefined) =>
   (...x: Args): string =>
-    hash(jsonStableStringify(customKeyFn ? customKeyFn(...x) : x) + secret);
+    sha256(jsonStableStringify(customKeyFn ? customKeyFn(...x) : x) + secret);

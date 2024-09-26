@@ -2,7 +2,8 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "npm:open@9.1.0": "npm:open@9.1.0"
+      "npm:open@9.1.0": "npm:open@9.1.0",
+      "npm:sjcl": "npm:sjcl@1.0.8"
     },
     "npm": {
       "big-integer@1.6.51": {
@@ -192,6 +193,10 @@
       },
       "signal-exit@3.0.7": {
         "integrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==",
+        "dependencies": {}
+      },
+      "sjcl@1.0.8": {
+        "integrity": "sha512-LzIjEQ0S0DpIgnxMEayM1rq9aGwGRG4OnZhCdjx7glTaJtf4zRfpg87ImfjSJjoW9vKpagd82McDOwbRT5kQKQ==",
         "dependencies": {}
       },
       "strip-final-newline@2.0.0": {
