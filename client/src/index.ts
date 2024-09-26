@@ -1,9 +1,12 @@
-import { decrypt, encrypt, hash } from "./crypto.ts";
+import {
+  CustomKeyFn,
+  decrypt,
+  encrypt,
+  inputToCacheKey,
+  jsonStableStringify,
+} from "./crypto.ts";
 
 import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
-import { jsonStringify } from "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts";
-
-const jsonStableStringify = <Args>(x: Args) => jsonStringify(x) as string;
 
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>
@@ -100,18 +103,9 @@ const abstractCache = <F extends Func>({
 
 export const waitAllWrites = () => Promise.all(writePromises);
 
-// deno-lint-ignore no-explicit-any
-type CustomKeyFn = (..._: any[]) => any;
-
-export const inputToCacheKey =
-  // deno-lint-ignore no-explicit-any
-  <Args extends any[]>(secret: string, customKeyFn: CustomKeyFn | undefined) =>
-  (...x: Args): string =>
-    hash(jsonStableStringify(customKeyFn ? customKeyFn(...x) : x) + secret);
-
 type MemParams = {
   ttl?: number;
-  customKeyFn?: (..._: any[]) => string;
+  customKeyFn?: CustomKeyFn;
   forceWrite?: boolean;
 };
 

@@ -1,4 +1,4 @@
-import { CacheParams, cache, waitAllWrites } from "./index.ts";
+import { cache, type CacheParams, waitAllWrites } from "./index.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
