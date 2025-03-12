@@ -1,4 +1,4 @@
-import { Response404, app, authenticated } from "./webFramework.ts";
+import { app, authenticated, Response404 } from "./webFramework.ts";
 import {
   createRemoteJWKSet,
   jwtVerify,
@@ -113,6 +113,11 @@ serve(
         memCache({ ttl: 60 * 5 })(verifyApiToken),
         rootHandler,
       ),
+      GET: () =>
+        new Response(null, {
+          status: 302,
+          headers: { Location: "https://hi.rmmbr.net/" },
+        }),
     },
     "/api-token/": {
       GET: authenticated(
