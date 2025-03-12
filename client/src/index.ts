@@ -29,7 +29,7 @@ const deserialize = <Output>(str: string): Cache<Output> =>
   );
 
 // deno-lint-ignore no-explicit-any
-type Func = (...x: any[]) => Promise<CachedFunctionOutput>;
+export type Func = (...x: any[]) => Promise<CachedFunctionOutput>;
 
 type AbstractCacheParams<F extends Func> = {
   key: (...x: Parameters<F>) => string;

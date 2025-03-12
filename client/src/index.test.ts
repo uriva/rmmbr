@@ -1,4 +1,4 @@
-import { cache, type CacheParams, waitAllWrites } from "./index.ts";
+import { cache, type CacheParams, Func, waitAllWrites } from "./index.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
@@ -13,6 +13,7 @@ const testCache = async (
   cacheParams: CacheParams,
 ) => {
   let i = 0;
+  // deno-lint-ignore no-explicit-any
   for (const innerLogic of [(x: any) => ({ result: x }), (x: any) => x]) {
     await testCacheHelper(
       { ...cacheParams, cacheId: cacheParams.cacheId + i },
@@ -26,6 +27,7 @@ const testCache = async (
 
 const testCacheHelper = async (
   cacheParams: CacheParams,
+  // deno-lint-ignore no-explicit-any
   innerLogic: (x: any) => any,
   expiresAfter2Seconds: boolean,
   instanceSpecificCache: boolean,
@@ -56,7 +58,7 @@ const testCacheHelper = async (
   assertEquals(nCalled, expiresAfter2Seconds ? 1 : 0);
 };
 
-const testVariadic = async (cacher: any) => {
+const testVariadic = async (cacher: <F extends Func>(f: F) => F) => {
   const f2 = (x: number, y: string) => Promise.resolve(x.toString() + y);
   const f3 = (x: number, y: string, z: boolean) =>
     Promise.resolve(x.toString().concat(y, z ? "✅" : "❌"));
@@ -74,8 +76,8 @@ Deno.test("custom key function", async () => {
   let nCalled = 0;
   const f = cache({
     cacheId: "some id",
-    customKeyFn: (x, y) => x % 2 === 0,
-  })((x: number, y: number) => {
+    customKeyFn: (x, _) => x % 2 === 0,
+  })((x: number, _: number) => {
     nCalled++;
     return Promise.resolve(x);
   });
