@@ -14,6 +14,8 @@ And a local server:
 deno task server
 ```
 
+also remove local `.rmmbr` directory
+
 ### Interacting with local redis
 
 Open a REPL that's configured like the local server and interact with redis:

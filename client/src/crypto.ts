@@ -18,15 +18,13 @@ export const encrypt =
     const iv = crypto.getRandomValues(new Uint8Array(16));
     return {
       cipher: bufferToHex(
-        new Uint8Array(
-          await crypto.subtle.encrypt(
-            { name: algo, iv },
-            await getKey("encrypt", key),
-            new TextEncoder().encode(plainText),
-          ),
+        await crypto.subtle.encrypt(
+          { name: algo, iv },
+          await getKey("encrypt", key),
+          new TextEncoder().encode(plainText),
         ),
       ),
-      iv: bufferToHex(iv),
+      iv: bufferToHex(iv.buffer),
     };
   };
 
