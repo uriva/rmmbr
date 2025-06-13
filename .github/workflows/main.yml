@@ -2,7 +2,7 @@ name: hooks
 on: [push]
 jobs:
   pypi:
-    if: "contains(github.event.head_commit.message, 'deploy-pypi')"
+    if: contains(github.event.head_commit.message, 'deploy-pypi')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,7 +16,7 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: python/dist/
   npm:
-    if: "contains(github.event.head_commit.message, 'deploy-npm')"
+    if: contains(github.event.head_commit.message, 'deploy-npm')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
