@@ -101,7 +101,11 @@ const abstractCache = <F extends Func>({
       );
   }) as F;
 
-export const waitAllWrites = () => Promise.all(writePromises);
+export const waitAllWrites = async () => {
+  while (writePromises.size) {
+    await Promise.all(Array.from(writePromises));
+  }
+};
 
 type MemParams = {
   ttl?: number;
