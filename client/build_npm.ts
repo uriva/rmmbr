@@ -12,7 +12,7 @@ await build({
   shims: { deno: true },
   package: {
     name: "rmmbr",
-    version: "0.0.24",
+    version: "0.0.25",
     description: "Easy caching.",
     license: "MIT",
     repository: {
