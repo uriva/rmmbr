@@ -1,4 +1,4 @@
-import { build, emptyDir } from "https://deno.land/x/dnt@0.33.1/mod.ts";
+import { build, emptyDir } from "jsr:@deno/dnt@0.41.3";
 
 const outDir = "./dist";
 
@@ -12,7 +12,7 @@ await build({
   shims: { deno: true },
   package: {
     name: "rmmbr",
-    version: "0.0.25",
+    version: "0.0.26",
     description: "Easy caching.",
     license: "MIT",
     repository: {
