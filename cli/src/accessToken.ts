@@ -1,5 +1,5 @@
-import { Path } from "https://deno.land/x/path@v3.0.0/mod.ts";
-import homeDir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
+import { Path } from "x/path";
+import homeDir from "x/dir";
 
 const rejectError = (msg: string) => Promise.reject(new Error(msg));
 

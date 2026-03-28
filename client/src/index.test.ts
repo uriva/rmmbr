@@ -1,8 +1,8 @@
 import { cache, type CacheParams, Func, waitAllWrites } from "./index.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
-import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
-import { connect } from "https://deno.land/x/redis@v0.29.2/mod.ts";
+import { assertEquals } from "@std/testing/asserts";
+import { config } from "dotenv";
+import { connect } from "redis";
 
 const sleep = (seconds: number) =>
   new Promise((resolve) => setTimeout(resolve, seconds * 1000));

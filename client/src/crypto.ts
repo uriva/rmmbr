@@ -1,10 +1,10 @@
 import {
   bufferToHex,
   hexToBuffer,
-} from "https://deno.land/x/hextools@v1.0.0/mod.ts";
-import { jsonStringify } from "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts";
-import sjcl from "npm:sjcl";
-import { decode as base64UrlDecode } from "https://deno.land/std@0.82.0/encoding/base64url.ts";
+} from "hextools";
+import { jsonStringify } from "stable_stringify";
+import sjcl from "sjcl";
+import { decode as base64UrlDecode } from "@std/encoding/base64url";
 
 const algo = "AES-CBC";
 

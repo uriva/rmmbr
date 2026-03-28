@@ -1,4 +1,4 @@
-import { connect } from "https://deno.land/x/redis@v0.29.2/mod.ts";
+import { connect } from "redis";
 
 export const redisClient = await connect({
   password: Deno.env.get("REDIS_PASSWORD"),

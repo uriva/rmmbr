@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "@std/testing/asserts";
 import { inputToCacheKey } from "./crypto.ts";
 
 Deno.test("hash stability", () =>

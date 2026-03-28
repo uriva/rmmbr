@@ -1,4 +1,20 @@
 {
+  "imports": {
+    "@std/path": "https://deno.land/std@0.179.0/path/mod.ts",
+    "@std/async/delay": "https://deno.land/std@0.50.0/async/delay.ts",
+    "@std/testing/asserts": "https://deno.land/std@0.174.0/testing/asserts.ts",
+    "@std/encoding/base64url": "https://deno.land/std@0.82.0/encoding/base64url.ts",
+    "jose": "https://deno.land/x/jose@v4.14.1/index.ts",
+    "redis": "https://deno.land/x/redis@v0.29.2/mod.ts",
+    "dotenv": "https://deno.land/x/dotenv@v3.2.2/mod.ts",
+    "hextools": "https://deno.land/x/hextools@v1.0.0/mod.ts",
+    "stable_stringify": "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts",
+    "sjcl": "npm:sjcl",
+    "yargs": "https://deno.land/x/yargs@v17.7.2-deno/deno.ts",
+    "open": "npm:open@9.1.0",
+    "x/path": "https://deno.land/x/path@v3.0.0/mod.ts",
+    "x/dir": "https://deno.land/x/dir@1.5.1/home_dir/mod.ts"
+  },
   "tasks": {
     "server": "export REDIS_PORT=6666; export REDIS_URL=127.0.0.1; export REDIS_PASSWORD=12345; export PORT=8000; deno run --allow-read --allow-net --allow-env server/src/index.ts",
     "server-repl": "export REDIS_PORT=6666; export REDIS_URL=127.0.0.1; export REDIS_PASSWORD=12345; export PORT=8000; deno",

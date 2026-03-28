@@ -1,5 +1,5 @@
-import { delay } from "https://deno.land/std@0.50.0/async/delay.ts";
-import open from "npm:open@9.1.0";
+import { delay } from "@std/async/delay";
+import open from "open";
 import { writeAccessToken } from "./accessToken.ts";
 
 const clientId = "ARXipK0k64GivxcX9UVUWMp9g7ywQsqO";

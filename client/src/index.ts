@@ -6,7 +6,7 @@ import {
   jsonStableStringify,
 } from "./crypto.ts";
 
-import { dirname } from "https://deno.land/std@0.179.0/path/mod.ts";
+import { dirname } from "@std/path";
 
 const writeStringToFile = (filePath: string, s: string) =>
   Deno.mkdir(dirname(filePath), { recursive: true }).then(() =>

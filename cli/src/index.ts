@@ -3,7 +3,7 @@ import { getAccessToken } from "./accessToken.ts";
 import { keyManipulations } from "./keyManipulation.ts";
 import { login } from "./login.ts";
 import { randomBytes } from "node:crypto";
-import yargs from "https://deno.land/x/yargs@v17.7.2-deno/deno.ts";
+import yargs from "yargs";
 
 const args = yargs(Deno.args)
   .scriptName("rmmbr")

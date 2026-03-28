@@ -2,11 +2,10 @@ import { app, authenticated, Response404 } from "./webFramework.ts";
 import {
   createRemoteJWKSet,
   jwtVerify,
-} from "https://deno.land/x/jose@v4.14.1/index.ts";
+} from "jose";
 
 import { memCache } from "../../client/src/index.ts";
 import { redisClient } from "./redis.ts";
-import { serve } from "https://deno.land/std@0.182.0/http/server.ts";
 
 const oneWeekInSeconds = 7 * 24 * 60 * 60;
 
@@ -106,7 +105,8 @@ const apiTokenPostHandler = (request: Request, uid: string) =>
 const getApiTokens = (uid: string) =>
   redisClient.lrange(redisKey.userToApiTokenSet(uid), 0, -1);
 
-serve(
+Deno.serve(
+  { port: parseInt(Deno.env.get("PORT") || "8000") },
   app({
     "/": {
       POST: authenticated(
@@ -130,5 +130,4 @@ serve(
       POST: authenticated(verifyAuth0, apiTokenPostHandler),
     },
   }),
-  { port: parseInt(Deno.env.get("PORT") || "8000") },
 );

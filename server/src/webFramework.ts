@@ -1,7 +1,4 @@
-import {
-  ConnInfo,
-  Handler,
-} from "https://deno.land/std@0.182.0/http/server.ts";
+type Handler = (request: Request) => Response | Promise<Response>;
 
 type MethodHandler = Record<string, Handler>;
 
@@ -14,10 +11,10 @@ const matchHandler =
 
 export const app =
   (routes: Record<string, MethodHandler>) =>
-  (request: Request, connInfo: ConnInfo): Response | Promise<Response> => {
+  (request: Request): Response | Promise<Response> => {
     const matched = Object.entries(routes).find(matchHandler(request));
     return matched
-      ? (matched[1][request.method])(request, connInfo)
+      ? (matched[1][request.method])(request)
       : Response404();
   };
 
@@ -29,7 +26,6 @@ type RequestAuthenticator<T> = (token: string) => T | null | Promise<T | null>;
 export type AuthenticatedHandler<T> = (
   request: Request,
   auth: NonNullable<Awaited<T>>,
-  connInfo: ConnInfo,
 ) => Response | Promise<Response>;
 
 const getBearer = (request: Request) =>
@@ -39,9 +35,9 @@ export const authenticated = <T>(
   authenticator: RequestAuthenticator<T>,
   handler: AuthenticatedHandler<T>,
 ): Handler =>
-async (request, connInfo) => {
+async (request) => {
   const token = getBearer(request);
   if (!token) return badAuth();
   const auth = await authenticator(token);
-  return auth ? await handler(request, auth, connInfo) : badAuth();
+  return auth ? await handler(request, auth) : badAuth();
 };
