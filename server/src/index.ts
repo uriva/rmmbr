@@ -106,6 +106,12 @@ const apiTokenPostHandler = (request: Request, uid: string) =>
 const getApiTokens = (uid: string) =>
   redisClient.lrange(redisKey.userToApiTokenSet(uid), 0, -1);
 
+console.log(
+  Deno.env.get("REDIS_URL"),
+  Deno.env.get("REDIS_PORT"),
+  Deno.env.get("REDIS_PASSWORD"),
+);
+
 serve(
   app({
     "/": {
