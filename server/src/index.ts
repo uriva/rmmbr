@@ -130,5 +130,5 @@ serve(
       POST: authenticated(verifyAuth0, apiTokenPostHandler),
     },
   }),
-  { port: parseInt(Deno.env.get("PORT") as string) },
+  { port: parseInt(Deno.env.get("PORT") || "8000") },
 );
