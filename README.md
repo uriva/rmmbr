@@ -118,14 +118,14 @@ await wait_all_writes()
 
 ### Javascript / Typescript
 
-```sh
-npm i rmmbr
-```
+Add to your `deno.json` imports:
 
-or if you're on deno:
-
-```
-import { cache } from "https://deno.land/x/rmmbr/client/src/index.ts";
+```json
+{
+  "imports": {
+    "rmmbr": "jsr:@uri/rmmbr@0.1.0"
+  }
+}
 ```
 
 ```js
