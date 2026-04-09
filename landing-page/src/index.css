@@ -1,0 +1,172 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 215 25% 12%;
+    --foreground: 210 40% 98%;
+
+    --card: 215 25% 14%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 215 25% 14%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 100% 45%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 215 25% 20%;
+    --secondary-foreground: 210 40% 90%;
+
+    --muted: 215 25% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 215 25% 20%;
+    --accent-foreground: 210 40% 90%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 25% 22%;
+    --input: 215 25% 22%;
+    --ring: 210 100% 45%;
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 
+                 Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, 
+                 "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-medium;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 
+                 Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-glass;
+  }
+
+  .glass-dark {
+    @apply bg-foreground/5 backdrop-blur-md border border-foreground/10 shadow-glass;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Animation delay utilities */
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+.animation-delay-600 {
+  animation-delay: 600ms;
+}
+.animation-delay-700 {
+  animation-delay: 700ms;
+}
+.animation-delay-800 {
+  animation-delay: 800ms;
+}
+
+/* Terminal code styling - these will be supplementary to syntax highlighting */
+.terminal-code {
+  @apply font-mono text-sm leading-relaxed;
+}
+
+.terminal-code .token.comment {
+  @apply text-gray-500;
+}
+
+.terminal-code .token.string {
+  @apply text-green-400;
+}
+
+.terminal-code .token.number {
+  @apply text-amber-400;
+}
+
+.terminal-code .token.function {
+  @apply text-purple-400;
+}
+
+.terminal-code .token.keyword {
+  @apply text-rmmbr-400;
+}
+
+.terminal-code .token.operator {
+  @apply text-rmmbr-300;
+}
+
+.terminal-code .token.boolean {
+  @apply text-amber-400;
+}
+
+.terminal-code .token.property {
+  @apply text-blue-400;
+}
+
+.terminal-code .token.punctuation {
+  @apply text-muted-foreground;
+}
+
+/* Hide scrollbar but allow scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* For masking effects */
+.mask-gradient-r {
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+}
+
+.mask-gradient-b {
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
