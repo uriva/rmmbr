@@ -1,0 +1,42 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/encoding@1": "1.0.10",
+    "jsr:@std/internal@^1.0.12": "1.0.12",
+    "jsr:@std/path@1": "1.1.4",
+    "npm:sjcl@^1.0.9": "1.0.9"
+  },
+  "jsr": {
+    "@std/encoding@1.0.10": {
+      "integrity": "8783c6384a2d13abd5e9e87a7ae0520a30e9f56aeeaa3bdf910a3eaaf5c811a1"
+    },
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
+    },
+    "@std/path@1.1.4": {
+      "integrity": "1d2d43f39efb1b42f0b1882a25486647cb851481862dc7313390b2bb044314b5",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    }
+  },
+  "npm": {
+    "sjcl@1.0.9": {
+      "integrity": "sha512-dWM71tkSHxe7zEZj0/COjtJdmErIxp7UMp8a6D4xx8dTTtJLc4lFL+HAX8s6lvASyQQ2iYMHwa7rhhQq7MT5MA=="
+    }
+  },
+  "remote": {
+    "https://deno.land/x/hextools@v1.0.0/mod.ts": "72d2e6960407dd043ea5a616fe1b4c5506e67fd824cb8e63d4341a9d9b2a9254",
+    "https://deno.land/x/hextools@v1.0.0/src/buffer_to_hex.ts": "9ba639e48c6a45e803b6d9506a1193285cefaffb5b2eb7671fb76a3fd0fae93f",
+    "https://deno.land/x/hextools@v1.0.0/src/hex_to_buffer.ts": "9dac9e83dea2d601e457d556b5274779f626d19008129961fe63d1f961051440",
+    "https://deno.land/x/stable_stringify@v0.2.1/jsonStringify.ts": "ecc35c851e68e762add0c20c3f86e7dc4e3cd4eb3368a0ed0830644d34ed40c0"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1",
+      "jsr:@std/encoding@1",
+      "jsr:@std/path@1",
+      "npm:sjcl@^1.0.9"
+    ]
+  }
+}

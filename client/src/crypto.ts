@@ -1,10 +1,7 @@
-import {
-  bufferToHex,
-  hexToBuffer,
-} from "hextools";
-import { jsonStringify } from "stable_stringify";
+import { bufferToHex, hexToBuffer } from "./hex.ts";
+import { jsonStringify } from "./stableStringify.ts";
 import sjcl from "sjcl";
-import { decode as base64UrlDecode } from "@std/encoding/base64url";
+import { decodeBase64Url as base64UrlDecode } from "@std/encoding/base64url";
 
 const algo = "AES-CBC";
 

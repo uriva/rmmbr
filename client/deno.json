@@ -1,0 +1,12 @@
+{
+  "name": "@uri/rmmbr",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": "./src/index.ts",
+  "imports": {
+    "@std/path": "jsr:@std/path@^1",
+    "@std/encoding/base64url": "jsr:@std/encoding@^1/base64url",
+    "@std/testing/asserts": "jsr:@std/assert@^1",
+    "sjcl": "npm:sjcl@^1.0.9"
+  }
+}
