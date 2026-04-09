@@ -40,5 +40,5 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v6
-      - run: npx jsr publish
+      - run: npx jsr publish --allow-slow-types
         working-directory: client
