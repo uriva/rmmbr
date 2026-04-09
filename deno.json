@@ -3,7 +3,7 @@
     "@std/path": "https://deno.land/std@0.179.0/path/mod.ts",
     "@std/async/delay": "https://deno.land/std@0.50.0/async/delay.ts",
     "@std/testing/asserts": "https://deno.land/std@0.174.0/testing/asserts.ts",
-    "@std/encoding/base64url": "https://deno.land/std@0.82.0/encoding/base64url.ts",
+    "@std/encoding/base64url": "jsr:@std/encoding@^1/base64url",
     "jose": "https://deno.land/x/jose@v4.14.1/index.ts",
     "redis": "https://deno.land/x/redis@v0.29.2/mod.ts",
     "dotenv": "https://deno.land/x/dotenv@v3.2.2/mod.ts",
