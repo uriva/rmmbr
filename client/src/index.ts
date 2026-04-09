@@ -31,6 +31,9 @@ const deserialize = <Output>(str: string): Cache<Output> =>
 // deno-lint-ignore no-explicit-any
 export type Func = (...x: any[]) => Promise<CachedFunctionOutput>;
 
+/** A function that wraps an async function with caching behavior, preserving its type signature. */
+export type CacheWrapper = <F extends Func>(f: F) => F;
+
 type AbstractCacheParams<F extends Func> = {
   key: (...x: Parameters<F>) => string;
   f: F;
@@ -43,7 +46,10 @@ type Cache<Output> = Record<string, Output>;
 
 const newCache = <Output>(): Cache<Output> => ({});
 
-const makeLocalReadWrite = <Output>(name: string) => {
+const makeLocalReadWrite = <Output>(name: string): {
+  read: (key: string) => Promise<Output>;
+  write: (key: string, value: Output) => Promise<void>;
+} => {
   let cache: null | Cache<Output> = null;
   const getCache = () =>
     cache ? Promise.resolve(cache) : readFileWithDefault(
@@ -101,7 +107,8 @@ const abstractCache = <F extends Func>({
       );
   }) as F;
 
-export const waitAllWrites = async () => {
+/** Waits for all pending cache write operations to complete. */
+export const waitAllWrites = async (): Promise<void> => {
   while (writePromises.size) {
     await Promise.all(Array.from(writePromises));
   }
@@ -113,8 +120,10 @@ type MemParams = {
   forceWrite?: boolean;
 };
 
+/** In-memory cache with optional TTL (in seconds). */
 export const memCache =
-  ({ ttl, customKeyFn, forceWrite }: MemParams) => <F extends Func>(f: F) => {
+  ({ ttl, customKeyFn, forceWrite }: MemParams): CacheWrapper =>
+  <F extends Func>(f: F): F => {
     const keyToValue: Record<string, Awaited<ReturnType<F>>> = {};
     const keyToTimestamp: Record<string, number> = {};
     return abstractCache({
@@ -142,8 +151,8 @@ export const memCache =
   };
 
 const localCache =
-  ({ cacheId, customKeyFn, forceWrite }: LocalCacheParams) =>
-  <F extends Func>(f: F) =>
+  ({ cacheId, customKeyFn, forceWrite }: LocalCacheParams): CacheWrapper =>
+  <F extends Func>(f: F): F =>
     // @ts-expect-error Promise+Awaited = nothing
     abstractCache({
       forceWrite,
@@ -160,7 +169,7 @@ const callAPI = (
   token: string,
   method: "set" | "get",
   params: ServerParams,
-) =>
+): Promise<CachedFunctionOutput> =>
   fetch(url, {
     method: "POST",
     headers: {
@@ -185,7 +194,7 @@ const tokenParamMissing =
 
 const setRemote =
   ({ cacheId, url, token, ttl }: CloudCacheParams) =>
-  (key: string, value: CachedFunctionOutput) =>
+  (key: string, value: CachedFunctionOutput): Promise<CachedFunctionOutput> =>
     callAPI(
       assertString(url, urlParamMissing),
       assertString(token, tokenParamMissing),
@@ -220,10 +229,12 @@ type CloudCacheParams = {
   forceWrite?: boolean;
 };
 
-export const cache = (params: CacheParams) =>
+/** Cache function results locally (file system) or remotely (rmmbr server), with optional encryption. */
+export const cache = (params: CacheParams): CacheWrapper =>
   "token" in params ? cloudCache(params) : localCache(params);
 
-const cloudCache = (params: CloudCacheParams) => <F extends Func>(f: F) =>
+const cloudCache = (params: CloudCacheParams): CacheWrapper =>
+  <F extends Func>(f: F): F =>
   abstractCache({
     forceWrite: params.forceWrite,
     key: inputToCacheKey<Parameters<F>>(
