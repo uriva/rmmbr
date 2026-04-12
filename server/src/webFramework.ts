@@ -13,9 +13,7 @@ export const app =
   (routes: Record<string, MethodHandler>) =>
   (request: Request): Response | Promise<Response> => {
     const matched = Object.entries(routes).find(matchHandler(request));
-    return matched
-      ? (matched[1][request.method])(request)
-      : Response404();
+    return matched ? (matched[1][request.method])(request) : Response404();
   };
 
 export const Response404 = () => new Response("Not Found", { status: 404 });

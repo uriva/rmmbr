@@ -1,6 +1,9 @@
 export const bufferToHex = (buffer: ArrayBuffer): string =>
   Array.prototype.map
-    .call(new Uint8Array(buffer), (b: number) => b.toString(16).padStart(2, "0"))
+    .call(
+      new Uint8Array(buffer),
+      (b: number) => b.toString(16).padStart(2, "0"),
+    )
     .join("");
 
 export const hexToBuffer = (hex: string): ArrayBuffer => {

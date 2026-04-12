@@ -1,8 +1,5 @@
 import { app, authenticated, Response404 } from "./webFramework.ts";
-import {
-  createRemoteJWKSet,
-  jwtVerify,
-} from "jose";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 import { memCache } from "../../client/src/index.ts";
 import { redisClient } from "./redis.ts";

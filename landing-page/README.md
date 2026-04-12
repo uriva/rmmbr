@@ -10,15 +10,19 @@ There are several ways of editing your application.
 
 **Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0a875b17-7695-44b0-8956-ba3ba66b10e5) and start prompting.
+Simply visit the
+[Lovable Project](https://lovable.dev/projects/0a875b17-7695-44b0-8956-ba3ba66b10e5)
+and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If you want to work locally using your own IDE, you can clone this repo and push
+changes. Pushed changes will also be reflected in Lovable.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The only requirement is having Node.js & npm installed -
+[install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 Follow these steps:
 
@@ -48,7 +52,8 @@ npm run dev
 - Click on the "Code" button (green button) near the top right.
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Edit files directly within the Codespace and commit and push your changes once
+  you're done.
 
 ## What technologies are used for this project?
 
@@ -62,8 +67,12 @@ This project is built with .
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/0a875b17-7695-44b0-8956-ba3ba66b10e5) and click on Share -> Publish.
+Simply open
+[Lovable](https://lovable.dev/projects/0a875b17-7695-44b0-8956-ba3ba66b10e5) and
+click on Share -> Publish.
 
 ## I want to use a custom domain - is that possible?
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+We don't support custom domains (yet). If you want to deploy your project under
+your own domain then we recommend using Netlify. Visit our docs for more
+details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)

@@ -233,33 +233,33 @@ type CloudCacheParams = {
 export const cache = (params: CacheParams): CacheWrapper =>
   "token" in params ? cloudCache(params) : localCache(params);
 
-const cloudCache = (params: CloudCacheParams): CacheWrapper =>
-  <F extends Func>(f: F): F =>
-  abstractCache({
-    forceWrite: params.forceWrite,
-    key: inputToCacheKey<Parameters<F>>(
-      params.encryptionKey || "",
-      params.customKeyFn,
-    ),
-    f,
-    read: (key) =>
-      getRemote(params)(key)
-        .then((value) =>
-          value
-            ? params.encryptionKey
-              ? decrypt(params.encryptionKey!)(value).then(
-                JSON.parse,
-              )
-              : value
-            : Promise.reject(new Error())
-        ) as ReturnType<F>,
-    write: params.encryptionKey
-      ? async (key, value) =>
-        setRemote(params)(
-          key,
-          await encrypt(params.encryptionKey!)(
-            jsonStableStringify(value),
-          ),
-        )
-      : setRemote(params),
-  });
+const cloudCache =
+  (params: CloudCacheParams): CacheWrapper => <F extends Func>(f: F): F =>
+    abstractCache({
+      forceWrite: params.forceWrite,
+      key: inputToCacheKey<Parameters<F>>(
+        params.encryptionKey || "",
+        params.customKeyFn,
+      ),
+      f,
+      read: (key) =>
+        getRemote(params)(key)
+          .then((value) =>
+            value
+              ? params.encryptionKey
+                ? decrypt(params.encryptionKey!)(value).then(
+                  JSON.parse,
+                )
+                : value
+              : Promise.reject(new Error())
+          ) as ReturnType<F>,
+      write: params.encryptionKey
+        ? async (key, value) =>
+          setRemote(params)(
+            key,
+            await encrypt(params.encryptionKey!)(
+              jsonStableStringify(value),
+            ),
+          )
+        : setRemote(params),
+    });
