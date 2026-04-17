@@ -218,6 +218,25 @@ Raw token values should be returned once at creation time and never stored in
 plaintext. Redis should remain the hot-path cache for token validation and cache
 payloads.
 
+### Token manager UI
+
+The landing page now includes a token manager at `/tokens`.
+
+It supports:
+
+- email magic-code auth via InstantDB
+- creating service tokens (stores hash only)
+- listing and revoking existing tokens
+- deleting tokens
+
+Required frontend env var:
+
+- `VITE_INSTANT_APP_ID` (in `landing-page/.env.local`)
+
+Optional frontend env var:
+
+- `VITE_INSTANTDB_APP_URL` (defaults to `/tokens`)
+
 ### Backend verification path
 
 Server auth for cache operations now follows this order:

@@ -71,9 +71,23 @@ Simply open
 [Lovable](https://lovable.dev/projects/0a875b17-7695-44b0-8956-ba3ba66b10e5) and
 click on Share -> Publish.
 
+## Configure the Token Manager
+
+The landing page includes a token manager at `/tokens`.
+
+Set your Instant app id in `landing-page/.env.local`:
+
+```sh
+VITE_INSTANT_APP_ID=your-instant-app-id
+```
+
+Without this variable, the token manager cannot authenticate or write token
+hashes to InstantDB.
+
 ## Configure the Get Started link
 
 The landing page "Get Started" buttons use `VITE_INSTANTDB_APP_URL`.
+If omitted, it defaults to `/tokens`.
 
 Create `landing-page/.env.local` with:
 
@@ -81,7 +95,7 @@ Create `landing-page/.env.local` with:
 VITE_INSTANTDB_APP_URL=https://your-instantdb-app.example.com
 ```
 
-If this variable is not set, the button falls back to `https://instantdb.com`.
+If this variable is not set, the button falls back to `/tokens`.
 
 ## I want to use a custom domain - is that possible?
 

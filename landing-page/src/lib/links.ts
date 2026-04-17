@@ -1,4 +1,6 @@
-const DEFAULT_INSTANTDB_APP_URL = "https://instantdb.com";
+export const TOKEN_MANAGER_PATH = "/tokens";
+
+const DEFAULT_INSTANTDB_APP_URL = TOKEN_MANAGER_PATH;
 
 export const INSTANTDB_APP_URL =
   import.meta.env.VITE_INSTANTDB_APP_URL?.trim() || DEFAULT_INSTANTDB_APP_URL;

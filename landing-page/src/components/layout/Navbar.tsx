@@ -22,6 +22,7 @@ const Navbar: React.FC = () => {
   const navItems = [
     { label: "Features", href: "#features" },
     { label: "Code Examples", href: "#code-examples" },
+    { label: "Tokens", href: "/tokens" },
   ];
 
   return (
@@ -97,7 +98,7 @@ const Navbar: React.FC = () => {
             ))}
           </nav>
           <div className="flex flex-col space-y-4">
-            <Button variant="outline" fullWidth>
+            <Button href="https://github.com/uriva/rmmbr" variant="outline" fullWidth>
               Documentation
             </Button>
             <Button href={INSTANTDB_APP_URL} fullWidth>
