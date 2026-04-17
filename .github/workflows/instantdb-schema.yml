@@ -1,0 +1,78 @@
+name: instantdb-schema
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/instant.schema.ts"
+  workflow_dispatch:
+    inputs:
+      schema_path:
+        description: "Path to instant.schema.ts (optional)"
+        required: false
+        default: ""
+
+jobs:
+  push-schema:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      INSTANT_APP_ID: ${{ secrets.INSTANT_APP_ID }}
+      INSTANT_CLI_TOKEN: ${{ secrets.INSTANT_CLI_TOKEN }}
+      INPUT_SCHEMA_PATH: ${{ github.event.inputs.schema_path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Resolve schema path
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${INPUT_SCHEMA_PATH}" ]]; then
+            schema_path="${INPUT_SCHEMA_PATH}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            schema_path="$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -E '(^|/)instant\.schema\.ts$' | head -n1 || true)"
+          else
+            schema_path=""
+          fi
+
+          if [[ -z "${schema_path}" ]]; then
+            schema_path="$(find . -type f -name instant.schema.ts | sed 's#^./##' | head -n1 || true)"
+          fi
+
+          if [[ -z "${schema_path}" ]]; then
+            echo "No instant.schema.ts file found."
+            exit 1
+          fi
+
+          schema_dir="$(dirname "${schema_path}")"
+          echo "schema_path=${schema_path}" >> "$GITHUB_OUTPUT"
+          echo "schema_dir=${schema_dir}" >> "$GITHUB_OUTPUT"
+          echo "Using schema at ${schema_path}"
+
+      - name: Push InstantDB schema
+        shell: bash
+        working-directory: ${{ steps.resolve.outputs.schema_dir }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${INSTANT_APP_ID}" ]]; then
+            echo "Missing INSTANT_APP_ID repository secret."
+            exit 1
+          fi
+
+          if [[ -z "${INSTANT_CLI_TOKEN}" ]]; then
+            echo "Missing INSTANT_CLI_TOKEN repository secret."
+            exit 1
+          fi
+
+          npx instant-cli push schema --yes --app "${INSTANT_APP_ID}" --token "${INSTANT_CLI_TOKEN}"

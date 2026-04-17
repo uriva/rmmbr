@@ -200,6 +200,23 @@ have a need to configure this.
 - [Privacy policy](legal/privacy_policy.md)
 - [Service level agreement](legal/service_level_agreement.md)
 
+## InstantDB schema CI
+
+This repository includes a GitHub Actions workflow at
+`.github/workflows/instantdb-schema.yml` that pushes InstantDB schema updates.
+
+It runs automatically on pushes to `main` when an `instant.schema.ts` file
+changes, and can also be triggered manually from the Actions tab.
+
+Required repository secrets:
+
+- `INSTANT_APP_ID`: your Instant app id
+- `INSTANT_CLI_TOKEN`: an auth token from `npx instant-cli login --print`
+
+Manual run option:
+
+- `schema_path`: optional path to `instant.schema.ts`
+
 ## FAQ
 
 ### How do I sign up?
