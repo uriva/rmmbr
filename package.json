@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@instantdb/admin": "^1.0.9"
+  }
+}
