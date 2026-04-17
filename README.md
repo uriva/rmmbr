@@ -218,6 +218,26 @@ Raw token values should be returned once at creation time and never stored in
 plaintext. Redis should remain the hot-path cache for token validation and cache
 payloads.
 
+### Backend verification path
+
+Server auth for cache operations now follows this order:
+
+1. Legacy Redis token map (`api-token:<raw-token>`) for backward compatibility
+2. Redis auth cache for InstantDB token hashes
+3. InstantDB admin query for cache misses
+
+If an InstantDB token is valid, the resolved user id is cached in Redis to avoid
+querying InstantDB on every cache request.
+
+Required server env vars for Instant-backed verification:
+
+- `INSTANT_APP_ID`
+- `INSTANT_ADMIN_TOKEN`
+
+Optional env vars:
+
+- `INSTANT_TOKEN_CACHE_TTL_SECONDS` (default `300`)
+
 ## InstantDB schema CI
 
 This repository includes a GitHub Actions workflow at

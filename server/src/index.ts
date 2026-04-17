@@ -2,6 +2,7 @@ import { app, authenticated, Response404 } from "./webFramework.ts";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
 import { memCache } from "../../client/src/index.ts";
+import { verifyInstantToken } from "./instantAuth.ts";
 import { redisClient } from "./redis.ts";
 
 const oneWeekInSeconds = 7 * 24 * 60 * 60;
@@ -18,8 +19,11 @@ const redisKey = {
   apiTokenToUser: joinColon("api-token"),
 };
 
-const verifyApiToken = (token: string) =>
-  redisClient.get(redisKey.apiTokenToUser(token));
+const verifyApiToken = async (token: string): Promise<string | null> => {
+  const legacyUid = await redisClient.get(redisKey.apiTokenToUser(token));
+  if (legacyUid) return legacyUid;
+  return await verifyInstantToken(token);
+};
 
 const verifyAuth0 = (token: string): Promise<string | null> =>
   jwtVerify(token, Auth0JKWS, {
