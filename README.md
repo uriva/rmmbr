@@ -200,13 +200,33 @@ have a need to configure this.
 - [Privacy policy](legal/privacy_policy.md)
 - [Service level agreement](legal/service_level_agreement.md)
 
+## InstantDB token registry
+
+New token management should treat InstantDB as the source of truth for user-owned
+service tokens.
+
+The initial InstantDB model lives in [landing-page/instant.schema.ts](landing-page/instant.schema.ts)
+and [landing-page/instant.perms.ts](landing-page/instant.perms.ts).
+
+Current shape:
+
+- `$users` is the identity owner table provided by InstantDB auth
+- `serviceTokens` stores token hashes and token metadata
+- each `serviceTokens` record belongs to exactly one `$users` record
+
+Raw token values should be returned once at creation time and never stored in
+plaintext. Redis should remain the hot-path cache for token validation and cache
+payloads.
+
 ## InstantDB schema CI
 
 This repository includes a GitHub Actions workflow at
-`.github/workflows/instantdb-schema.yml` that pushes InstantDB schema updates.
+`.github/workflows/instantdb-schema.yml` that pushes InstantDB schema and
+permissions updates.
 
-It runs automatically on pushes to `main` when an `instant.schema.ts` file
-changes, and can also be triggered manually from the Actions tab.
+It runs automatically on pushes to `main` when an `instant.schema.ts` or
+`instant.perms.ts` file changes, and can also be triggered manually from the
+Actions tab.
 
 Required repository secrets:
 
@@ -215,7 +235,7 @@ Required repository secrets:
 
 Manual run option:
 
-- `schema_path`: optional path to `instant.schema.ts`
+- `instant_dir`: optional directory containing `instant.schema.ts` and `instant.perms.ts`
 
 ## FAQ
 

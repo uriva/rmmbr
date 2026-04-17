@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { INSTANTDB_APP_URL } from "@/lib/links";
 import Button from "../ui-custom/Button";
 import { Menu, X } from "lucide-react";
 
@@ -59,7 +60,9 @@ const Navbar: React.FC = () => {
             >
               GitHub
             </Button>
-            <Button size="sm">Get Started</Button>
+            <Button href={INSTANTDB_APP_URL} size="sm">
+              Get Started
+            </Button>
           </div>
         </div>
 
@@ -97,7 +100,9 @@ const Navbar: React.FC = () => {
             <Button variant="outline" fullWidth>
               Documentation
             </Button>
-            <Button fullWidth>Get Started</Button>
+            <Button href={INSTANTDB_APP_URL} fullWidth>
+              Get Started
+            </Button>
           </div>
         </div>
       </div>

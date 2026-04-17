@@ -71,6 +71,18 @@ Simply open
 [Lovable](https://lovable.dev/projects/0a875b17-7695-44b0-8956-ba3ba66b10e5) and
 click on Share -> Publish.
 
+## Configure the Get Started link
+
+The landing page "Get Started" buttons use `VITE_INSTANTDB_APP_URL`.
+
+Create `landing-page/.env.local` with:
+
+```sh
+VITE_INSTANTDB_APP_URL=https://your-instantdb-app.example.com
+```
+
+If this variable is not set, the button falls back to `https://instantdb.com`.
+
 ## I want to use a custom domain - is that possible?
 
 We don't support custom domains (yet). If you want to deploy your project under

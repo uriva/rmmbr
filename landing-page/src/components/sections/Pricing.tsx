@@ -1,6 +1,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import { INSTANTDB_APP_URL } from "@/lib/links";
 import FadeIn from "../ui-custom/FadeIn";
 import Button from "../ui-custom/Button";
 import { Check } from "lucide-react";
@@ -12,6 +13,7 @@ interface PricingTierProps {
   features: string[];
   highlighted?: boolean;
   buttonText?: string;
+  buttonHref?: string;
   metadata?: {
     requests: string;
     storage: string;
@@ -27,6 +29,7 @@ const PricingTier: React.FC<PricingTierProps> = ({
   features,
   highlighted = false,
   buttonText = "Get Started",
+  buttonHref,
   metadata,
 }) => {
   return (
@@ -100,6 +103,7 @@ const PricingTier: React.FC<PricingTierProps> = ({
       </div>
 
       <Button
+        href={buttonHref}
         variant={highlighted ? "secondary" : "primary"}
         className={cn(
           "w-full justify-center",
@@ -132,7 +136,8 @@ const Pricing: React.FC = () => {
         storage: "10 MB",
         entrySize: "1 KB",
         entries: "1,000",
-      }
+      },
+      buttonHref: INSTANTDB_APP_URL,
     },
     {
       title: "Pro Tier",
@@ -151,7 +156,8 @@ const Pricing: React.FC = () => {
         storage: "1 GB",
         entrySize: "100 KB",
         entries: "Unlimited",
-      }
+      },
+      buttonHref: INSTANTDB_APP_URL,
     },
     {
       title: "Enterprise",

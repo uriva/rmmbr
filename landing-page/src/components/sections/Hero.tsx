@@ -1,6 +1,7 @@
 import React from "react";
 import FadeIn from "../ui-custom/FadeIn";
 import Button from "../ui-custom/Button";
+import { INSTANTDB_APP_URL } from "@/lib/links";
 import { ArrowRight, Database, Lock, Zap } from "lucide-react";
 import Terminal from "../ui-custom/Terminal";
 
@@ -58,7 +59,7 @@ const cachedFn = cache(cacheParams)(async (input) => {
           <FadeIn animation="fade-in" delay={400}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 md:mb-16">
               <Button
-                href="https://github.com/uriva/rmmbr"
+                href={INSTANTDB_APP_URL}
                 size="lg"
                 iconPosition="right"
                 icon={<ArrowRight size={16} />}

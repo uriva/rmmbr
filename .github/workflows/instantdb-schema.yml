@@ -1,4 +1,4 @@
-name: instantdb-schema
+name: instantdb-sync
 
 on:
   push:
@@ -6,22 +6,23 @@ on:
       - main
     paths:
       - "**/instant.schema.ts"
+      - "**/instant.perms.ts"
   workflow_dispatch:
     inputs:
-      schema_path:
-        description: "Path to instant.schema.ts (optional)"
+      instant_dir:
+        description: "Directory containing instant.schema.ts / instant.perms.ts (optional)"
         required: false
         default: ""
 
 jobs:
-  push-schema:
+  push-instant:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     env:
       INSTANT_APP_ID: ${{ secrets.INSTANT_APP_ID }}
       INSTANT_CLI_TOKEN: ${{ secrets.INSTANT_CLI_TOKEN }}
-      INPUT_SCHEMA_PATH: ${{ github.event.inputs.schema_path }}
+      INPUT_INSTANT_DIR: ${{ github.event.inputs.instant_dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,37 +32,51 @@ jobs:
         with:
           node-version: 22
 
-      - name: Resolve schema path
+      - name: Resolve InstantDB file directory
         id: resolve
         shell: bash
         run: |
           set -euo pipefail
 
-          if [[ -n "${INPUT_SCHEMA_PATH}" ]]; then
-            schema_path="${INPUT_SCHEMA_PATH}"
+          if [[ -n "${INPUT_INSTANT_DIR}" ]]; then
+            instant_dir="${INPUT_INSTANT_DIR}"
           elif [[ "${{ github.event_name }}" == "push" ]]; then
-            schema_path="$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -E '(^|/)instant\.schema\.ts$' | head -n1 || true)"
+            changed_path="$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -E '(^|/)instant\.(schema|perms)\.ts$' | head -n1 || true)"
+            instant_dir="$(dirname "${changed_path}")"
           else
-            schema_path=""
+            instant_dir=""
           fi
 
-          if [[ -z "${schema_path}" ]]; then
+          if [[ -z "${instant_dir}" ]]; then
             schema_path="$(find . -type f -name instant.schema.ts | sed 's#^./##' | head -n1 || true)"
+            if [[ -n "${schema_path}" ]]; then
+              instant_dir="$(dirname "${schema_path}")"
+            fi
           fi
 
-          if [[ -z "${schema_path}" ]]; then
-            echo "No instant.schema.ts file found."
+          if [[ -z "${instant_dir}" ]]; then
+            echo "No InstantDB directory found."
             exit 1
           fi
 
-          schema_dir="$(dirname "${schema_path}")"
-          echo "schema_path=${schema_path}" >> "$GITHUB_OUTPUT"
-          echo "schema_dir=${schema_dir}" >> "$GITHUB_OUTPUT"
-          echo "Using schema at ${schema_path}"
+          schema_exists="false"
+          perms_exists="false"
+          if [[ -f "${instant_dir}/instant.schema.ts" ]]; then
+            schema_exists="true"
+          fi
+          if [[ -f "${instant_dir}/instant.perms.ts" ]]; then
+            perms_exists="true"
+          fi
+
+          echo "instant_dir=${instant_dir}" >> "$GITHUB_OUTPUT"
+          echo "schema_exists=${schema_exists}" >> "$GITHUB_OUTPUT"
+          echo "perms_exists=${perms_exists}" >> "$GITHUB_OUTPUT"
+          echo "Using InstantDB files in ${instant_dir}"
 
       - name: Push InstantDB schema
+        if: ${{ steps.resolve.outputs.schema_exists == 'true' }}
         shell: bash
-        working-directory: ${{ steps.resolve.outputs.schema_dir }}
+        working-directory: ${{ steps.resolve.outputs.instant_dir }}
         run: |
           set -euo pipefail
 
@@ -76,3 +91,22 @@ jobs:
           fi
 
           npx instant-cli push schema --yes --app "${INSTANT_APP_ID}" --token "${INSTANT_CLI_TOKEN}"
+
+      - name: Push InstantDB permissions
+        if: ${{ steps.resolve.outputs.perms_exists == 'true' }}
+        shell: bash
+        working-directory: ${{ steps.resolve.outputs.instant_dir }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${INSTANT_APP_ID}" ]]; then
+            echo "Missing INSTANT_APP_ID repository secret."
+            exit 1
+          fi
+
+          if [[ -z "${INSTANT_CLI_TOKEN}" ]]; then
+            echo "Missing INSTANT_CLI_TOKEN repository secret."
+            exit 1
+          fi
+
+          npx instant-cli push perms --yes --app "${INSTANT_APP_ID}" --token "${INSTANT_CLI_TOKEN}"
