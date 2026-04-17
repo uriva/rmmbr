@@ -202,11 +202,12 @@ have a need to configure this.
 
 ## InstantDB token registry
 
-New token management should treat InstantDB as the source of truth for user-owned
-service tokens.
+New token management should treat InstantDB as the source of truth for
+user-owned service tokens.
 
-The initial InstantDB model lives in [landing-page/instant.schema.ts](landing-page/instant.schema.ts)
-and [landing-page/instant.perms.ts](landing-page/instant.perms.ts).
+The initial InstantDB model lives in
+[landing-page/instant.schema.ts](landing-page/instant.schema.ts) and
+[landing-page/instant.perms.ts](landing-page/instant.perms.ts).
 
 Current shape:
 
@@ -274,7 +275,8 @@ Required repository secrets:
 
 Manual run option:
 
-- `instant_dir`: optional directory containing `instant.schema.ts` and `instant.perms.ts`
+- `instant_dir`: optional directory containing `instant.schema.ts` and
+  `instant.perms.ts`
 
 ## FAQ
 

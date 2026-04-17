@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { id } from "@instantdb/react";
 import { Copy, KeyRound, LogOut, Shield, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { instantDb, hasInstantAppId, instantAppId } from "@/lib/instant";
+import { hasInstantAppId, instantAppId, instantDb } from "@/lib/instant";
 import {
   generateServiceToken,
   sha256Hex,
@@ -56,9 +56,10 @@ const Tokens = () => {
   const [isCreatingToken, setIsCreatingToken] = useState(false);
   const [lastRawToken, setLastRawToken] = useState<string | null>(null);
 
-  const { data, error: tokenError, isLoading: isLoadingTokens } = instantDb.useQuery(
-    user
-      ? {
+  const { data, error: tokenError, isLoading: isLoadingTokens } = instantDb
+    .useQuery(
+      user
+        ? {
           serviceTokens: {
             $: {
               order: {
@@ -67,8 +68,8 @@ const Tokens = () => {
             },
           },
         }
-      : null,
-  );
+        : null,
+    );
 
   const tokens = useMemo(
     () => ((data?.serviceTokens || []) as ServiceToken[]),
@@ -198,11 +199,11 @@ const Tokens = () => {
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               <p>
                 Add <code>VITE_INSTANT_APP_ID</code> to
-                <code> landing-page/.env.local</code>.
+                <code>landing-page/.env.local</code>.
               </p>
               <p>
-                This page creates token hashes in InstantDB, which your server uses
-                for auth verification.
+                This page creates token hashes in InstantDB, which your server
+                uses for auth verification.
               </p>
               <p>Current value: {instantAppId || "(empty)"}</p>
             </CardContent>
@@ -217,13 +218,18 @@ const Tokens = () => {
       <section className="mx-auto max-w-5xl p-6 md:p-10 space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Service tokens</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              Service tokens
+            </h1>
             <p className="text-muted-foreground mt-1">
               Create, copy once, and revoke tokens used by rmmbr clients.
             </p>
           </div>
           {user && (
-            <Button variant="outline" onClick={() => instantDb.auth.signOut()}>
+            <Button
+              variant="outline"
+              onClick={() => instantDb.auth.signOut()}
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </Button>
@@ -284,7 +290,9 @@ const Tokens = () => {
               )}
 
               {auth.error && (
-                <p className="text-sm text-destructive">{String(auth.error.message)}</p>
+                <p className="text-sm text-destructive">
+                  {String(auth.error.message)}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -318,7 +326,10 @@ const Tokens = () => {
                   />
                 </div>
                 <div className="md:col-span-3 flex flex-wrap gap-3">
-                  <Button onClick={handleCreateToken} disabled={isCreatingToken}>
+                  <Button
+                    onClick={handleCreateToken}
+                    disabled={isCreatingToken}
+                  >
                     {isCreatingToken ? "Creating..." : "Create token"}
                   </Button>
                 </div>
@@ -335,13 +346,16 @@ const Tokens = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    This is the only time the raw token is shown. We only store its
-                    hash.
+                    This is the only time the raw token is shown. We only store
+                    its hash.
                   </p>
                   <div className="rounded-md border bg-muted/30 px-3 py-2 font-mono text-sm break-all">
                     {lastRawToken}
                   </div>
-                  <Button variant="outline" onClick={() => handleCopy(lastRawToken)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCopy(lastRawToken)}
+                  >
                     <Copy className="mr-2 h-4 w-4" />
                     Copy token
                   </Button>
@@ -355,10 +369,14 @@ const Tokens = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {isLoadingTokens && (
-                  <p className="text-sm text-muted-foreground">Loading tokens...</p>
+                  <p className="text-sm text-muted-foreground">
+                    Loading tokens...
+                  </p>
                 )}
                 {tokenError && (
-                  <p className="text-sm text-destructive">{String(tokenError.message)}</p>
+                  <p className="text-sm text-destructive">
+                    {String(tokenError.message)}
+                  </p>
                 )}
                 {!isLoadingTokens && tokens.length === 0 && (
                   <p className="text-sm text-muted-foreground">
@@ -376,7 +394,10 @@ const Tokens = () => {
                     : "active";
 
                   return (
-                    <div key={token.id} className="rounded-lg border p-4 space-y-3">
+                    <div
+                      key={token.id}
+                      className="rounded-lg border p-4 space-y-3"
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="font-medium text-foreground">

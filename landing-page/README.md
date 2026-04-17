@@ -86,8 +86,8 @@ hashes to InstantDB.
 
 ## Configure the Get Started link
 
-The landing page "Get Started" buttons use `VITE_INSTANTDB_APP_URL`.
-If omitted, it defaults to `/tokens`.
+The landing page "Get Started" buttons use `VITE_INSTANTDB_APP_URL`. If omitted,
+it defaults to `/tokens`.
 
 Create `landing-page/.env.local` with:
 

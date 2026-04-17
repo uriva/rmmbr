@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +38,7 @@ const FadeIn: React.FC<FadeInProps> = ({
       {
         threshold,
         rootMargin: "0px",
-      }
+      },
     );
 
     const currentRef = ref.current;
@@ -57,9 +56,13 @@ const FadeIn: React.FC<FadeInProps> = ({
 
   const animationStyles = {
     opacity: 0,
-    transform: animation === "slide-up" ? "translateY(20px)" : 
-               animation === "slide-down" ? "translateY(-20px)" : "translateY(0)",
-    transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
+    transform: animation === "slide-up"
+      ? "translateY(20px)"
+      : animation === "slide-down"
+      ? "translateY(-20px)"
+      : "translateY(0)",
+    transition:
+      `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
     transitionDelay: `${delay}ms`,
   };
 
@@ -69,8 +72,8 @@ const FadeIn: React.FC<FadeInProps> = ({
   };
 
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className={cn(className)}
       style={{
         ...animationStyles,

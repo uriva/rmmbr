@@ -18,8 +18,10 @@ const rules = {
   serviceTokens: {
     allow: {
       view: "auth.id != null && auth.id in data.ref('$user.id')",
-      create: "auth.id != null && auth.id in data.ref('$user.id') && request.modifiedFields.all(field, field in ['tokenHash', 'tokenPrefix', 'label', 'status', 'createdAt', 'expiresAt'])",
-      update: "auth.id != null && auth.id in data.ref('$user.id') && request.modifiedFields.all(field, field in ['label', 'status', 'lastUsedAt', 'revokedAt', 'expiresAt'])",
+      create:
+        "auth.id != null && auth.id in data.ref('$user.id') && request.modifiedFields.all(field, field in ['tokenHash', 'tokenPrefix', 'label', 'status', 'createdAt', 'expiresAt'])",
+      update:
+        "auth.id != null && auth.id in data.ref('$user.id') && request.modifiedFields.all(field, field in ['label', 'status', 'lastUsedAt', 'revokedAt', 'expiresAt'])",
       delete: "auth.id != null && auth.id in data.ref('$user.id')",
     },
   },

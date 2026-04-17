@@ -15,11 +15,13 @@ const cachedFn = cache(cacheParams)(async (input) => {
   return (
     <div className="relative overflow-hidden pt-24 md:pt-32 pb-16 md:pb-24">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-rmmbr-900/20 to-transparent -z-10"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-rmmbr-900/20 to-transparent -z-10">
+      </div>
 
       {/* Decorative pattern */}
       <div className="absolute inset-0 opacity-[0.05] -z-10">
-        <div className="absolute top-0 left-0 right-0 h-screen bg-[radial-gradient(#2170eb_1px,transparent_1px)] [background-size:32px_32px]"></div>
+        <div className="absolute top-0 left-0 right-0 h-screen bg-[radial-gradient(#2170eb_1px,transparent_1px)] [background-size:32px_32px]">
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">

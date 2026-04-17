@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Copy, Check, Terminal as TerminalIcon } from "lucide-react";
+import { Check, Copy, Terminal as TerminalIcon } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coldarkDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -35,27 +34,34 @@ const Terminal: React.FC<TerminalProps> = ({
     ...coldarkDark,
     'pre[class*="language-"]': {
       ...coldarkDark['pre[class*="language-"]'],
-      background: 'transparent',
+      background: "transparent",
       margin: 0,
       padding: 0,
-      overflow: 'visible',
-      fontFamily: 'var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      fontSize: '0.875rem',
-      lineHeight: '1.5',
+      overflow: "visible",
+      fontFamily:
+        'var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+      fontSize: "0.875rem",
+      lineHeight: "1.5",
     },
     'code[class*="language-"]': {
       ...coldarkDark['code[class*="language-"]'],
-      background: 'transparent',
-      textShadow: 'none',
+      background: "transparent",
+      textShadow: "none",
       padding: 0,
-      fontFamily: 'var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      fontSize: '0.875rem',
-      lineHeight: '1.5',
+      fontFamily:
+        'var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+      fontSize: "0.875rem",
+      lineHeight: "1.5",
     },
   };
 
   return (
-    <div className={cn("rounded-lg overflow-hidden shadow-xl bg-card border border-border", className)}>
+    <div
+      className={cn(
+        "rounded-lg overflow-hidden shadow-xl bg-card border border-border",
+        className,
+      )}
+    >
       <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border">
         <div className="flex items-center space-x-2">
           <div className="flex space-x-1">
@@ -72,15 +78,15 @@ const Terminal: React.FC<TerminalProps> = ({
           onClick={handleCopy}
           className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-rmmbr-400 transition-colors"
         >
-          {copied ? (
-            <Check size={14} className="text-green-500" />
-          ) : (
-            <Copy size={14} />
-          )}
+          {copied
+            ? <Check size={14} className="text-green-500" />
+            : <Copy size={14} />}
           <span>{copied ? "Copied!" : "Copy"}</span>
         </button>
       </div>
-      <div className={cn("overflow-auto p-4 bg-muted/50 terminal-code", maxHeight)}>
+      <div
+        className={cn("overflow-auto p-4 bg-muted/50 terminal-code", maxHeight)}
+      >
         <SyntaxHighlighter
           language={language}
           style={customStyle}
@@ -88,13 +94,13 @@ const Terminal: React.FC<TerminalProps> = ({
           wrapLines={true}
           wrapLongLines={false}
           customStyle={{
-            background: 'transparent',
+            background: "transparent",
             margin: 0,
             padding: 0,
-            overflowX: 'auto',
+            overflowX: "auto",
           }}
           codeTagProps={{
-            className: 'font-mono text-sm',
+            className: "font-mono text-sm",
           }}
         >
           {code}

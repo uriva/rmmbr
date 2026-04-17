@@ -1,38 +1,40 @@
-
 import { cn } from "@/lib/utils";
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "link";
+  size?: "sm" | "md" | "lg";
   icon?: React.ReactNode;
-  iconPosition?: 'left' | 'right';
+  iconPosition?: "left" | "right";
   fullWidth?: boolean;
   href?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant = 'primary', 
-    size = 'md', 
-    icon, 
-    iconPosition = 'left',
+  ({
+    className,
+    variant = "primary",
+    size = "md",
+    icon,
+    iconPosition = "left",
     fullWidth = false,
     href,
     children,
-    ...props 
+    ...props
   }, ref) => {
-    const baseStyles = "relative inline-flex items-center justify-center rounded-md font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rmmbr-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
-    
+    const baseStyles =
+      "relative inline-flex items-center justify-center rounded-md font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rmmbr-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+
     const variants = {
-      primary: "bg-rmmbr-500 text-white hover:bg-rmmbr-600 active:bg-rmmbr-700 shadow-sm",
+      primary:
+        "bg-rmmbr-500 text-white hover:bg-rmmbr-600 active:bg-rmmbr-700 shadow-sm",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-      outline: "border border-border bg-transparent hover:bg-muted text-foreground",
+      outline:
+        "border border-border bg-transparent hover:bg-muted text-foreground",
       ghost: "hover:bg-muted text-foreground hover:text-foreground",
       link: "text-rmmbr-400 underline-offset-4 hover:underline p-0 h-auto",
     };
-    
+
     const sizes = {
       sm: "text-xs px-3 py-1.5 h-8",
       md: "text-sm px-4 py-2 h-10",
@@ -40,7 +42,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const widthClass = fullWidth ? "w-full" : "";
-    
+
     if (href) {
       // Use type assertion to avoid TypeScript errors
       const anchorProps = {} as React.AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -50,7 +52,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           anchorProps[key] = props[key];
         }
       }
-      
+
       return (
         <a
           className={cn(
@@ -58,16 +60,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             variants[variant],
             sizes[size],
             widthClass,
-            className
+            className,
           )}
           href={href}
           {...anchorProps}
         >
-          {icon && iconPosition === 'left' && (
+          {icon && iconPosition === "left" && (
             <span className="mr-2">{icon}</span>
           )}
           {children}
-          {icon && iconPosition === 'right' && (
+          {icon && iconPosition === "right" && (
             <span className="ml-2">{icon}</span>
           )}
         </a>
@@ -81,21 +83,20 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           variants[variant],
           sizes[size],
           widthClass,
-          className
+          className,
         )}
         ref={ref}
         {...props}
       >
-        {icon && iconPosition === 'left' && (
-          <span className="mr-2">{icon}</span>
-        )}
+        {icon && iconPosition === "left" && <span className="mr-2">{icon}
+        </span>}
         {children}
-        {icon && iconPosition === 'right' && (
+        {icon && iconPosition === "right" && (
           <span className="ml-2">{icon}</span>
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

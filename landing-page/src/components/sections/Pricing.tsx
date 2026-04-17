@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { INSTANTDB_APP_URL } from "@/lib/links";
@@ -33,29 +32,41 @@ const PricingTier: React.FC<PricingTierProps> = ({
   metadata,
 }) => {
   return (
-    <div 
+    <div
       className={cn(
         "rounded-2xl p-8 h-full flex flex-col",
-        highlighted 
-          ? "bg-rmmbr-600 text-white shadow-xl border-2 border-rmmbr-500" 
-          : "bg-card border border-border"
+        highlighted
+          ? "bg-rmmbr-600 text-white shadow-xl border-2 border-rmmbr-500"
+          : "bg-card border border-border",
       )}
     >
       <div className="mb-6">
-        <h3 className={cn(
-          "text-xl font-medium mb-2",
-          highlighted ? "text-white" : "text-foreground"
-        )}>
+        <h3
+          className={cn(
+            "text-xl font-medium mb-2",
+            highlighted ? "text-white" : "text-foreground",
+          )}
+        >
           {title}
         </h3>
         <div className="mb-3">
-          <span className={cn(
-            "text-3xl font-bold",
-            highlighted ? "text-white" : "text-foreground"
-          )}>
+          <span
+            className={cn(
+              "text-3xl font-bold",
+              highlighted ? "text-white" : "text-foreground",
+            )}
+          >
             {price}
           </span>
-          {price !== "Free" && <span className={highlighted ? "text-rmmbr-100" : "text-muted-foreground"}>/month</span>}
+          {price !== "Free" && (
+            <span
+              className={highlighted
+                ? "text-rmmbr-100"
+                : "text-muted-foreground"}
+            >
+              /month
+            </span>
+          )}
         </div>
         <p className={highlighted ? "text-rmmbr-100" : "text-muted-foreground"}>
           {description}
@@ -63,24 +74,50 @@ const PricingTier: React.FC<PricingTierProps> = ({
       </div>
 
       {metadata && (
-        <div className={cn(
-          "grid grid-cols-2 gap-4 mb-6 text-sm p-4 rounded-lg",
-          highlighted ? "bg-rmmbr-700/50" : "bg-muted"
-        )}>
+        <div
+          className={cn(
+            "grid grid-cols-2 gap-4 mb-6 text-sm p-4 rounded-lg",
+            highlighted ? "bg-rmmbr-700/50" : "bg-muted",
+          )}
+        >
           <div>
-            <div className={highlighted ? "text-rmmbr-100" : "text-muted-foreground"}>Requests</div>
+            <div
+              className={highlighted
+                ? "text-rmmbr-100"
+                : "text-muted-foreground"}
+            >
+              Requests
+            </div>
             <div className="font-medium">{metadata.requests}</div>
           </div>
           <div>
-            <div className={highlighted ? "text-rmmbr-100" : "text-muted-foreground"}>Storage</div>
+            <div
+              className={highlighted
+                ? "text-rmmbr-100"
+                : "text-muted-foreground"}
+            >
+              Storage
+            </div>
             <div className="font-medium">{metadata.storage}</div>
           </div>
           <div>
-            <div className={highlighted ? "text-rmmbr-100" : "text-muted-foreground"}>Max Entry Size</div>
+            <div
+              className={highlighted
+                ? "text-rmmbr-100"
+                : "text-muted-foreground"}
+            >
+              Max Entry Size
+            </div>
             <div className="font-medium">{metadata.entrySize}</div>
           </div>
           <div>
-            <div className={highlighted ? "text-rmmbr-100" : "text-muted-foreground"}>Entries</div>
+            <div
+              className={highlighted
+                ? "text-rmmbr-100"
+                : "text-muted-foreground"}
+            >
+              Entries
+            </div>
             <div className="font-medium">{metadata.entries}</div>
           </div>
         </div>
@@ -89,13 +126,22 @@ const PricingTier: React.FC<PricingTierProps> = ({
       <div className="space-y-4 mb-8 flex-grow">
         {features.map((feature, index) => (
           <div key={index} className="flex items-start">
-            <div className={cn(
-              "rounded-full p-1 mr-3 flex-shrink-0 mt-0.5",
-              highlighted ? "bg-rmmbr-400" : "bg-rmmbr-900/20"
-            )}>
-              <Check size={12} className={highlighted ? "text-white" : "text-rmmbr-400"} />
+            <div
+              className={cn(
+                "rounded-full p-1 mr-3 flex-shrink-0 mt-0.5",
+                highlighted ? "bg-rmmbr-400" : "bg-rmmbr-900/20",
+              )}
+            >
+              <Check
+                size={12}
+                className={highlighted ? "text-white" : "text-rmmbr-400"}
+              />
             </div>
-            <span className={highlighted ? "text-rmmbr-50" : "text-muted-foreground"}>
+            <span
+              className={highlighted
+                ? "text-rmmbr-50"
+                : "text-muted-foreground"}
+            >
               {feature}
             </span>
           </div>
@@ -107,7 +153,7 @@ const PricingTier: React.FC<PricingTierProps> = ({
         variant={highlighted ? "secondary" : "primary"}
         className={cn(
           "w-full justify-center",
-          highlighted ? "bg-white text-rmmbr-600 hover:bg-gray-100" : ""
+          highlighted ? "bg-white text-rmmbr-600 hover:bg-gray-100" : "",
         )}
       >
         {buttonText}
@@ -129,7 +175,7 @@ const Pricing: React.FC = () => {
         "End-to-end encryption",
         "Basic support",
         "Python & JavaScript support",
-        "CLI tools"
+        "CLI tools",
       ],
       metadata: {
         requests: "10,000",
@@ -148,7 +194,7 @@ const Pricing: React.FC = () => {
         "Priority support",
         "Multiple cache groups",
         "Custom TTL configuration",
-        "Enhanced observability"
+        "Enhanced observability",
       ],
       highlighted: true,
       metadata: {
@@ -170,7 +216,7 @@ const Pricing: React.FC = () => {
         "SLA guarantees",
         "24/7 support",
         "Account management",
-        "Custom integrations"
+        "Custom integrations",
       ],
       buttonText: "Contact Sales",
       metadata: {
@@ -178,7 +224,7 @@ const Pricing: React.FC = () => {
         storage: "Custom",
         entrySize: "Custom",
         entries: "Unlimited",
-      }
+      },
     },
   ];
 
@@ -193,8 +239,8 @@ const Pricing: React.FC = () => {
           </FadeIn>
           <FadeIn delay={200}>
             <p className="text-lg text-muted-foreground">
-              Choose the plan that works best for your needs.
-              All plans include core rmmbr functionality.
+              Choose the plan that works best for your needs. All plans include
+              core rmmbr functionality.
             </p>
           </FadeIn>
         </div>
@@ -209,10 +255,12 @@ const Pricing: React.FC = () => {
 
         <FadeIn delay={400}>
           <div className="mt-16 bg-card rounded-xl p-8 text-center">
-            <h3 className="text-xl font-medium text-foreground mb-4">Need a custom solution?</h3>
+            <h3 className="text-xl font-medium text-foreground mb-4">
+              Need a custom solution?
+            </h3>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              We offer custom plans for specific requirements. Contact our sales team
-              to discuss your needs and get a tailored solution.
+              We offer custom plans for specific requirements. Contact our sales
+              team to discuss your needs and get a tailored solution.
             </p>
             <Button variant="outline">
               Contact Sales

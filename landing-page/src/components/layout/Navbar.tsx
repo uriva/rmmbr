@@ -71,11 +71,9 @@ const Navbar: React.FC = () => {
           className="md:hidden z-10 focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {isOpen ? (
-            <X className="h-6 w-6 text-foreground" />
-          ) : (
-            <Menu className="h-6 w-6 text-foreground" />
-          )}
+          {isOpen
+            ? <X className="h-6 w-6 text-foreground" />
+            : <Menu className="h-6 w-6 text-foreground" />}
         </button>
 
         {/* Mobile menu */}
@@ -98,7 +96,11 @@ const Navbar: React.FC = () => {
             ))}
           </nav>
           <div className="flex flex-col space-y-4">
-            <Button href="https://github.com/uriva/rmmbr" variant="outline" fullWidth>
+            <Button
+              href="https://github.com/uriva/rmmbr"
+              variant="outline"
+              fullWidth
+            >
               Documentation
             </Button>
             <Button href={INSTANTDB_APP_URL} fullWidth>

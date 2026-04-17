@@ -41,11 +41,15 @@ const isActiveToken = (token: ServiceTokenRecord) => {
   return Number.isFinite(expiryTime) && expiryTime > Date.now();
 };
 
-export const verifyInstantToken = async (token: string): Promise<string | null> => {
+export const verifyInstantToken = async (
+  token: string,
+): Promise<string | null> => {
   if (!instantAdminDb) return null;
 
   const tokenHash = await hashToken(token);
-  const redisCachedUid = await redisClient.get(redisKey.instantTokenAuth(tokenHash));
+  const redisCachedUid = await redisClient.get(
+    redisKey.instantTokenAuth(tokenHash),
+  );
   if (redisCachedUid) return redisCachedUid;
 
   const queryResult = await instantAdminDb.query({
@@ -59,7 +63,9 @@ export const verifyInstantToken = async (token: string): Promise<string | null> 
     },
   });
 
-  const tokenEntity = queryResult.serviceTokens?.[0] as ServiceTokenRecord | undefined;
+  const tokenEntity = queryResult.serviceTokens?.[0] as
+    | ServiceTokenRecord
+    | undefined;
   const owner = Array.isArray(tokenEntity?.$user)
     ? tokenEntity?.$user[0]
     : tokenEntity?.$user;

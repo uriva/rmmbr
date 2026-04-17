@@ -1,11 +1,12 @@
-
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import FadeIn from "../ui-custom/FadeIn";
 import Terminal from "../ui-custom/Terminal";
 
 const CodeExample: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"typescript" | "python">("typescript");
+  const [activeTab, setActiveTab] = useState<"typescript" | "python">(
+    "typescript",
+  );
 
   const typescriptCode = `import { cache } from "rmmbr";
 
@@ -84,8 +85,8 @@ asyncio.run(main())`;
           </FadeIn>
           <FadeIn delay={200}>
             <p className="text-lg text-muted-foreground">
-              Just a few lines of code to implement persistent caching in your application.
-              No complex setup required.
+              Just a few lines of code to implement persistent caching in your
+              application. No complex setup required.
             </p>
           </FadeIn>
         </div>
@@ -97,7 +98,7 @@ asyncio.run(main())`;
                 "py-3 px-6 text-sm font-medium flex-1 transition-colors",
                 activeTab === "typescript"
                   ? "bg-card text-rmmbr-400 border-b-2 border-rmmbr-500"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
               )}
               onClick={() => setActiveTab("typescript")}
             >
@@ -108,7 +109,7 @@ asyncio.run(main())`;
                 "py-3 px-6 text-sm font-medium flex-1 transition-colors",
                 activeTab === "python"
                   ? "bg-card text-rmmbr-400 border-b-2 border-rmmbr-500"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
               )}
               onClick={() => setActiveTab("python")}
             >
@@ -117,27 +118,31 @@ asyncio.run(main())`;
           </div>
 
           <div className="p-6">
-            {activeTab === "typescript" ? (
-              <Terminal 
-                code={typescriptCode} 
-                language="typescript" 
-                title="TypeScript Example" 
-                showLineNumbers={true}
-              />
-            ) : (
-              <Terminal 
-                code={pythonCode} 
-                language="python" 
-                title="Python Example" 
-                showLineNumbers={true}
-              />
-            )}
+            {activeTab === "typescript"
+              ? (
+                <Terminal
+                  code={typescriptCode}
+                  language="typescript"
+                  title="TypeScript Example"
+                  showLineNumbers={true}
+                />
+              )
+              : (
+                <Terminal
+                  code={pythonCode}
+                  language="python"
+                  title="Python Example"
+                  showLineNumbers={true}
+                />
+              )}
           </div>
         </div>
-        
+
         <div className="mt-12 text-center">
           <FadeIn>
-            <div className="inline-block rounded-lg px-4 py-2 bg-muted text-muted-foreground text-sm mb-2">CLI Installation</div>
+            <div className="inline-block rounded-lg px-4 py-2 bg-muted text-muted-foreground text-sm mb-2">
+              CLI Installation
+            </div>
           </FadeIn>
           <FadeIn delay={200}>
             <Terminal

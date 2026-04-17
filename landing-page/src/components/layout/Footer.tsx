@@ -10,15 +10,18 @@ const Footer: React.FC = () => {
       links: [
         {
           label: "Terms of Service",
-          href: "https://github.com/uriva/rmmbr/blob/main/legal/terms_of_service.md",
+          href:
+            "https://github.com/uriva/rmmbr/blob/main/legal/terms_of_service.md",
         },
         {
           label: "Privacy Policy",
-          href: "https://github.com/uriva/rmmbr/blob/main/legal/privacy_policy.md",
+          href:
+            "https://github.com/uriva/rmmbr/blob/main/legal/privacy_policy.md",
         },
         {
           label: "Service Level Agreement",
-          href: "https://github.com/uriva/rmmbr/blob/main/legal/service_level_agreement.md",
+          href:
+            "https://github.com/uriva/rmmbr/blob/main/legal/service_level_agreement.md",
         },
       ],
     },
