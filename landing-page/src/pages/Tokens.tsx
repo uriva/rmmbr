@@ -116,6 +116,10 @@ const Tokens = () => {
 
   const handleCreateToken = async () => {
     if (!user) return;
+    if (!label.trim()) {
+      toast.error("Token name is required.");
+      return;
+    }
     setIsCreatingToken(true);
     try {
       const rawToken = generateServiceToken();
@@ -130,7 +134,7 @@ const Tokens = () => {
         instantDb.tx.serviceTokens[tokenId].update({
           tokenHash,
           tokenPrefix: tokenPrefix(rawToken),
-          label: label.trim() || undefined,
+          label: label.trim(),
           status: "active",
           createdAt: new Date().toISOString(),
           expiresAt,
@@ -297,7 +301,7 @@ const Tokens = () => {
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="token-label">Label (optional)</Label>
+                  <Label htmlFor="token-label">Token name</Label>
                   <Input
                     id="token-label"
                     placeholder="Production worker"
