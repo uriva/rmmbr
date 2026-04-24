@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/encoding@1": "1.0.10",
+    "npm:@instantdb/admin@*": "1.0.9",
     "npm:@instantdb/admin@^1.0.9": "1.0.9",
     "npm:@types/node@*": "22.15.15",
     "npm:open@9.1.0": "9.1.0",

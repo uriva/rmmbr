@@ -1,4 +1,5 @@
 {
+  "nodeModulesDir": "auto",
   "imports": {
     "@std/path": "https://deno.land/std@0.179.0/path/mod.ts",
     "@std/async/delay": "https://deno.land/std@0.50.0/async/delay.ts",
