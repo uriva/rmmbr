@@ -5,7 +5,7 @@ import { memCache } from "../../client/src/index.ts";
 import { verifyInstantToken } from "./instantAuth.ts";
 import { redisClient } from "./redis.ts";
 
-const oneWeekInSeconds = 7 * 24 * 60 * 60;
+const maxTtlInSeconds = 90 * 24 * 60 * 60;
 
 const auth0Tenant = "https://dev-gy4q5ggc5zaobhym.us.auth0.com/";
 const Auth0JKWS = createRemoteJWKSet(
@@ -58,10 +58,41 @@ const rootHandler = async (request: Request, uid: string) => {
       `${uid}:${cacheId}:${key}`,
       JSON.stringify(value),
       {
-        ex: (ttl > oneWeekInSeconds || !ttl) ? oneWeekInSeconds : ttl,
+        ex: (ttl > maxTtlInSeconds || !ttl) ? maxTtlInSeconds : ttl,
       },
     );
     return new Response(JSON.stringify({}));
+  }
+  if (method === "kv:get") {
+    const { cacheId, key } = params;
+    return new Response(
+      (await redisClient.get(`${uid}:${cacheId}:${key}`)) ||
+        JSON.stringify(null),
+    );
+  }
+  if (method === "kv:set") {
+    const { cacheId, key, value, ttl } = params;
+    await redisClient.set(
+      `${uid}:${cacheId}:${key}`,
+      JSON.stringify(value),
+      {
+        ex: (ttl > maxTtlInSeconds || !ttl) ? maxTtlInSeconds : ttl,
+      },
+    );
+    return new Response(JSON.stringify({}));
+  }
+  if (method === "kv:del") {
+    const { cacheId, key } = params;
+    return new Response(
+      JSON.stringify(await redisClient.del(`${uid}:${cacheId}:${key}`)),
+    );
+  }
+  if (method === "kv:mget") {
+    const { cacheId, keys } = params;
+    const values = await redisClient.mget(...keys.map((k: string) =>
+      `${uid}:${cacheId}:${k}`
+    ));
+    return new Response(JSON.stringify(values));
   }
   return new Response("Unknown method", { status: 400 });
 };
