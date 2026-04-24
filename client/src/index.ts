@@ -266,6 +266,19 @@ const cloudCache =
 
 // --- KV API ---
 
+const parseWithDiagnostics =
+  (method: string) => (text: string): CachedFunctionOutput => {
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      throw new Error(
+        `rmmbr ${method} response not valid JSON. body length=${text.length}, body=${
+          JSON.stringify(text.slice(0, 500))
+        }, original error: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    }
+  };
+
 const kvCallAPI = (
   url: string,
   token: string,
@@ -279,7 +292,7 @@ const kvCallAPI = (
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ method, params }),
-  }).then((x) => x.json());
+  }).then((x) => x.text()).then(parseWithDiagnostics(method));
 
 const kvGetRaw = ({ cacheId, url, token }: CloudCacheParams) => (key: string) =>
   kvCallAPI(
