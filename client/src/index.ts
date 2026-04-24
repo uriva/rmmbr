@@ -281,14 +281,13 @@ const kvCallAPI = (
     body: JSON.stringify({ method, params }),
   }).then((x) => x.json());
 
-const kvGetRaw =
-  ({ cacheId, url, token }: CloudCacheParams) => (key: string) =>
-    kvCallAPI(
-      assertString(url, urlParamMissing),
-      assertString(token, tokenParamMissing),
-      "kv:get",
-      { key, cacheId },
-    );
+const kvGetRaw = ({ cacheId, url, token }: CloudCacheParams) => (key: string) =>
+  kvCallAPI(
+    assertString(url, urlParamMissing),
+    assertString(token, tokenParamMissing),
+    "kv:get",
+    { key, cacheId },
+  );
 
 const kvSetRaw =
   ({ cacheId, url, token, ttl }: CloudCacheParams) =>
@@ -300,14 +299,13 @@ const kvSetRaw =
       { key, value, ttl, cacheId },
     );
 
-const kvDelRaw =
-  ({ cacheId, url, token }: CloudCacheParams) => (key: string) =>
-    kvCallAPI(
-      assertString(url, urlParamMissing),
-      assertString(token, tokenParamMissing),
-      "kv:del",
-      { key, cacheId },
-    );
+const kvDelRaw = ({ cacheId, url, token }: CloudCacheParams) => (key: string) =>
+  kvCallAPI(
+    assertString(url, urlParamMissing),
+    assertString(token, tokenParamMissing),
+    "kv:del",
+    { key, cacheId },
+  );
 
 const kvMgetRaw =
   ({ cacheId, url, token }: CloudCacheParams) => (keys: string[]) =>
@@ -329,31 +327,34 @@ const decryptValue = (encryptionKey: string) => (value: unknown) =>
 const encryptValue = (encryptionKey: string) => (value: unknown) =>
   encrypt(encryptionKey)(jsonStableStringify(value));
 
-export const kvGet = (params: CloudCacheParams) => (key: string) =>
-  kvGetRaw(params)(key).then((value) =>
-    value && params.encryptionKey
-      ? decryptValue(params.encryptionKey)(value)
-      : value
-  );
-
-export const kvSet = (params: CloudCacheParams) =>
-(key: string, value: unknown) =>
-  (params.encryptionKey
-    ? encryptValue(params.encryptionKey)(value).then((encrypted) =>
-      kvSetRaw(params)(key, encrypted)
-    )
-    : kvSetRaw(params)(key, value))
-    .then(() => {});
-
-export const kvDel = (params: CloudCacheParams) => (key: string) =>
-  kvDelRaw(params)(key).then(() => {});
-
-export const kvMget = (params: CloudCacheParams) => (keys: string[]) =>
-  kvMgetRaw(params)(keys).then((values) => {
-    const parsed = (values as (string | null)[]).map((v) =>
-      v ? JSON.parse(v) : null
+export const kvGet =
+  (params: CloudCacheParams) => (key: string): Promise<unknown> =>
+    kvGetRaw(params)(key).then((value) =>
+      value && params.encryptionKey
+        ? decryptValue(params.encryptionKey)(value)
+        : value
     );
-    return params.encryptionKey
-      ? Promise.all(parsed.map(decryptValue(params.encryptionKey)))
-      : parsed;
-  });
+
+export const kvSet =
+  (params: CloudCacheParams) => (key: string, value: unknown): Promise<void> =>
+    (params.encryptionKey
+      ? encryptValue(params.encryptionKey)(value).then((encrypted) =>
+        kvSetRaw(params)(key, encrypted)
+      )
+      : kvSetRaw(params)(key, value))
+      .then(() => {});
+
+export const kvDel =
+  (params: CloudCacheParams) => (key: string): Promise<void> =>
+    kvDelRaw(params)(key).then(() => {});
+
+export const kvMget =
+  (params: CloudCacheParams) => (keys: string[]): Promise<unknown[]> =>
+    kvMgetRaw(params)(keys).then((values) => {
+      const parsed = (values as (string | null)[]).map((v) =>
+        v ? JSON.parse(v) : null
+      );
+      return params.encryptionKey
+        ? Promise.all(parsed.map(decryptValue(params.encryptionKey)))
+        : parsed;
+    });
