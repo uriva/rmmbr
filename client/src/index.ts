@@ -349,10 +349,11 @@ export const kvDel = (params: CloudCacheParams) => (key: string) =>
   kvDelRaw(params)(key).then(() => {});
 
 export const kvMget = (params: CloudCacheParams) => (keys: string[]) =>
-  kvMgetRaw(params)(keys).then((values) =>
-    params.encryptionKey
-      ? Promise.all(
-        (values as unknown[]).map(decryptValue(params.encryptionKey)),
-      )
-      : values
-  );
+  kvMgetRaw(params)(keys).then((values) => {
+    const parsed = (values as (string | null)[]).map((v) =>
+      v ? JSON.parse(v) : null
+    );
+    return params.encryptionKey
+      ? Promise.all(parsed.map(decryptValue(params.encryptionKey)))
+      : parsed;
+  });

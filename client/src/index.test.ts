@@ -1,4 +1,4 @@
-import { cache, type CacheParams, Func, waitAllWrites } from "./index.ts";
+import { cache, type CacheParams, Func, kvGet, kvMget, kvSet, kvDel, waitAllWrites } from "./index.ts";
 
 import { assertEquals } from "@std/testing/asserts";
 import { config } from "dotenv";
@@ -159,4 +159,62 @@ Deno.test("remote variadic cache", async () => {
       url: mockBackendUrl,
     }),
   );
+});
+
+Deno.test("remote kv get/set/del", async () => {
+  await cleanRedis();
+  const store = {
+    cacheId: "kv-test",
+    url: mockBackendUrl,
+    token: "some-token",
+  };
+  await kvSet(store)("key1", { foo: "bar", num: 42 });
+  const value = await kvGet(store)("key1");
+  assertEquals(value, { foo: "bar", num: 42 });
+
+  await kvDel(store)("key1");
+  const afterDel = await kvGet(store)("key1");
+  assertEquals(afterDel, null);
+});
+
+Deno.test("remote kv mget", async () => {
+  await cleanRedis();
+  const store = {
+    cacheId: "kv-mget-test",
+    url: mockBackendUrl,
+    token: "some-token",
+  };
+  await kvSet(store)("a", 1);
+  await kvSet(store)("b", 2);
+  const values = await kvMget(store)(["a", "b", "missing"]);
+  assertEquals(values, [1, 2, null]);
+});
+
+Deno.test("remote kv encryption", async () => {
+  await cleanRedis();
+  const store = {
+    cacheId: "kv-enc-test",
+    url: mockBackendUrl,
+    token: "some-token",
+    encryptionKey: "cddn22Nf1tWB1f5vbJCxl3ix5vCFKxXAcwQbFMtRdV4=",
+  };
+  await kvSet(store)("secret", { password: "hunter2" });
+  const value = await kvGet(store)("secret");
+  assertEquals(value, { password: "hunter2" });
+
+  // Verify raw value is encrypted
+  const raw = await fetch(mockBackendUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer some-token",
+    },
+    body: JSON.stringify({
+      method: "kv:get",
+      params: { cacheId: "kv-enc-test", key: "secret" },
+    }),
+  }).then((x) => x.json());
+  assertEquals(typeof raw, "object");
+  assertEquals("cipher" in raw, true);
+  assertEquals("iv" in raw, true);
 });
