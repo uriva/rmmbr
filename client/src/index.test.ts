@@ -1,4 +1,13 @@
-import { cache, type CacheParams, Func, kvGet, kvMget, kvSet, kvDel, waitAllWrites } from "./index.ts";
+import {
+  cache,
+  type CacheParams,
+  Func,
+  kvDel,
+  kvGet,
+  kvMget,
+  kvSet,
+  waitAllWrites,
+} from "./index.ts";
 
 import { assertEquals } from "@std/testing/asserts";
 import { config } from "dotenv";
@@ -188,6 +197,29 @@ Deno.test("remote kv mget", async () => {
   await kvSet(store)("b", 2);
   const values = await kvMget(store)(["a", "b", "missing"]);
   assertEquals(values, [1, 2, null]);
+});
+
+Deno.test("remote kv mget returns misses when backend response fails", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = () =>
+    Promise.resolve(
+      new Response("503: Service Unavailable (DEPLOYMENT_TIMED_OUT)", {
+        status: 503,
+      }),
+    );
+
+  try {
+    assertEquals(
+      await kvMget({
+        cacheId: "kv-mget-failure-test",
+        url: mockBackendUrl,
+        token: "some-token",
+      })(["a", "b"]),
+      [null, null],
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 Deno.test("remote kv encryption", async () => {

@@ -370,4 +370,7 @@ export const kvMget =
       return params.encryptionKey
         ? Promise.all(parsed.map(decryptValue(params.encryptionKey)))
         : parsed;
+    }).catch((e) => {
+      console.error("rmmbr kv:mget failed; returning cache misses", e);
+      return keys.map(() => null);
     });
