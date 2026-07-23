@@ -40,6 +40,7 @@ type AbstractCacheParams<F extends Func> = {
   read: (key: string) => ReturnType<F>;
   write: (key: string, value: Awaited<ReturnType<F>>) => Promise<void>;
   forceWrite?: boolean;
+  maxInMemKeys?: number;
 };
 
 type Cache<Output> = Record<string, Output>;
@@ -90,22 +91,73 @@ const abstractCache = <F extends Func>({
   read,
   write,
   forceWrite,
-}: AbstractCacheParams<F>): F =>
-  ((...x: Parameters<F>) => {
+  maxInMemKeys = 100,
+}: AbstractCacheParams<F>): F => {
+  const inMemory = new Map<string, ReturnType<F>>();
+  const inFlight = new Map<string, ReturnType<F>>();
+
+  const setInMemory = (k: string, promise: ReturnType<F>) => {
+    if (maxInMemKeys <= 0) return;
+    if (inMemory.has(k)) {
+      inMemory.delete(k);
+    }
+    inMemory.set(k, promise);
+    while (inMemory.size > maxInMemKeys) {
+      const oldest = inMemory.keys().next().value;
+      if (oldest !== undefined) inMemory.delete(oldest);
+    }
+  };
+
+  const getFromMemory = (k: string): ReturnType<F> | undefined => {
+    if (!inMemory.has(k)) return undefined;
+    const promise = inMemory.get(k)!;
+    inMemory.delete(k);
+    inMemory.set(k, promise);
+    return promise;
+  };
+
+  return ((...x: Parameters<F>) => {
     const keyResult = key(...x);
-    return (forceWrite
-      ? Promise.reject(new Error("forced write is on"))
-      : read(keyResult)).catch(() =>
+    if (!forceWrite) {
+      const cached = getFromMemory(keyResult);
+      if (cached) return cached;
+      if (inFlight.has(keyResult)) {
+        return inFlight.get(keyResult)!;
+      }
+    }
+
+    const promise = (
+      forceWrite
+        ? Promise.reject(new Error("forced write is on"))
+        : read(keyResult)
+    )
+      .then((value) => {
+        const resolved = Promise.resolve(value) as ReturnType<F>;
+        setInMemory(keyResult, resolved);
+        return value;
+      })
+      .catch(() =>
         f(...x).then((y) => {
           enrollPromise(
             write(keyResult, y).catch((e) => {
               console.error("failed writing to rmmbr cache", e);
             }),
           );
+          const resolved = Promise.resolve(y) as ReturnType<F>;
+          setInMemory(keyResult, resolved);
           return y;
         })
-      );
-  }) as F;
+      )
+      .finally(() => {
+        inFlight.delete(keyResult);
+      }) as ReturnType<F>;
+
+    if (!forceWrite) {
+      inFlight.set(keyResult, promise);
+    }
+    return promise;
+  }) as unknown as F;
+};
 
 /** Waits for all pending cache write operations to complete. */
 export const waitAllWrites = async (): Promise<void> => {
@@ -151,11 +203,12 @@ export const memCache =
   };
 
 const localCache =
-  ({ cacheId, customKeyFn, forceWrite }: LocalCacheParams): CacheWrapper =>
+  ({ cacheId, customKeyFn, forceWrite, maxInMemKeys }: LocalCacheParams): CacheWrapper =>
   <F extends Func>(f: F): F =>
     // @ts-expect-error Promise+Awaited = nothing
     abstractCache({
       forceWrite,
+      maxInMemKeys,
       key: inputToCacheKey<Parameters<F>>("", customKeyFn),
       f,
       ...makeLocalReadWrite<Awaited<ReturnType<F>>>(cacheId),
@@ -164,20 +217,66 @@ const localCache =
 // deno-lint-ignore no-explicit-any
 type ServerParams = any;
 
-const callAPI = (
+const isTransientHttp = (status: number, text: string): boolean =>
+  status === 503 ||
+  status === 429 ||
+  status === 502 ||
+  status === 504 ||
+  text.includes("503") ||
+  text.includes("exceeded the limit") ||
+  text.includes("request could not be satisfied");
+
+const callAPI = async (
   url: string,
   token: string,
   method: "set" | "get",
   params: ServerParams,
-): Promise<CachedFunctionOutput> =>
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ method, params }),
-  }).then((x) => x.json());
+  retries = 5,
+  initialDelayMs = 200,
+): Promise<CachedFunctionOutput> => {
+  let delay = initialDelayMs;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ method, params }),
+      });
+      const text = await res.text();
+      if (!res.ok || isTransientHttp(res.status, text)) {
+        if (attempt < retries && (isTransientHttp(res.status, text) || res.status >= 500)) {
+          const jitter = Math.random() * 100;
+          await new Promise((r) => setTimeout(r, delay + jitter));
+          delay *= 2;
+          continue;
+        }
+      }
+      return parseWithDiagnostics(method)(text);
+    } catch (err) {
+      if (attempt < retries) {
+        const msg = String(err instanceof Error ? err.message : err);
+        if (
+          msg.includes("503") ||
+          msg.includes("429") ||
+          msg.includes("502") ||
+          msg.includes("504") ||
+          msg.includes("exceeded the limit") ||
+          msg.includes("request could not be satisfied")
+        ) {
+          const jitter = Math.random() * 100;
+          await new Promise((r) => setTimeout(r, delay + jitter));
+          delay *= 2;
+          continue;
+        }
+      }
+      throw err;
+    }
+  }
+  throw new Error(`rmmbr API call (${method}) failed after retries`);
+};
 
 const assertString = (
   s: string | null | undefined,
@@ -217,6 +316,7 @@ type LocalCacheParams = {
   cacheId: string;
   forceWrite?: boolean;
   customKeyFn?: CustomKeyFn;
+  maxInMemKeys?: number;
 };
 
 type CloudCacheParams = {
@@ -227,6 +327,7 @@ type CloudCacheParams = {
   encryptionKey?: string;
   customKeyFn?: CustomKeyFn;
   forceWrite?: boolean;
+  maxInMemKeys?: number;
 };
 
 /** Cache function results locally (file system) or remotely (rmmbr server), with optional encryption. */
@@ -237,6 +338,7 @@ const cloudCache =
   (params: CloudCacheParams): CacheWrapper => <F extends Func>(f: F): F =>
     abstractCache({
       forceWrite: params.forceWrite,
+      maxInMemKeys: params.maxInMemKeys,
       key: inputToCacheKey<Parameters<F>>(
         params.encryptionKey || "",
         params.customKeyFn,
