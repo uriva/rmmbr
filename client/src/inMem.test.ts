@@ -39,3 +39,26 @@ Deno.test("in-flight request coalescing and maxInMemKeys", async () => {
   assertEquals(res5, 10);
   assertEquals(calls, 3);
 });
+
+Deno.test("maxInMemKeys: 0 disables in-memory caching while keeping in-flight coalescing", async () => {
+  let calls = 0;
+  const slowFn = async (x: number) => {
+    calls++;
+    await new Promise((r) => setTimeout(r, 30));
+    return x + 10;
+  };
+
+  const cachedFn = cache({ cacheId: `test-no-inmem-${Date.now()}`, maxInMemKeys: 0 })(slowFn);
+
+  // Concurrent calls still coalesce into 1 execution
+  const [r1, r2] = await Promise.all([cachedFn(1), cachedFn(1)]);
+  assertEquals(r1, 11);
+  assertEquals(r2, 11);
+  assertEquals(calls, 1);
+
+  // Once settled, maxInMemKeys: 0 means in-memory cache was skipped.
+  // Next call reads from persistent storage (calls remains 1 if found in local file).
+  const r3 = await cachedFn(1);
+  assertEquals(r3, 11);
+  assertEquals(calls, 1);
+});
