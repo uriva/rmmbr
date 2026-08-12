@@ -2,7 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/encoding@1": "1.0.10",
-    "npm:@instantdb/admin@^1.0.21": "1.0.51",
+    "npm:@instantdb/admin@^1.0.65": "1.0.65",
     "npm:@types/node@*": "22.15.15",
     "npm:open@9.1.0": "9.1.0",
     "npm:sjcl@*": "1.0.8"
@@ -13,8 +13,8 @@
     }
   },
   "npm": {
-    "@instantdb/admin@1.0.51": {
-      "integrity": "sha512-l2voXiOsh008psNnk4wj2suUx7IdJmJlf0eo46NvL0B1av4gBMgYSXAiyuZbHOi1cmo5XnqycTz0Om/bo8L60w==",
+    "@instantdb/admin@1.0.65": {
+      "integrity": "sha512-g/A6JgkLhHoRswx2uU7oCk2iJ93+DxBw84867IIdckYv2UTngQ65gNiJhbdWbZ4S5cD1+NMWCPXZBbQilVNHGw==",
       "dependencies": [
         "@instantdb/core",
         "@instantdb/eventsource",
@@ -24,8 +24,8 @@
         "uuid"
       ]
     },
-    "@instantdb/core@1.0.51": {
-      "integrity": "sha512-RoqmR0bjB9+Pgxacn5z2oEBbcS4MCB+smelehuMLcKt38MaTQcAEIoZl4Vx2J2YN/GjcG7y7+a/c6og6ujQEvQ==",
+    "@instantdb/core@1.0.65": {
+      "integrity": "sha512-ZVxrKJOPcUcRYN9KrI+W+kVhzr7uKLZVZLRRqCdVvWSKkSGx8rg/obQa2E3MYnYpV+xPcphKjlZIC7pmwSDtSQ==",
       "dependencies": [
         "@instantdb/version",
         "mutative",
@@ -38,11 +38,11 @@
         "eventsource-parser"
       ]
     },
-    "@instantdb/version@1.0.51": {
-      "integrity": "sha512-t7+RCAJCmRosgzZvxNjHH0lZk/dektoabcxmMIdfi1G0n7ZL5XmJO9Qqy5M7uie3OyULOofzOacCN63AjCGpZg=="
+    "@instantdb/version@1.0.65": {
+      "integrity": "sha512-9uZa9zHM9lGKm7YD9ttaaYjA3dVPcuzTpq9aQBWH1PRyIU8G7aaOBLIpEDrtpnO+dng0iKi6S2WrPrynALfKQg=="
     },
-    "@instantdb/webhooks@1.0.51": {
-      "integrity": "sha512-IUXJpapFJr5xKfT8ESr+KVMLi4zJ1caYUZ031J6tai462zzvJ9PUSMC21RbHzH/J6MPNfJIFS1SVWSxF1J8l0A==",
+    "@instantdb/webhooks@1.0.65": {
+      "integrity": "sha512-cO/JTXgd6NNAxeRmo0LkaAxHNjBEKBbPe8lPBbGhYu4OHq2izIqsAhsKaDHhpYjEEhYR/BiCgsHzD0BA3ecadA==",
       "dependencies": [
         "@instantdb/core"
       ]
@@ -98,8 +98,8 @@
     "define-lazy-prop@3.0.0": {
       "integrity": "sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg=="
     },
-    "eventsource-parser@3.1.0": {
-      "integrity": "sha512-kJezFj9YFAMLeORyi7aCLxLbD5/qWMQnoMVlVPyHIll7lgRJCc3JVln9Vgl9nwQi0YkMnhdGTMNn7CkRRAptMg=="
+    "eventsource-parser@3.1.1": {
+      "integrity": "sha512-EKN1vKAMcZ8MlYMpaNuxN6R9yakzH6uajHcHVTqWJzvu5pWw9DyhbP35HH8MVBQ+dZjAfDxk+A8NiR9KWaXiyQ=="
     },
     "execa@5.1.1": {
       "integrity": "sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==",
@@ -646,7 +646,7 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@instantdb/admin@^1.0.21"
+        "npm:@instantdb/admin@^1.0.65"
       ]
     }
   }
