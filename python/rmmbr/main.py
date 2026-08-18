@@ -59,9 +59,12 @@ _cache_background_writes = set()
 def _abstract_cache_params(key, f, read, write):
     async def func(*args, **kwargs):
         key_result = key(*args, **kwargs)
-        value = await read(key_result)
-        if value is not None:
-            return value
+        try:
+            value = await read(key_result)
+            if value is not None:
+                return value
+        except Exception:
+            pass
         y = await f(*args, **kwargs)
         bg_write = asyncio.create_task(write(key_result, y))
         # Avoid premature garbage collection, see notes:
@@ -112,8 +115,13 @@ class RmmbrAuthError(Exception):
     pass
 
 
-async def _call_api(url: str, token: str, method: str, params):
-    async with httpx.AsyncClient() as client:
+DEFAULT_TIMEOUT_SECONDS = 1.0
+
+
+async def _call_api(
+    url: str, token: str, method: str, params, timeout: float = DEFAULT_TIMEOUT_SECONDS
+):
+    async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.post(
             url=url,
             json={
@@ -129,6 +137,7 @@ async def _call_api(url: str, token: str, method: str, params):
             raise RmmbrAuthError(
                 "rmmbr authentication failure. Is the API token valid?"
             )
+        response.raise_for_status()
         return response.json()
 
 
@@ -138,12 +147,16 @@ def _set_remote(
     cache_id: str,
     ttl: Optional[int],
     serialize: Callable[[Serializable], str],
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
 ):
     async def func(key, value):
         params = {"key": key, "value": serialize(value), "cacheId": cache_id}
         if ttl is not None:
             params["ttl"] = ttl
-        await _call_api(url, token, "set", params)
+        try:
+            await _call_api(url, token, "set", params, timeout=timeout)
+        except Exception as e:
+            print(f"failed writing to rmmbr cache: {e}")
 
     return func
 
@@ -152,10 +165,16 @@ _Key = str
 
 
 def _get_remote(
-    url: str, token: str, cache_id: str, deserialize: Callable[[str], Serializable]
+    url: str,
+    token: str,
+    cache_id: str,
+    deserialize: Callable[[str], Serializable],
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
 ):
     async def func(key: _Key):
-        value = await _call_api(url, token, "get", {"key": key, "cacheId": cache_id})
+        value = await _call_api(
+            url, token, "get", {"key": key, "cacheId": cache_id}, timeout=timeout
+        )
         if value is not None:
             value = deserialize(value)
         return value
@@ -177,10 +196,11 @@ def _decrypt_and_deserialize_output(encryptor: Encryptor, data: str) -> Serializ
 
 def cache(
     cache_id: str,
-    ttl: Optional[int],
-    encryption_key: Optional[str],
-    url: Optional[str],
-    token: Optional[str],
+    ttl: Optional[int] = None,
+    encryption_key: Optional[str] = None,
+    url: Optional[str] = None,
+    token: Optional[str] = None,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
 ):
     if not token or not url:
         return _local_cache(cache_id)
@@ -199,8 +219,8 @@ def cache(
         return _abstract_cache_params(
             key_arguments_func,
             f,
-            _get_remote(url, token, cache_id, deserialize_output_func),
-            _set_remote(url, token, cache_id, ttl, serialize_output_func),
+            _get_remote(url, token, cache_id, deserialize_output_func, timeout=timeout),
+            _set_remote(url, token, cache_id, ttl, serialize_output_func, timeout=timeout),
         )
 
     return inner_func

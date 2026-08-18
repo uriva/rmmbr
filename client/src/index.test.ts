@@ -1,7 +1,7 @@
 import {
   cache,
   type CacheParams,
-  Func,
+  type Func,
   kvDel,
   kvGet,
   kvMget,
@@ -197,6 +197,94 @@ Deno.test("remote kv mget", async () => {
   await kvSet(store)("b", 2);
   const values = await kvMget(store)(["a", "b", "missing"]);
   assertEquals(values, [1, 2, null]);
+});
+
+Deno.test("remote cache falls back to inner function when backend read times out", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (_url, init) =>
+    new Promise((_resolve, reject) => {
+      const signal = init?.signal;
+      if (signal) {
+        signal.addEventListener("abort", () => {
+          reject(
+            new DOMException("The signal has been aborted", "TimeoutError"),
+          );
+        });
+      }
+      // Never resolve on its own, relies on AbortSignal timeout
+    });
+
+  let innerCalls = 0;
+  const slowCache = cache({
+    cacheId: "timeout-test",
+    url: "https://mock.rmmbr.net",
+    token: "some-token",
+    timeoutMs: 50,
+  });
+
+  const fn = slowCache((x: number) => {
+    innerCalls++;
+    return Promise.resolve(x * 2);
+  });
+
+  try {
+    const result = await fn(5);
+    assertEquals(result, 10);
+    assertEquals(innerCalls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("remote cache falls back to inner function when backend returns 503", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = () =>
+    Promise.resolve(
+      new Response("503: Service Unavailable (DEPLOYMENT_TIMED_OUT)", {
+        status: 503,
+      }),
+    );
+
+  let innerCalls = 0;
+  const failingCache = cache({
+    cacheId: "503-test",
+    url: "https://mock.rmmbr.net",
+    token: "some-token",
+  });
+
+  const fn = failingCache((x: number) => {
+    innerCalls++;
+    return Promise.resolve(x * 3);
+  });
+
+  try {
+    const result = await fn(4);
+    assertEquals(result, 12);
+    assertEquals(innerCalls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("remote kv get returns null on timeout or 503 failure", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = () =>
+    Promise.resolve(
+      new Response("503: Service Unavailable", {
+        status: 503,
+      }),
+    );
+
+  try {
+    const val = await kvGet({
+      cacheId: "kv-get-timeout-test",
+      url: "https://mock.rmmbr.net",
+      token: "some-token",
+    })("some-key");
+    assertEquals(val, null);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 Deno.test("remote kv mget returns misses when backend response fails", async () => {

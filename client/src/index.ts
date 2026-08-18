@@ -1,5 +1,5 @@
 import {
-  CustomKeyFn,
+  type CustomKeyFn,
   decrypt,
   encrypt,
   inputToCacheKey,
@@ -217,66 +217,33 @@ const localCache =
 // deno-lint-ignore no-explicit-any
 type ServerParams = any;
 
-const isTransientHttp = (status: number, text: string): boolean =>
-  status === 503 ||
-  status === 429 ||
-  status === 502 ||
-  status === 504 ||
-  text.includes("503") ||
-  text.includes("exceeded the limit") ||
-  text.includes("request could not be satisfied");
+const defaultTimeoutMs = 1000;
 
-const callAPI = async (
+const resolveTimeoutMs = (params: CloudCacheParams): number =>
+  params.timeoutMs ??
+  (params.timeout !== undefined ? params.timeout * 1000 : defaultTimeoutMs);
+
+const callAPI = (
   url: string,
   token: string,
   method: "set" | "get",
   params: ServerParams,
-  retries = 5,
-  initialDelayMs = 200,
-): Promise<CachedFunctionOutput> => {
-  let delay = initialDelayMs;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ method, params }),
-      });
-      const text = await res.text();
-      if (!res.ok || isTransientHttp(res.status, text)) {
-        if (attempt < retries && (isTransientHttp(res.status, text) || res.status >= 500)) {
-          const jitter = Math.random() * 100;
-          await new Promise((r) => setTimeout(r, delay + jitter));
-          delay *= 2;
-          continue;
-        }
-      }
-      return parseWithDiagnostics(method)(text);
-    } catch (err) {
-      if (attempt < retries) {
-        const msg = String(err instanceof Error ? err.message : err);
-        if (
-          msg.includes("503") ||
-          msg.includes("429") ||
-          msg.includes("502") ||
-          msg.includes("504") ||
-          msg.includes("exceeded the limit") ||
-          msg.includes("request could not be satisfied")
-        ) {
-          const jitter = Math.random() * 100;
-          await new Promise((r) => setTimeout(r, delay + jitter));
-          delay *= 2;
-          continue;
-        }
-      }
-      throw err;
+  timeoutMs: number = defaultTimeoutMs,
+): Promise<CachedFunctionOutput> =>
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ method, params }),
+    signal: AbortSignal.timeout(timeoutMs),
+  }).then((x) => {
+    if (!x.ok) {
+      throw new Error(`rmmbr ${method} HTTP ${x.status} ${x.statusText}`);
     }
-  }
-  throw new Error(`rmmbr API call (${method}) failed after retries`);
-};
+    return x.text();
+  }).then(parseWithDiagnostics(method));
 
 const assertString = (
   s: string | null | undefined,
@@ -292,23 +259,24 @@ const tokenParamMissing =
   "Missing `token` parameter. You can produce a token using `rmmbr token -g` command.";
 
 const setRemote =
-  ({ cacheId, url, token, ttl }: CloudCacheParams) =>
+  (params: CloudCacheParams) =>
   (key: string, value: CachedFunctionOutput): Promise<CachedFunctionOutput> =>
     callAPI(
-      assertString(url, urlParamMissing),
-      assertString(token, tokenParamMissing),
+      assertString(params.url, urlParamMissing),
+      assertString(params.token, tokenParamMissing),
       "set",
-      { key, value, ttl, cacheId },
+      { key, value, ttl: params.ttl, cacheId: params.cacheId },
+      resolveTimeoutMs(params),
     );
 
-const getRemote =
-  ({ url, token, cacheId }: CloudCacheParams) => (key: string) =>
-    callAPI(
-      assertString(url, urlParamMissing),
-      assertString(token, tokenParamMissing),
-      "get",
-      { key, cacheId },
-    );
+const getRemote = (params: CloudCacheParams) => (key: string) =>
+  callAPI(
+    assertString(params.url, urlParamMissing),
+    assertString(params.token, tokenParamMissing),
+    "get",
+    { key, cacheId: params.cacheId },
+    resolveTimeoutMs(params),
+  );
 
 export type CacheParams = LocalCacheParams | CloudCacheParams;
 
@@ -328,6 +296,8 @@ type CloudCacheParams = {
   customKeyFn?: CustomKeyFn;
   forceWrite?: boolean;
   maxInMemKeys?: number;
+  timeout?: number;
+  timeoutMs?: number;
 };
 
 /** Cache function results locally (file system) or remotely (rmmbr server), with optional encryption. */
@@ -386,6 +356,7 @@ const kvCallAPI = (
   token: string,
   method: "kv:get" | "kv:set" | "kv:del" | "kv:mget",
   params: ServerParams,
+  timeoutMs: number = defaultTimeoutMs,
 ): Promise<CachedFunctionOutput> =>
   fetch(url, {
     method: "POST",
@@ -394,42 +365,50 @@ const kvCallAPI = (
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ method, params }),
-  }).then((x) => x.text()).then(parseWithDiagnostics(method));
+    signal: AbortSignal.timeout(timeoutMs),
+  }).then((x) => {
+    if (!x.ok) {
+      throw new Error(`rmmbr ${method} HTTP ${x.status} ${x.statusText}`);
+    }
+    return x.text();
+  }).then(parseWithDiagnostics(method));
 
-const kvGetRaw = ({ cacheId, url, token }: CloudCacheParams) => (key: string) =>
+const kvGetRaw = (params: CloudCacheParams) => (key: string) =>
   kvCallAPI(
-    assertString(url, urlParamMissing),
-    assertString(token, tokenParamMissing),
+    assertString(params.url, urlParamMissing),
+    assertString(params.token, tokenParamMissing),
     "kv:get",
-    { key, cacheId },
+    { key, cacheId: params.cacheId },
+    resolveTimeoutMs(params),
   );
 
 const kvSetRaw =
-  ({ cacheId, url, token, ttl }: CloudCacheParams) =>
-  (key: string, value: CachedFunctionOutput) =>
+  (params: CloudCacheParams) => (key: string, value: CachedFunctionOutput) =>
     kvCallAPI(
-      assertString(url, urlParamMissing),
-      assertString(token, tokenParamMissing),
+      assertString(params.url, urlParamMissing),
+      assertString(params.token, tokenParamMissing),
       "kv:set",
-      { key, value, ttl, cacheId },
+      { key, value, ttl: params.ttl, cacheId: params.cacheId },
+      resolveTimeoutMs(params),
     );
 
-const kvDelRaw = ({ cacheId, url, token }: CloudCacheParams) => (key: string) =>
+const kvDelRaw = (params: CloudCacheParams) => (key: string) =>
   kvCallAPI(
-    assertString(url, urlParamMissing),
-    assertString(token, tokenParamMissing),
+    assertString(params.url, urlParamMissing),
+    assertString(params.token, tokenParamMissing),
     "kv:del",
-    { key, cacheId },
+    { key, cacheId: params.cacheId },
+    resolveTimeoutMs(params),
   );
 
-const kvMgetRaw =
-  ({ cacheId, url, token }: CloudCacheParams) => (keys: string[]) =>
-    kvCallAPI(
-      assertString(url, urlParamMissing),
-      assertString(token, tokenParamMissing),
-      "kv:mget",
-      { keys, cacheId },
-    );
+const kvMgetRaw = (params: CloudCacheParams) => (keys: string[]) =>
+  kvCallAPI(
+    assertString(params.url, urlParamMissing),
+    assertString(params.token, tokenParamMissing),
+    "kv:mget",
+    { keys, cacheId: params.cacheId },
+    resolveTimeoutMs(params),
+  );
 
 const decryptValue = (encryptionKey: string) => (value: unknown) =>
   value && typeof value === "object" && value !== null &&
@@ -448,7 +427,10 @@ export const kvGet =
       value && params.encryptionKey
         ? decryptValue(params.encryptionKey)(value)
         : value
-    );
+    ).catch((e) => {
+      console.error("rmmbr kv:get failed; returning cache miss", e);
+      return null;
+    });
 
 export const kvSet =
   (params: CloudCacheParams) => (key: string, value: unknown): Promise<void> =>
@@ -457,11 +439,16 @@ export const kvSet =
         kvSetRaw(params)(key, encrypted)
       )
       : kvSetRaw(params)(key, value))
-      .then(() => {});
+      .then(() => {})
+      .catch((e) => {
+        console.error("rmmbr kv:set failed", e);
+      });
 
 export const kvDel =
   (params: CloudCacheParams) => (key: string): Promise<void> =>
-    kvDelRaw(params)(key).then(() => {});
+    kvDelRaw(params)(key).then(() => {}).catch((e) => {
+      console.error("rmmbr kv:del failed", e);
+    });
 
 export const kvMget =
   (params: CloudCacheParams) => (keys: string[]): Promise<unknown[]> =>

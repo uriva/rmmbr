@@ -89,9 +89,9 @@ const rootHandler = async (request: Request, uid: string) => {
   }
   if (method === "kv:mget") {
     const { cacheId, keys } = params;
-    const values = await redisClient.mget(...keys.map((k: string) =>
-      `${uid}:${cacheId}:${k}`
-    ));
+    const values = await redisClient.mget(
+      ...keys.map((k: string) => `${uid}:${cacheId}:${k}`),
+    );
     return new Response(JSON.stringify(values));
   }
   return new Response("Unknown method", { status: 400 });
