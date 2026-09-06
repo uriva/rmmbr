@@ -16,6 +16,7 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: python/dist/
   jsr:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
