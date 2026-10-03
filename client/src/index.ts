@@ -170,34 +170,66 @@ type MemParams = {
   ttl?: number;
   customKeyFn?: CustomKeyFn;
   forceWrite?: boolean;
+  maxInMemKeys?: number;
 };
 
-/** In-memory cache with optional TTL (in seconds). */
+type MemEntry<Output> = { value: Output; storedAt: number };
+
+const defaultMemMaxKeys = 100;
+
+/**
+ * In-memory cache with optional TTL (in seconds).
+ *
+ * The backing store is a bounded LRU and expired entries are swept on write as
+ * well as on read, so a key that is written once and never read again cannot
+ * accumulate for the lifetime of the process.
+ */
 export const memCache =
-  ({ ttl, customKeyFn, forceWrite }: MemParams): CacheWrapper =>
+  ({ ttl, customKeyFn, forceWrite, maxInMemKeys }: MemParams): CacheWrapper =>
   <F extends Func>(f: F): F => {
-    const keyToValue: Record<string, Awaited<ReturnType<F>>> = {};
-    const keyToTimestamp: Record<string, number> = {};
+    const entries = new Map<string, MemEntry<Awaited<ReturnType<F>>>>();
+    const maxKeys = maxInMemKeys ?? defaultMemMaxKeys;
+    const isExpired = ({ storedAt }: MemEntry<Awaited<ReturnType<F>>>) =>
+      ttl !== undefined && Date.now() - storedAt > ttl * 1000;
+
+    const forget = (
+      shouldDrop: (entry: MemEntry<Awaited<ReturnType<F>>>) => boolean,
+    ) =>
+      Array.from(entries.entries()).forEach(([key, entry]) => {
+        if (shouldDrop(entry)) entries.delete(key);
+      });
+
+    const read = (key: string) => {
+      const entry = entries.get(key);
+      if (entry === undefined || isExpired(entry)) {
+        entries.delete(key);
+        return Promise.reject(new Error("key not in cache"));
+      }
+      entries.delete(key);
+      entries.set(key, entry);
+      return Promise.resolve(entry.value);
+    };
+
+    const write = (key: string, value: Awaited<ReturnType<F>>) => {
+      entries.delete(key);
+      entries.set(key, { value, storedAt: Date.now() });
+      forget(isExpired);
+      Array.from(entries.keys())
+        .slice(0, Math.max(0, entries.size - maxKeys))
+        .forEach((oldest) => entries.delete(oldest));
+      return Promise.resolve();
+    };
+
     return abstractCache({
       key: inputToCacheKey<Parameters<F>>("", customKeyFn),
       f,
+      // `entries` above is already a bounded LRU that enforces the ttl, so the
+      // generic hot layer must stay off: it is ttl-blind and would serve stale
+      // values for up to maxInMemKeys keys past their expiry.
+      maxInMemKeys: 0,
       // @ts-expect-error Promise<Awaited<Awaited<X>>> is just Promise<X>
-      read: (key: string) => {
-        if (!(key in keyToValue)) {
-          return Promise.reject(new Error());
-        }
-        if (ttl && Date.now() - keyToTimestamp[key] > ttl * 1000) {
-          delete keyToTimestamp[key];
-          delete keyToValue[key];
-          return Promise.reject(new Error());
-        }
-        return Promise.resolve(keyToValue[key]);
-      },
-      write: (key: string, value: Awaited<ReturnType<F>>) => {
-        keyToValue[key] = value;
-        keyToTimestamp[key] = Date.now();
-        return Promise.resolve();
-      },
+      read,
+      write,
       forceWrite,
     });
   };

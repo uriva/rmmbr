@@ -1,4 +1,4 @@
-import { cache } from "./index.ts";
+import { cache, memCache } from "./index.ts";
 import { assertEquals } from "@std/testing/asserts";
 
 Deno.test("in-flight request coalescing and maxInMemKeys", async () => {
@@ -61,4 +61,103 @@ Deno.test("maxInMemKeys: 0 disables in-memory caching while keeping in-flight co
   const r3 = await cachedFn(1);
   assertEquals(r3, 11);
   assertEquals(calls, 1);
+});
+
+Deno.test("memCache evicts least recently used entries beyond maxInMemKeys", async () => {
+  let calls = 0;
+  const fn = memCache({ maxInMemKeys: 3 })((x: number) => {
+    calls++;
+    return Promise.resolve(x * 2);
+  });
+
+  assertEquals(await fn(1), 2);
+  assertEquals(await fn(2), 4);
+  assertEquals(await fn(3), 6);
+  assertEquals(await fn(4), 8);
+  assertEquals(calls, 4);
+
+  // 1 was evicted from the backing store, so it has to be recomputed.
+  assertEquals(await fn(1), 2);
+  assertEquals(calls, 5);
+});
+
+Deno.test("memCache refreshes recency on read, not just on write", async () => {
+  let calls = 0;
+  const fn = memCache({ maxInMemKeys: 2 })((x: number) => {
+    calls++;
+    return Promise.resolve(x * 2);
+  });
+
+  await fn(1);
+  await fn(2);
+  assertEquals(await fn(1), 2);
+  assertEquals(calls, 2);
+
+  // True LRU evicts 2 (least recently used); insertion-order eviction would
+  // evict 1 and force a recompute below.
+  assertEquals(await fn(3), 6);
+  assertEquals(calls, 3);
+  assertEquals(await fn(1), 2);
+  assertEquals(calls, 3);
+});
+
+Deno.test("memCache bounds the backing store by default", async () => {
+  let calls = 0;
+  const fn = memCache({})((x: number) => {
+    calls++;
+    return Promise.resolve(x);
+  });
+
+  await Promise.all(Array.from({ length: 120 }, (_, i) => fn(i)));
+  assertEquals(calls, 120);
+
+  await fn(0);
+  assertEquals(calls, 121);
+});
+
+Deno.test("memCache drops write-once entries once ttl passes", async () => {
+  let calls = 0;
+  const fn = memCache({ ttl: 0.05, maxInMemKeys: 100 })((x: number) => {
+    calls++;
+    return Promise.resolve(x * 2);
+  });
+
+  assertEquals(await fn(1), 2);
+  assertEquals(calls, 1);
+
+  // Let the ttl lapse. Key 1 is never read again, so only the expiry sweep
+  // triggered by an unrelated write can reclaim it.
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  assertEquals(await fn(2), 4);
+  assertEquals(calls, 2);
+
+  assertEquals(await fn(1), 2);
+  assertEquals(calls, 3);
+});
+
+Deno.test("memCache keeps entries that are still within ttl", async () => {
+  let calls = 0;
+  const fn = memCache({ ttl: 60, maxInMemKeys: 100 })((x: number) => {
+    calls++;
+    return Promise.resolve(x * 2);
+  });
+
+  assertEquals(await fn(1), 2);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assertEquals(await fn(1), 2);
+  assertEquals(calls, 1);
+});
+
+Deno.test("memCache does not cache rejections", async () => {
+  let calls = 0;
+  const fn = memCache({ maxInMemKeys: 10 })((x: number) => {
+    calls++;
+    return calls === 1
+      ? Promise.reject(new Error("boom"))
+      : Promise.resolve(x * 2);
+  });
+
+  await fn(1).catch(() => null);
+  assertEquals(await fn(1), 2);
+  assertEquals(calls, 2);
 });
