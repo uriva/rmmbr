@@ -234,17 +234,18 @@ export const memCache =
     });
   };
 
-const localCache =
-  ({ cacheId, customKeyFn, forceWrite, maxInMemKeys }: LocalCacheParams): CacheWrapper =>
-  <F extends Func>(f: F): F =>
-    // @ts-expect-error Promise+Awaited = nothing
-    abstractCache({
-      forceWrite,
-      maxInMemKeys,
-      key: inputToCacheKey<Parameters<F>>("", customKeyFn),
-      f,
-      ...makeLocalReadWrite<Awaited<ReturnType<F>>>(cacheId),
-    });
+const localCache = (
+  { cacheId, customKeyFn, forceWrite, maxInMemKeys }: LocalCacheParams,
+): CacheWrapper =>
+<F extends Func>(f: F): F =>
+  // @ts-expect-error Promise+Awaited = nothing
+  abstractCache({
+    forceWrite,
+    maxInMemKeys,
+    key: inputToCacheKey<Parameters<F>>("", customKeyFn),
+    f,
+    ...makeLocalReadWrite<Awaited<ReturnType<F>>>(cacheId),
+  });
 
 // deno-lint-ignore no-explicit-any
 type ServerParams = any;
@@ -253,7 +254,7 @@ const defaultTimeoutMs = 1000;
 
 const resolveTimeoutMs = (params: CloudCacheParams): number =>
   params.timeoutMs ??
-  (params.timeout !== undefined ? params.timeout * 1000 : defaultTimeoutMs);
+    (params.timeout !== undefined ? params.timeout * 1000 : defaultTimeoutMs);
 
 const callAPI = (
   url: string,

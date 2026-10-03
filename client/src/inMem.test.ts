@@ -9,7 +9,10 @@ Deno.test("in-flight request coalescing and maxInMemKeys", async () => {
     return x * 2;
   };
 
-  const cachedFn = cache({ cacheId: `test-coalesce-${Date.now()}`, maxInMemKeys: 2 })(slowFn);
+  const cachedFn = cache({
+    cacheId: `test-coalesce-${Date.now()}`,
+    maxInMemKeys: 2,
+  })(slowFn);
 
   // 1. In-flight coalescing: 3 concurrent calls for input 5 should only execute inner function once
   const [res1, res2, res3] = await Promise.all([
@@ -48,7 +51,10 @@ Deno.test("maxInMemKeys: 0 disables in-memory caching while keeping in-flight co
     return x + 10;
   };
 
-  const cachedFn = cache({ cacheId: `test-no-inmem-${Date.now()}`, maxInMemKeys: 0 })(slowFn);
+  const cachedFn = cache({
+    cacheId: `test-no-inmem-${Date.now()}`,
+    maxInMemKeys: 0,
+  })(slowFn);
 
   // Concurrent calls still coalesce into 1 execution
   const [r1, r2] = await Promise.all([cachedFn(1), cachedFn(1)]);
