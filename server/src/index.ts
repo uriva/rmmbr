@@ -137,29 +137,33 @@ const apiTokenPostHandler = (request: Request, uid: string) =>
 const getApiTokens = (uid: string) =>
   redisClient.lrange(redisKey.userToApiTokenSet(uid), 0, -1);
 
-Deno.serve(
-  { port: parseInt(Deno.env.get("PORT") || "8000") },
-  app({
-    "/": {
-      POST: authenticated(
-        memCache({ ttl: 60 * 5 })(verifyApiToken),
-        rootHandler,
-      ),
-      GET: () =>
-        new Response(null, {
-          status: 302,
-          headers: { Location: "https://hi.rmmbr.net/" },
-        }),
-    },
-    "/api-token/": {
-      GET: authenticated(
-        verifyAuth0,
-        (_, uid) =>
-          getApiTokens(uid).then((tokens) =>
-            new Response(JSON.stringify(tokens))
-          ),
-      ),
-      POST: authenticated(verifyAuth0, apiTokenPostHandler),
-    },
-  }),
-);
+export const handleRequest = app({
+  "/": {
+    POST: authenticated(
+      memCache({ ttl: 60 * 5 })(verifyApiToken),
+      rootHandler,
+    ),
+    GET: () =>
+      new Response(null, {
+        status: 302,
+        headers: { Location: "https://hi.rmmbr.net/" },
+      }),
+  },
+  "/api-token/": {
+    GET: authenticated(
+      verifyAuth0,
+      (_, uid) =>
+        getApiTokens(uid).then((tokens) =>
+          new Response(JSON.stringify(tokens))
+        ),
+    ),
+    POST: authenticated(verifyAuth0, apiTokenPostHandler),
+  },
+});
+
+if (import.meta.main) {
+  Deno.serve(
+    { port: parseInt(Deno.env.get("PORT") || "8000") },
+    handleRequest,
+  );
+}

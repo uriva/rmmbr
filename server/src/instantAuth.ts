@@ -7,15 +7,16 @@ const redisKey = {
   instantTokenAuth: joinColon("instant-token-auth"),
 };
 
-const instantAppId = Deno.env.get("INSTANT_APP_ID");
-const instantAdminToken = Deno.env.get("INSTANT_ADMIN_TOKEN");
-const tokenCacheTtlSeconds = parseInt(
-  Deno.env.get("INSTANT_TOKEN_CACHE_TTL_SECONDS") || "300",
-);
+const getInstantAdminDb = () => {
+  const instantAppId = Deno.env.get("INSTANT_APP_ID");
+  const instantAdminToken = Deno.env.get("INSTANT_ADMIN_TOKEN");
+  return (instantAppId && instantAdminToken)
+    ? init({ appId: instantAppId, adminToken: instantAdminToken })
+    : null;
+};
 
-const instantAdminDb = (instantAppId && instantAdminToken)
-  ? init({ appId: instantAppId, adminToken: instantAdminToken })
-  : null;
+const getTokenCacheTtlSeconds = () =>
+  parseInt(Deno.env.get("INSTANT_TOKEN_CACHE_TTL_SECONDS") || "300");
 
 const bytesToHex = (bytes: Uint8Array) =>
   Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -44,6 +45,7 @@ const isActiveToken = (token: ServiceTokenRecord) => {
 export const verifyInstantToken = async (
   token: string,
 ): Promise<string | null> => {
+  const instantAdminDb = getInstantAdminDb();
   if (!instantAdminDb) return null;
 
   const tokenHash = await hashToken(token);
@@ -76,7 +78,7 @@ export const verifyInstantToken = async (
   await redisClient.set(
     redisKey.instantTokenAuth(tokenHash),
     uid,
-    { ex: tokenCacheTtlSeconds },
+    { ex: getTokenCacheTtlSeconds() },
   );
   return uid;
 };

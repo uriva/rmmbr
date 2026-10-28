@@ -1,4 +1,6 @@
 dist/
+.wrangler/
+.env
 **__pycache__
 .rmmbr
 node_modules/
