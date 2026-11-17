@@ -256,6 +256,18 @@ const resolveTimeoutMs = (params: CloudCacheParams): number =>
   params.timeoutMs ??
     (params.timeout !== undefined ? params.timeout * 1000 : defaultTimeoutMs);
 
+const readOkResponseText = (method: string) => async (x: Response) => {
+  const text = await x.text();
+  if (!x.ok) {
+    throw new Error(
+      `rmmbr ${method} HTTP ${x.status} ${x.statusText}${
+        text ? `: ${text.slice(0, 200)}` : ""
+      }`,
+    );
+  }
+  return text;
+};
+
 const callAPI = (
   url: string,
   token: string,
@@ -271,12 +283,7 @@ const callAPI = (
     },
     body: JSON.stringify({ method, params }),
     signal: AbortSignal.timeout(timeoutMs),
-  }).then((x) => {
-    if (!x.ok) {
-      throw new Error(`rmmbr ${method} HTTP ${x.status} ${x.statusText}`);
-    }
-    return x.text();
-  }).then(parseWithDiagnostics(method));
+  }).then(readOkResponseText(method)).then(parseWithDiagnostics(method));
 
 const assertString = (
   s: string | null | undefined,
@@ -399,12 +406,7 @@ const kvCallAPI = (
     },
     body: JSON.stringify({ method, params }),
     signal: AbortSignal.timeout(timeoutMs),
-  }).then((x) => {
-    if (!x.ok) {
-      throw new Error(`rmmbr ${method} HTTP ${x.status} ${x.statusText}`);
-    }
-    return x.text();
-  }).then(parseWithDiagnostics(method));
+  }).then(readOkResponseText(method)).then(parseWithDiagnostics(method));
 
 const kvGetRaw = (params: CloudCacheParams) => (key: string) =>
   kvCallAPI(

@@ -1,4 +1,12 @@
-import { cache, memCache } from "./index.ts";
+import {
+  cache,
+  kvDel,
+  kvGet,
+  kvMget,
+  kvSet,
+  memCache,
+  waitAllWrites,
+} from "./index.ts";
 import { assertEquals } from "@std/testing/asserts";
 
 Deno.test("in-flight request coalescing and maxInMemKeys", async () => {
@@ -166,4 +174,38 @@ Deno.test("memCache does not cache rejections", async () => {
   await fn(1).catch(() => null);
   assertEquals(await fn(1), 2);
   assertEquals(calls, 2);
+});
+
+Deno.test("remote cache and kv consume HTTP error response bodies without leaving open fetchResponse resources", async () => {
+  // deno-lint-ignore no-explicit-any
+  const core = (Deno as any)[(Deno as any).internal].core;
+  const countFetchResponses = () =>
+    Object.values(core.resources()).filter((v) => v === "fetchResponse").length;
+
+  const server = Deno.serve(
+    { port: 0, onListen: () => {} },
+    () => new Response("Internal Server Error", { status: 500 }),
+  );
+  const url = `http://127.0.0.1:${server.addr.port}`;
+  try {
+    const before = countFetchResponses();
+    const fn = cache({
+      cacheId: "http-500-resource-test",
+      url,
+      token: "some-token",
+    })((x: number) => Promise.resolve(x + 1));
+
+    assertEquals(await fn(41), 42);
+    await waitAllWrites();
+    assertEquals(countFetchResponses(), before);
+
+    const kvOpts = { cacheId: "http-500-kv-test", url, token: "some-token" };
+    await kvSet(kvOpts)("k", "v");
+    assertEquals(await kvGet(kvOpts)("k"), null);
+    await kvDel(kvOpts)("k");
+    assertEquals(await kvMget(kvOpts)(["a", "b"]), [null, null]);
+    assertEquals(countFetchResponses(), before);
+  } finally {
+    await server.shutdown();
+  }
 });
