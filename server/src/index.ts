@@ -38,7 +38,7 @@ type ApiTokenAction = { action: "create" } | {
 
 const rootHandler = async (request: Request, uid: string) => {
   const { method, params } = await request.json();
-  console.log("incoming request", method, params);
+  console.log("incoming request", method);
   if (method === "get") {
     const { cacheId, key } = params;
     return new Response(

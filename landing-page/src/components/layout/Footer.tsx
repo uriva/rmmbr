@@ -1,5 +1,4 @@
 import React from "react";
-import { cn } from "@/lib/utils";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -41,6 +40,8 @@ const Footer: React.FC = () => {
                   <li key={link.label}>
                     <a
                       href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-rmmbr-400 text-sm transition-colors"
                     >
                       {link.label}
