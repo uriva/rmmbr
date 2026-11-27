@@ -22,6 +22,7 @@ jobs:
     env:
       INSTANT_APP_ID: ${{ secrets.INSTANT_APP_ID }}
       INSTANT_CLI_TOKEN: ${{ secrets.INSTANT_CLI_TOKEN }}
+      INSTANT_CLI_API_URI: https://api.instantdb.uriv.me
       INPUT_INSTANT_DIR: ${{ github.event.inputs.instant_dir }}
     steps:
       - name: Checkout

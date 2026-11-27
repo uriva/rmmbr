@@ -11,7 +11,11 @@ const getInstantAdminDb = () => {
   const instantAppId = Deno.env.get("INSTANT_APP_ID");
   const instantAdminToken = Deno.env.get("INSTANT_ADMIN_TOKEN");
   return (instantAppId && instantAdminToken)
-    ? init({ appId: instantAppId, adminToken: instantAdminToken })
+    ? init({
+      appId: instantAppId,
+      adminToken: instantAdminToken,
+      apiURI: "https://api.instantdb.uriv.me",
+    })
     : null;
 };
 
